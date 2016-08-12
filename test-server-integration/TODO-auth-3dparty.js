@@ -102,44 +102,11 @@ describe('contact', () => {
 
 			// 	const recaptchaCorrectRespMock = {
 			// 		id: '6057207',
-			// 		displayName: 'Stefano Cappa',
-			// 		username: 'Ks89',
+			// 		displayName: 'Fake name
+			// 		username: 'Fakeusername',
 			// 		profileUrl: 'https://github.com/Ks89',
 			// 		emails: [ { value: 'stefano.cappa@fake.email.it' } ],
-			// 		provider: 'github',
-			// 		_raw: '{"login":"Ks89","id":6057207,"avatar_url":"https://avatars.githubusercontent.com/u/6057207?v=3","gravatar_id":"","url":"https://api.github.com/users/Ks89","html_url":"https://github.com/Ks89","followers_url":"https://api.github.com/users/Ks89/followers","following_url":"https://api.github.com/users/Ks89/following{/other_user}","gists_url":"https://api.github.com/users/Ks89/gists{/gist_id}","starred_url":"https://api.github.com/users/Ks89/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Ks89/subscriptions","organizations_url":"https://api.github.com/users/Ks89/orgs","repos_url":"https://api.github.com/users/Ks89/repos","events_url":"https://api.github.com/users/Ks89/events{/privacy}","received_events_url":"https://api.github.com/users/Ks89/received_events","type":"User","site_admin":false,"name":"Stefano Cappa","company":null,"blog":null,"location":"Milano","email":"stefano.cappa@fake.email.it","hireable":true,"bio":null,"public_repos":41,"public_gists":0,"followers":11,"following":20,"created_at":"2013-11-28T08:38:12Z","updated_at":"2016-07-02T16:25:53Z"}',
-			// 		_json:
-			// 		{
-			// 			login: 'Ks89',
-			// 			id: 6057207,
-			// 			avatar_url: 'https://avatars.githubusercontent.com/u/6057207?v=3',
-			// 			gravatar_id: '',
-			// 			url: 'https://api.github.com/users/Ks89',
-			// 			html_url: 'https://github.com/Ks89',
-			// 			followers_url: 'https://api.github.com/users/Ks89/followers',
-			// 			following_url: 'https://api.github.com/users/Ks89/following{/other_user}',
-			// 			gists_url: 'https://api.github.com/users/Ks89/gists{/gist_id}',
-			// 			starred_url: 'https://api.github.com/users/Ks89/starred{/owner}{/repo}',
-			// 			subscriptions_url: 'https://api.github.com/users/Ks89/subscriptions',
-			// 			repos_url: 'https://api.github.com/users/Ks89/repos',
-			// 			events_url: 'https://api.github.com/users/Ks89/events{/privacy}',
-			// 			received_events_url: 'https://api.github.com/users/Ks89/received_events',
-			// 			type: 'User',
-			// 			site_admin: false,
-			// 			name: 'Stefano Cappa',
-			// 			company: null,
-			// 			blog: null,
-			// 			location: 'Milano',
-			// 			email: 'stefano.cappa@fake.email.it',
-			// 			hireable: true,
-			// 			bio: null,
-			// 			public_repos: 41,
-			// 			public_gists: 0,
-			// 			followers: 11,
-			// 			following: 20,
-			// 			created_at: '2013-11-28T08:38:12Z',
-			// 			updated_at: '2016-07-02T16:25:53Z'
-			// 		}
+			// 		provider: 'github'
 			// 	};
 
    //  			console.log(connectionSid);
@@ -262,40 +229,7 @@ describe('contact', () => {
 			// 		username: 'Ks89',
 			// 		profileUrl: 'https://github.com/Ks89',
 			// 		emails: [ { value: 'stefano.cappa@fake.email.it' } ],
-			// 		provider: 'github',
-			// 		_raw: '{"login":"Ks89","id":6057207,"avatar_url":"https://avatars.githubusercontent.com/u/6057207?v=3","gravatar_id":"","url":"https://api.github.com/users/Ks89","html_url":"https://github.com/Ks89","followers_url":"https://api.github.com/users/Ks89/followers","following_url":"https://api.github.com/users/Ks89/following{/other_user}","gists_url":"https://api.github.com/users/Ks89/gists{/gist_id}","starred_url":"https://api.github.com/users/Ks89/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Ks89/subscriptions","organizations_url":"https://api.github.com/users/Ks89/orgs","repos_url":"https://api.github.com/users/Ks89/repos","events_url":"https://api.github.com/users/Ks89/events{/privacy}","received_events_url":"https://api.github.com/users/Ks89/received_events","type":"User","site_admin":false,"name":"Stefano Cappa","company":null,"blog":null,"location":"Milano","email":"stefano.cappa@fake.email.it","hireable":true,"bio":null,"public_repos":41,"public_gists":0,"followers":11,"following":20,"created_at":"2013-11-28T08:38:12Z","updated_at":"2016-07-02T16:25:53Z"}',
-			// 		_json:
-			// 		{
-			// 			login: 'Ks89',
-			// 			id: 6057207,
-			// 			avatar_url: 'https://avatars.githubusercontent.com/u/6057207?v=3',
-			// 			gravatar_id: '',
-			// 			url: 'https://api.github.com/users/Ks89',
-			// 			html_url: 'https://github.com/Ks89',
-			// 			followers_url: 'https://api.github.com/users/Ks89/followers',
-			// 			following_url: 'https://api.github.com/users/Ks89/following{/other_user}',
-			// 			gists_url: 'https://api.github.com/users/Ks89/gists{/gist_id}',
-			// 			starred_url: 'https://api.github.com/users/Ks89/starred{/owner}{/repo}',
-			// 			subscriptions_url: 'https://api.github.com/users/Ks89/subscriptions',
-			// 			repos_url: 'https://api.github.com/users/Ks89/repos',
-			// 			events_url: 'https://api.github.com/users/Ks89/events{/privacy}',
-			// 			received_events_url: 'https://api.github.com/users/Ks89/received_events',
-			// 			type: 'User',
-			// 			site_admin: false,
-			// 			name: 'Stefano Cappa',
-			// 			company: null,
-			// 			blog: null,
-			// 			location: 'Milano',
-			// 			email: 'stefano.cappa@fake.email.it',
-			// 			hireable: true,
-			// 			bio: null,
-			// 			public_repos: 41,
-			// 			public_gists: 0,
-			// 			followers: 11,
-			// 			following: 20,
-			// 			created_at: '2013-11-28T08:38:12Z',
-			// 			updated_at: '2016-07-02T16:25:53Z'
-			// 		}
+			// 		provider: 'github'
 			// 	};
 
    //  			console.log(connectionSid);
