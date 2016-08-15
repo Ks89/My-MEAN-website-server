@@ -1,12 +1,12 @@
-# My M.E.A.N. website
+# My M.E.A.N. website (Alpha)
 <br>
 
 ## Informations
-My MEAN website is a web application that I'm creating as a personal website, but also for other uses.
+My MEAN website is a MEAN's web application that I'm creating as a personal website, but also for other uses.
 It's composed by:
-- a front-end in AngularJS 1 (that will be replaced by a new one in Angular2 - check the branch **angular2-front-end**)
-- a back-end in Node.js + Express js (and other useful libs like Passport and so on)
-- a db in MongoDb
+- A: a front-end in AngularJS 1 (that will be replaced by a new one in Angular2 - check the branch **angular2-front-end**)
+- N + E: a back-end in Node.js + Express js (and other useful libs like PassportJs)
+- M: a MongoDb's database
 - gulp + nodemon
 
 A possible extension of this project is a configurable template to build a custom web app very quickly.
@@ -15,8 +15,8 @@ Attention! This project is still an alpha, so it's not production ready. Please 
 If you are interested, please star this project on GitHub.
 
 Testing:
-- front-end unit: useless, because I want to rewrite the entire front-end using Angular 2
-- front-end e2e: useless, because I want to rewrite the entire front-end using Angular 2
+- front-end unit: useless, because I'm rewriting the entire front-end using Angular 2
+- front-end e2e: useless, because I'm rewriting the entire front-end using Angular 2
 - back-end unit: almost done (only the necessary things)*
 - back-end integration: almost done*
 
@@ -31,27 +31,89 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - MongoDB
 - redis
 - npm
-- work in progress...
+- Google Chrome
+- work in progress... (this is only an alpha, please be patient)
 
 
 ## News
-- *08/0???/2016* - **My MEAN website** Alpha 1 public release
+- *08/15/2016* - **My MEAN website** Alpha 1 public release
 
+## How to setup
+
+1. create a file called ".env" into the root folder and add all these properties
+
+    JWT_SECRET=INSERT A JEW SECRET HERE
+
+    TWITTER_CONSUMER_KEY=YOU KEY/ID
+    TWITTER_CONSUMER_SECRET=YOU KEY/ID
+
+    FACEBOOK_APP_ID=YOU KEY/ID
+    FACEBOOK_APP_SECRET=YOU KEY/ID
+
+    GOOGLE_CLIENT_ID=YOU KEY/ID
+    GOOGLE_CLIENT_SECRET=YOU KEY/ID
+
+    GITHUB_CLIENT_ID=YOU KEY/ID
+    GITHUB_CLIENT_SECRET=YOU KEY/ID
+
+    LINKEDIN_CLIENT_ID=YOU KEY/ID
+    LINKEDIN_CLIENT_SECRET=YOU KEY/ID
+
+    USER_EMAIL=YOUR_EMAIL
+    PASS_EMAIL=YOUR_PASSWORD
+
+    RECAPTCHA_PUBLIC=YOU KEY/ID
+    RECAPTCHA_SECRET=YOU KEY/ID
+
+    - replace 'YOU KEY/ID' with the keys obtained from facebook/github... oauth applications.
+    - replace YOUR_EMAIL and YOUR_PASSWORD with the data of your e-mail account
+    - reaplce INSERT A JEW SECRET HERE with an alphanumerical string (I'm using a random string with a length = 72)
+
+2. install all necessary tools (Node.js, redis-server, mongo db, Google Chrome)
+3. execute this command 'npm install' into the root folder
+4. execute this command 'npm install' into the app_client folder
+4. execute this command 'redis-server
+5. execute this command 'mongod' (on Mac OSX use 'sudo mongod')
+6. execute this command 'nodemon' to start this application on http://localhost:3000 (as you can see this branch doesn't use gulp, at the moment. I want to replace gulp with another tool).
+
+Attention: there are some problems with browserSync on Mac, so reload the page on Google Chrome to be able to show this application.
 
 ## Features
-Work in progress...
+Work in progress... (this is only an alpha, please be patient)
 
 
 ## Future extensions
-Work in progress...
+Work in progress... (this is only an alpha, please be patient)
 
 
 ## Images
 Work in progress...
 
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/home.png)
+<br/><br/>
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projects.png)
+<br/><br/>
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/project-detail.png)
+<br/><br/>
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projectDetail-imagegallery.png)
+<br/><br/>
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/contact.png)
+<br/><br/>
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/contact-recaptcha.png)
+<br/><br/>
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/signin.png)
+<br/><br/>
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/register.png)
+<br/><br/>
+Note: updated local profile info
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-updated.png)
+<br/><br/>
+Note: multiple account connected (Facebook and Github)
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-fb-github.png)
+
 
 ## Configuration
-Work in progress...
+Work in progress... (this is only an alpha, please be patient)
 
 
 ## License
