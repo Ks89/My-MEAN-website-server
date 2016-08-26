@@ -9,9 +9,7 @@ import {
 
 @Component({
   selector: 'forgot-page',
-  providers: [],
-  styleUrls: [],
-  templateUrl: 'app/pages/forgot/forgot.html'
+  template: require('./forgot.html')
 })
 export default class ForgotComponent {
   pageHeader: any;

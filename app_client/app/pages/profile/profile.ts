@@ -13,9 +13,7 @@ import {
 
 @Component({
   selector: 'profile-page',
-  providers: [],
-  styleUrls: [],
-  templateUrl: 'app/pages/profile/profile.html'
+  template: require('./profile.html')
 })
 export default class ProfileComponent {
   pageHeader: any;

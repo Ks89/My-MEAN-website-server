@@ -9,9 +9,7 @@ import {
 
 @Component({
   selector: 'register-page',
-  providers: [],
-  styleUrls: [],
-  templateUrl: 'app/pages/register/register.html'
+  template: require('./register.html')
 })
 export default class RegisterComponent {
   pageHeader: any;

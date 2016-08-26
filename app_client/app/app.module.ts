@@ -26,8 +26,8 @@ import NavbarComponent from './common/components/navbar/navbar';
 import PageHeaderComponent from './common/components/pageHeader/pageHeader';
 import {ProjectSearchPipe} from './common/pipes/projectSearch/projectSearch';
 
-import {ReCaptchaComponent} from 'angular2-recaptcha/angular2-recaptcha';
-import {ImageModal} from 'angular2-image-popup/directives/angular2-image-popup/image-modal-popup';
+// import {ReCaptchaComponent} from 'angular2-recaptcha/angular2-recaptcha';
+// import {ImageModal} from 'angular2-image-popup/directives/angular2-image-popup/image-modal-popup';
 import {ComponentOutlet} from 'angular2-component-outlet-modified';
 
 import {ProjectService} from './common/services/projects';
@@ -81,8 +81,8 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
     NavbarComponent,
     PageHeaderComponent,
     ProjectSearchPipe,
-    ReCaptchaComponent,
-    ImageModal,
+    // ReCaptchaComponent,
+    // ImageModal,
     ComponentOutlet
   ],
   providers: [

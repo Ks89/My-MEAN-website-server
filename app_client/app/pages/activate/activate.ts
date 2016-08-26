@@ -4,9 +4,7 @@ import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'activate-page',
-  providers: [],
-  styleUrls: [],
-  templateUrl: 'app/pages/activate/activate.html'
+  template: require('./activate.html')
 })
 export default class ActivateComponent {
   emailToken: string;
