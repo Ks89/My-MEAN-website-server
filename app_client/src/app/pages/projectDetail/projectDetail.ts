@@ -2,15 +2,17 @@ import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from "rxjs/Observable";
-
+import {ViewChild, ElementRef, AfterViewInit} from '@angular/core';
 import {Project, ProjectService} from '../../common/services/projects';
+
+declare var $:JQueryStatic;
 
 @Component({
   selector: 'projectDetail-page',
   styles: [require('./bs_doc.css')],
   template: require('./projectDetail.html')
 })
-export default class ProjectDetailComponent {
+export default class ProjectDetailComponent implements AfterViewInit {
   project: Project;
   projectId: string;
   pageHeader: any;
@@ -25,10 +27,10 @@ export default class ProjectDetailComponent {
   futureExtensionsUrl : any;
   licenseUrl : any;
 
-  constructor(
-    route: ActivatedRoute,
-    private projectService: ProjectService,
-  ) {
+  @ViewChild('selectElem') el:ElementRef;
+
+
+  constructor(route: ActivatedRoute,private projectService: ProjectService) {
 
     this.projectId = route.snapshot.params['projectId'];
 
@@ -50,6 +52,12 @@ export default class ProjectDetailComponent {
         this.licenseUrl = this.project.licenseText;
       }, error => console.error(error)
     );
+  }
+
+  ngAfterViewInit() {
+    $(this.el.nativeElement).click(function(){
+      console.log("Jquery example");
+    });
   }
 
   ngOnDestroy(): any {
