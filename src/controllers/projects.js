@@ -14,7 +14,7 @@ var Utils = require('../utils/util.js');
 * @apiDescription Get all projects.
 *
 * @apiSuccess {Object[]} pl Array of projects.
-* @apiSuccess {Object} pl.p An Object that correspond to a project.
+* @apiSuccess {Object} pl.p An Object that represents a project.
 * @apiSuccess {String} pl.p._id Project's id.
 * @apiSuccess {String} pl.p.name Project name.
 * @apiSuccess {String} pl.p.url Github url to the project.
@@ -82,7 +82,7 @@ module.exports.projectsList = function(req, res) {
 * @apiDescription Get all home projects.
 *
 * @apiSuccess {Object[]} pl Array of projects.
-* @apiSuccess {Object} pl.p An Object that correspond to a project.
+* @apiSuccess {Object} pl.p An Object that represents a project.
 * @apiSuccess {String} pl.p._id Project's id.
 * @apiSuccess {String} pl.p.name Project name.
 * @apiSuccess {String} pl.p.url Github url to the project.
@@ -152,7 +152,7 @@ module.exports.projectsListHomepage = function(req, res) {
 *
 * @apiDescription Get a project by its <code>projectid</code>.
 *
-* @apiSuccess {Object} p An Object that correspond to a project.
+* @apiSuccess {Object} p An Object that represents a project.
 * @apiSuccess {String} p._id Project's id.
 * @apiSuccess {String} p.name Project name.
 * @apiSuccess {String} p.url Github url to the project.
