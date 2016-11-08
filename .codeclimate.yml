@@ -12,6 +12,8 @@ engines:
     enabled: true
   duplication:
     enabled: true
+    exclude_fingerprints:
+      - 05d115249180a440b6bba6248de73cbd
     config:
       languages:
       - javascript
@@ -20,7 +22,7 @@ engines:
   scss-lint:
     enabled: true
   shellcheck:
-    enabled: true
+    enabled: false
 ratings:
   paths:
   - src/**
