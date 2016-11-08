@@ -4,27 +4,91 @@ var logger = require('../utils/logger.js');
 
 var Utils = require('../utils/util.js');
 
-/* GET a user by id */
-/* /api/users/:id */
+/**
+* @api {get} /api/users/:id get a user with the requested id.
+* @apiVersion 0.0.1
+* @apiName GetUserById
+* @apiGroup Users
+* @apiPermission authentication
+*
+* @apiDescription Get a user by its <code>id</code>.
+*
+* @apiSuccess {String} _id User <code>id</code>.
+* @apiSuccess {Integer} __v Database __v field. TODO: hide this!
+* @apiSuccess {Object} [profile] User profile's Object.
+* @apiSuccess {String} profile._id Profile id.
+* @apiSuccess {String} profile.name Profile name.
+* @apiSuccess {String} profile.surname Profile surname.
+* @apiSuccess {String} profile.nickname Profile nickname.
+* @apiSuccess {String} profile.email Profile email.
+* @apiSuccess {Date} profile.updated Date of the latest update.
+* @apiSuccess {String} profile.visible Boolean to show/hide profile informations.
+* @apiSuccess {Object} [google] User Google account Object.
+* @apiSuccess {String} google.id Google id obtained during oauth2 authentication.
+* @apiSuccess {String} google.name Google name obtained during oauth2 authentication.
+* @apiSuccess {String} google.email Google email obtained during oauth2 authentication.
+* @apiSuccess {String} google.token Google token obtained during oauth2 authentication.
+* @apiSuccess {Object} [linkedin] User Linkedin account Object.
+* @apiSuccess {String} linkedin.id Linkedin id obtained during oauth2 authentication.
+* @apiSuccess {String} linkedin.name Linkedin name obtained during oauth2 authentication.
+* @apiSuccess {String} linkedin.email Linkedin email obtained during oauth2 authentication.
+* @apiSuccess {String} linkedin.token Linkedin token obtained during oauth2 authentication.
+* @apiSuccess {Object} [github] User Github account Object.
+* @apiSuccess {String} github.id Github id obtained during oauth2 authentication.
+* @apiSuccess {String} github.name Github name obtained during oauth2 authentication.
+* @apiSuccess {String} github.email Github email obtained during oauth2 authentication.
+* @apiSuccess {String} github.username Github username obtained during oauth2 authentication.
+* @apiSuccess {String} github.profileUrl Github profileUrl obtained during oauth2 authentication.
+* @apiSuccess {String} github.token Github token obtained during oauth2 authentication.
+* @apiSuccess {Object} [facebook] User Facebook account Object.
+* @apiSuccess {String} facebook.id Facebook id obtained during oauth2 authentication.
+* @apiSuccess {String} facebook.name Facebook name obtained during oauth2 authentication.
+* @apiSuccess {String} facebook.email Facebook email obtained during oauth2 authentication.
+* @apiSuccess {String} facebook.profileUrl Facebook profileUrl obtained during oauth2 authentication.
+* @apiSuccess {String} facebook.token Facebook token obtained during oauth2 authentication.
+* @apiSuccess {Object} [twitter] User Twitter account Object.
+* @apiSuccess {String} twitter.id Twitter id obtained during oauth2 authentication.
+* @apiSuccess {String} twitter.name Twitter name obtained during oauth2 authentication.
+* @apiSuccess {String} twitter.email Twitter email obtained during oauth2 authentication.
+* @apiSuccess {String} twitter.username Twitter username obtained during oauth2 authentication.
+* @apiSuccess {String} twitter.token Twitter token obtained during oauth2 authentication.
+* @apiSuccess {Object} [local] User Local account Object.
+* @apiSuccess {String} local.name Local account name.
+* @apiSuccess {String} local.email Local account email.
+* @apiSuccess {String} local.hash Local account encrypted password.
+* @apiSuccess {String} [local.activateAccountToken] Activation token that will be removed after the account's activation.
+* @apiSuccess {Date} [local.activateAccountExpires] Activation expiration date, that will be removed after the account's activation (if date is valid).
+* @apiSuccess {String} [local.resetPasswordToken] Reset token that will be removed when user will choose a new password.
+* @apiSuccess {Date} [local.resetPasswordExpires] Reset expiration date, that will be removed when user will choose a new password (if date is valid).
+*
+* @apiError NoUserId 400 Text message 'No userid in request'.
+* @apiError UserNotFound 404 Text message 'User not found'.
+*
+* @apiErrorExample {json} Error-Response:
+*   HTTP/1.1 404 NOT FOUND
+*   {
+*     "message": "User not found"
+*   }
+* @apiErrorExample {json} Error-Response:
+*   HTTP/1.1 400 BAD REQUEST
+*   {
+*     "message": "No userid in request"
+*   }
+*/
 module.exports.usersReadOneById = function(req, res) {
 	console.log('Finding a User', req.params);
 	if (req.params && req.params.id) {
 
 		User.findById(req.params.id, (err, user) => {
 			console.log("User.findOne...");
-			if (err) { 
-				console.log('Error user not found (usersReadOneById)' + err);
+			if (!user || err) {
 				Utils.sendJSONres(res, 404, "User not found");
-			} else if (user) { // if the user is found, then log them in
-	        	console.log("User found (usersReadOneById): " + user);
-		        Utils.sendJSONres(res, 200, user);
-	        } else { //otherwise, if there is no user found create them
-	        	console.log("User not found (usersReadOneById)");
-	          	Utils.sendJSONres(res, 404, "User not found");
-	        }
-	    });
+			} else {
+      	console.log("User found (usersReadOneById): " + user);
+        Utils.sendJSONres(res, 200, user);
+      }
+	  });
 	} else {
-		Utils.sendJSONres(res, 404, "No userid in request");
+		Utils.sendJSONres(res, 400, "No userid in request");
 	}
 };
-
