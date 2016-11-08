@@ -46,7 +46,7 @@ var Utils = require('../utils/util.js');
 * @apiSuccess {String} pl.p.authors.url Author's website/github profile.
 * @apiSuccess {Boolean} pl.p.authors.urlAvailable Boolean to used to show/hide author's url.
 *
-* @apiError ProjetsNotFound 404 Text message 'Project list not found'.
+* @apiError ProjectsNotFound 404 Text message 'Project list not found'.
 *
 * @apiErrorExample {json} Error-Response:
 *   HTTP/1.1 404 NOT FOUND
@@ -114,7 +114,7 @@ module.exports.projectsList = function(req, res) {
 * @apiSuccess {String} pl.p.authors.url Author's website/github profile.
 * @apiSuccess {Boolean} pl.p.authors.urlAvailable Boolean to used to show/hide author's url.
 *
-* @apiError ProjetsNotFound 404 Text message 'Project list not found'.
+* @apiError ProjectsNotFound 404 Text message 'Project list not found'.
 *
 * @apiErrorExample {json} Error-Response:
 *   HTTP/1.1 404 NOT FOUND
@@ -185,7 +185,7 @@ module.exports.projectsListHomepage = function(req, res) {
 * @apiSuccess {Boolean} p.authors.urlAvailable Boolean to used to show/hide author's url.
 *
 * @apiError NoProjectId 400 Text message 'No projectid in request'.
-* @apiError ProjetNotFound 404 Text message 'Project not found'.
+* @apiError ProjectNotFound 404 Text message 'Project not found'.
 *
 * @apiErrorExample {json} Error-Response:
 *   HTTP/1.1 404 NOT FOUND
