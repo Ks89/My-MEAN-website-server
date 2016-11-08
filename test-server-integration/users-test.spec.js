@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 var app = require('../app');
 var agent = require('supertest').agent(app);
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
@@ -99,9 +99,9 @@ describe('users', () => {
 
 
 	describe('---ERRORS---', () => {
-		//here there are some test with empty user, because I destroyed the db 
+		//here there are some test with empty user, because I destroyed the db
 		//in the afterEach above.
-		
+
 		it('should catch 404 not found and check the error message', done => {
 			getPartialGetRequest(URL_SINGLE_USER + 'fakeId')
 			.expect(404)

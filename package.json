@@ -1,5 +1,5 @@
 {
-  "name": "stefanocappa-backend",
+  "name": "My-MEAN-website-backend",
   "version": "1.0.0-alpha.3",
   "author": "Stefano Cappa",
   "description": "My M.E.A.N. website",
@@ -9,7 +9,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/Ks89/My-MEAN-website"
+    "url": "https://github.com/Ks89/My-MEAN-website-server"
   },
   "engines": {
     "node": ">=6.0.0",
