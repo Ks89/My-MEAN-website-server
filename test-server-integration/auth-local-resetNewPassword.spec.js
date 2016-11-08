@@ -6,7 +6,7 @@ var app = require('../app');
 var agent = require('supertest').agent(app);
 var async = require('async');
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
@@ -76,17 +76,17 @@ describe('auth-local', () => {
 							expect(usr.validPassword(USER_PASSWORD));
 							expect(usr.local.resetPasswordExpires).to.be.not.undefined;
 							expect(usr.local.resetPasswordToken).to.be.not.undefined;
-							
+
 							user.local.resetPasswordToken = usr.local.resetPasswordToken;
 							user.local.resetPasswordExpires = usr.local.resetPasswordExpires;
-							
+
 							asyncDone(err1);
 					    });
 					}
 				});
 			}
 		], (err, response) => {
-			if (err) { 
+			if (err) {
 				done(err);
 			} else {
 				done();
@@ -105,7 +105,7 @@ describe('auth-local', () => {
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => { 
+		User.remove({}, err => {
 			done(err);
 		});
 	}
@@ -199,7 +199,7 @@ describe('auth-local', () => {
 						if(err) {
 							done(err);
 						}
-						
+
 						getPartialPostRequest('/api/resetNewPassword')
 						.set('XSRF-TOKEN', csrftoken)
 						.send(updateResetPwdMock)
@@ -216,12 +216,12 @@ describe('auth-local', () => {
 			    });
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));	
+			afterEach(done => dropUserCollectionTestDb(done));
 		});
 
 		describe('---NO - Missing params---', () => {
 			beforeEach(done => registerUserTestDb(done));
-			
+
 			const missingUpdatePwdMocks = [
 				{newPassword : NEW_PASSWORD},
 				{emailToken : 'random email token - valid or nor is not important here'},
@@ -248,9 +248,9 @@ describe('auth-local', () => {
 				});
 			}
 
-			afterEach(done => dropUserCollectionTestDb(done));		
+			afterEach(done => dropUserCollectionTestDb(done));
 		});
-		
+
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
 				getPartialPostRequest('/api/resetNewPassword')

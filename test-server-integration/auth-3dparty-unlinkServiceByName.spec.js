@@ -7,10 +7,10 @@ var agent = require('supertest').agent(app);
 var async = require('async');
 var _ = require('lodash');
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var fullServiceNames = require('../app_server/controllers/authentication/serviceNames');
+var fullServiceNames = require('../src/controllers/authentication/serviceNames');
 var serviceNames = _.without(fullServiceNames, 'profile');
 
 var user;

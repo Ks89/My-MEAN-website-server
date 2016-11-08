@@ -17,7 +17,7 @@ var jwt = require('jsonwebtoken');
 
 var User;
 var mongoose = require('mongoose');
-require('../app_server/models/users');
+require('../src/models/users');
 
 before(done => {
 	// Connecting to a local test database or creating it on the fly

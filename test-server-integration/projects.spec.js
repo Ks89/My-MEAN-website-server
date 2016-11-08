@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 var app = require('../app');
 var agent = require('supertest').agent(app);
 
-require('../app_server/models/projects');
+require('../src/models/projects');
 var mongoose = require('mongoose');
 var Project = mongoose.model('Project');
 

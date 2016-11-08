@@ -7,7 +7,7 @@ var agent = require('supertest').agent(app);
 var async = require('async');
 var jwt = require('jsonwebtoken');
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 

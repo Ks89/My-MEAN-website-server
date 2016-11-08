@@ -17,15 +17,15 @@ var expect = chai.expect;
 
 var User;
 var mongoose = require('mongoose');
-require('../app_server/models/users');
+require('../src/models/users');
 
 mongoose.connect('mongodb://localhost/test-db');
 User = mongoose.model('User');
 
 var userDb;
 
-var util = require('../app_server/utils/util');
-var serviceNames = require('../app_server/controllers/authentication/serviceNames');
+var util = require('../src/utils/util');
+var serviceNames = require('../src/controllers/authentication/serviceNames');
 
 //add session property to the mocked
 //request (used to store jwt session token by redis)
@@ -36,7 +36,7 @@ var mockedReq = {
 };
 
 var jwt = require('jsonwebtoken');
-var collapser = require('../app_server/controllers/authentication/common/auth-experimental-collapse-db');
+var collapser = require('../src/controllers/authentication/common/auth-experimental-collapse-db');
 
 const USERNAME = 'username';
 const EMAIL = 'email@email.it';

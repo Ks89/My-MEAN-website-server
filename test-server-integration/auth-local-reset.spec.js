@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 var app = require('../app');
 var agent = require('supertest').agent(app);
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
@@ -74,7 +74,7 @@ describe('auth-local', () => {
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => { 
+		User.remove({}, err => {
 			done(err);
 		});
 	}
@@ -160,10 +160,10 @@ describe('auth-local', () => {
 					}
 				});
 			});
-							
-			after(done => dropUserCollectionTestDb(done));		
+
+			after(done => dropUserCollectionTestDb(done));
 		});
-		
+
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
 				getPartialPostRequest('/api/reset')

@@ -14,7 +14,7 @@ if(!process.env.CI || process.env.CI !== 'yes') {
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
-var Utils = require('../app_server/utils/util');
+var Utils = require('../src/utils/util');
 var MockedRes = require('./mocked-res-class');
 var mockedRes = new MockedRes();
 var jwt = require('jsonwebtoken');

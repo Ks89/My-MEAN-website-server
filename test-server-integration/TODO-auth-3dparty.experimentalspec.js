@@ -9,7 +9,7 @@ var request = require('request');
 
 var passport = require('passport');
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 

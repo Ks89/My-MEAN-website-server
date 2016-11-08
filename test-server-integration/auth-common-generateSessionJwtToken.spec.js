@@ -6,10 +6,10 @@ var app = require('../app');
 var agent = require('supertest').agent(app);
 var async = require('async');
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var authCommon = require('../app_server/controllers/authentication/common/auth-common');
+var authCommon = require('../src/controllers/authentication/common/auth-common');
 
 var user;
 var csrftoken;

@@ -24,7 +24,7 @@ var prod = function(task) {
 	return isprod ? task : noop();
 };
 
-var testHintJs = ['app_server/**/*.js', 'app.js'];
+var testHintJs = ['src/**/*.js', 'app.js'];
 
 //TODO FIXME - broken in alpha 2
 gulp.task('hint', function hintInternal() {
@@ -41,7 +41,7 @@ var testPaths = [
 								];
 
 gulp.task('pre-test', function pretestInternal() {
-  return gulp.src(['app_server/**/*.js'])
+  return gulp.src(['src/**/*.js'])
 		// optionally load existing source maps
     .pipe(sourcemaps.init())
     // Covering files
@@ -110,6 +110,6 @@ gulp.task('server',
 
 gulp.task('default',
 	gulp.series('server', function watcher(done) {
-		    gulp.watch(['app_server/**/*.js', 'app.js'], browserSync.reload);
+		    gulp.watch(['src/**/*.js', 'app.js'], browserSync.reload);
 		})
 );

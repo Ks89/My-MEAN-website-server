@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/Ks89/My-MEAN-website.svg?branch=master)](https://travis-ci.org/Ks89/My-MEAN-website)   [![Code Climate](https://codeclimate.com/github/Ks89/My-MEAN-website/badges/gpa.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website)   [![Test Coverage](https://codeclimate.com/github/Ks89/My-MEAN-website/badges/coverage.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website/coverage)
 <br>
-# My M.E.A.N. website (Alpha 2)
+# My M.E.A.N. website server (Alpha 3)
 <br>
 
 ## Informations
@@ -19,10 +19,8 @@ Attention! This project is still an alpha, so it's not production ready. Please 
 If you are interested, star this project on GitHub.
 
 Testing:
-- front-end unit: only some classes are tested. In alpha 3 and 4 I'll complete everything
-- front-end e2e: work in progress, In alpha 3 and 4 I'll complete everything
-- back-end unit: almost done (only the necessary things)*. coverage >80%
-- back-end integration: almost done*. coverage >80%
+- back-end unit: almost done (only the necessary things)*. coverage >=90%
+- back-end integration: almost done*. coverage >=90%
 
 (*) I unit-tested only public functions and I tested all APIs (integration) except for OAUTH2/PassportJS.
 This is because, it's extremely difficult to test passportjs (for 3dparty services, not for the local auth) without to use  browsers (like Zombie or Phantom). In my opinion an integration-test for a back-end api must use only backend's code, not also a browser (browser is on client and not on server :) ).
@@ -36,8 +34,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - MongoDB
 - redis
 - npm
-- Google Chrome and Firefox (mandatory for testing)
-- some global npm dependencies: karma-cli, mocha, webpack, typescript, nodemon, gulp 4.0 alpha, npm-check, lite-server, remap-istanbul, webdriver-manager, protractor
+- some global npm dependencies: mocha, nodemon, gulp 4.0 alpha, remap-istanbul
 - work in progress... (this is only an alpha, please be patient)
 
 
@@ -47,7 +44,6 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 
 ## How to install (MacOS)
 - download and install Node.js 7.0 or higher
-- download the latest versions of Google Chrome and Mozilla Firefox
 - Install homebrew:
   - ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   - brew update
@@ -65,83 +61,66 @@ If you want to help me to write integration-test's case for PassportJS, check [t
   - rm -rf redis-stable
   - rm -f redis-stable.tar.gz
 - Install global npm packages
-  - sudo npm install -g karma-cli
   - sudo npm install -g mocha
-  - sudo npm install -g webpack
-  - sudo npm install -g typescript
-  - sudo npm install -g typescript
   - sudo npm install -g nodemon
   - sudo npm install -g gulp@github:gulpjs/gulp#4.0
-  - sudo npm install -g npm-check
-  - sudo npm install -g lite-server
   - sudo npm install -g remap-istanbul
-  - sudo npm install -g webdriver-manager
-  - sudo npm install -g protractor
   - sudo npm install -g istanbul
 
 ## How to setup
 
 1. create a file called ".env" into the root folder and add all these properties
+```
+JWT_SECRET=INSERT A JEW SECRET HERE
 
-    JWT_SECRET=INSERT A JEW SECRET HERE
+TWITTER_CONSUMER_KEY=YOU KEY/ID
+TWITTER_CONSUMER_SECRET=YOU KEY/ID
+TWITTER_CALLBACK_URL=YOUR CALLBACK URL for [example](http://127.0.0.1:3300/api/auth/twitter/callback)
 
-    TWITTER_CONSUMER_KEY=YOU KEY/ID
-    TWITTER_CONSUMER_SECRET=YOU KEY/ID
+FACEBOOK_APP_ID=YOU KEY/ID
+FACEBOOK_APP_SECRET=YOU KEY/ID
+FACEBOOK_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/facebook/callback)
 
-    FACEBOOK_APP_ID=YOU KEY/ID
-    FACEBOOK_APP_SECRET=YOU KEY/ID
+GOOGLE_CLIENT_ID=YOU KEY/ID
+GOOGLE_CLIENT_SECRET=YOU KEY/ID
+GOOGLE_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/google/callback)
 
-    GOOGLE_CLIENT_ID=YOU KEY/ID
-    GOOGLE_CLIENT_SECRET=YOU KEY/ID
+GITHUB_CLIENT_ID=YOU KEY/ID
+GITHUB_CLIENT_SECRET=YOU KEY/ID
+GITHUB_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/github/callback)
 
-    GITHUB_CLIENT_ID=YOU KEY/ID
-    GITHUB_CLIENT_SECRET=YOU KEY/ID
+LINKEDIN_CLIENT_ID=YOU KEY/ID
+LINKEDIN_CLIENT_SECRET=YOU KEY/ID
+LINKEDIN_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/linkedin/callback)
 
-    LINKEDIN_CLIENT_ID=YOU KEY/ID
-    LINKEDIN_CLIENT_SECRET=YOU KEY/ID
+USER_EMAIL=YOUR_EMAIL
+PASS_EMAIL=YOUR_PASSWORD
 
-    USER_EMAIL=YOUR_EMAIL
-    PASS_EMAIL=YOUR_PASSWORD
+RECAPTCHA_PUBLIC=YOUR GOOGLE RECAPTCHA 2 PUBLIC KEY
+RECAPTCHA_SECRET=YOUR GOOGLE RECAPTCHA 2 SECRET KEY
+```
+1a. replace 'YOU KEY/ID' with the keys obtained from facebook/github... oauth applications.
+1b. replace YOUR_EMAIL and YOUR_PASSWORD with the data of your e-mail account
+1c. replace 'YOUR GOOGLE RECAPTCHA...' with Google Recaptcha2's keys
+1d. reaplce INSERT A JWT SECRET HERE with an alphanumerical string (I'm using a random string with a length = 72)
 
-    - replace 'YOU KEY/ID' with the keys obtained from facebook/github... oauth applications.
-    - replace YOUR_EMAIL and YOUR_PASSWORD with the data of your e-mail account
-    - reaplce INSERT A JWT SECRET HERE with an alphanumerical string (I'm using a random string with a length = 72)
-
-2. install all necessary tools (Node.js, redis-server, mongo db, Google Chrome)
+2. install all necessary tools (Node.js, redis-server, mongo db)
 3. execute this command 'npm install' into the root folder
-4. execute this command 'npm install' into the app_client folder
 4. execute this command 'redis-server
 5. execute this command 'mongod' (on Mac OSX use 'sudo mongod')
 6. execute this command 'gulp' into the root folder to start this application (back-end)
-7. execute this command 'npm start' into app_client folder to start this application (front-end)
 
-This will start this application at http://localhost:3300
+All REST webservices will be available at http://localhost:3001
 
 ## How to run tests (server-side)
-If you want to run server's tests execute these commands:
-
-1. mocha test-server-integration
-2. mocha test-client-unit/3dparty-passport-test.js
-3. mocha test-client-unit/auth-experimental-collapse-db.js
-4. mocha test-client-unit/auth-util-test.js
-5. mocha test-client-unit/users-test.js
-6. mocha test-client-unit/util-test.js
-
-Or try `gulp test`, but it's still broken
-
-
-## How to run tests (client-side)
-cd app_client
-npm test
+If you want to run server's tests execute this command `gulp test`.
 
 
 ## How to start
 
 - cd <Main folder>
 - gulp
-- cd app_client
-- npm start (or npm run build for production)
-- Open your browser http://localhost:3300 (if not automatically opened)
+- all REST services will be available at http://localhost:3001
 
 ## Features
 Work in progress... (this is only an alpha, please be patient)
@@ -152,7 +131,7 @@ Work in progress... (this is only an alpha, please be patient)
 
 
 ## Images
-Work in progress... (all these images are old. alpha 2 uses a new front-end in Angular 2 and Bootstrap 4 )
+Work in progress...
 
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/home.png)
 <br/><br/>
@@ -182,8 +161,7 @@ Work in progress... (this is only an alpha, please be patient)
 
 
 ## Thanks
-A special thanks to the authors of these books, because very useful to understand how to develop a modern web application: [BOOK1](https://www.manning.com/books/getting-mean-with-mongo-express-angular-and-node) and [BOOK2](https://www.manning.com/books/angular-2-development-with-typescript). Also to [this project](https://github.com/AngularClass/angular2-webpack-starter)
-
+A special thanks to the authors of this book, because very useful to understand how to develop a modern web application: [BOOK1](https://www.manning.com/books/getting-mean-with-mongo-express-angular-and-node)
 
 ## License
 

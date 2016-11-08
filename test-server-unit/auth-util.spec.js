@@ -14,10 +14,10 @@ if(!process.env.CI || process.env.CI !== 'yes') {
 var chai = require('chai');
 var expect = chai.expect;
 
-require('../app_server/models/users');
+require('../src/models/users');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var AuthUtil = require('../app_server/utils/auth-util');
+var AuthUtil = require('../src/utils/auth-util');
 
 const FAKE = 'fake';
 const WRONG_SERVICE_NAME = 'wrong';
