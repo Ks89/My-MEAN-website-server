@@ -95,22 +95,13 @@ class Utils {
 
     let convertedDate = new Date();
     convertedDate.setTime(decodedJwtToken.exp);
-
-    try {
-      console.log("date jwt: " + convertedDate.getTime() +
-         ", formatted: " + this.getTextFormattedDate(convertedDate));
-
-      const systemDate = new Date();
-      console.log("systemDate: " + systemDate.getTime() +
-         ", formatted: " + this.getTextFormattedDate(systemDate));
-
-      return convertedDate.getTime() > systemDate.getTime();
-    } catch(e) {
-      //impossible to get dates to compare
-      //I decide to return false
-      logger.error(e);
-      return false;
-    }
+    // console.log("date jwt: " + convertedDate.getTime() +
+    //  ", formatted: " + this.getTextFormattedDate(convertedDate));
+    // const systemDate = new Date();
+    // console.log("systemDate: " + systemDate.getTime() +
+    //   ", formatted: " + this.getTextFormattedDate(systemDate));
+    // convertedDate > systemDate
+    return convertedDate.getTime() > (new Date()).getTime();
   }
 
   static isJwtValid(token) {
@@ -143,7 +134,7 @@ class Utils {
               reject({status: 401, message: "Token Session expired (date)."});
             }
           } catch(e) {
-            logger.error(e.message);
+            logger.error(e);
             reject({status: 500, message: "Impossible to check if jwt is valid"});
           }
         } else {
