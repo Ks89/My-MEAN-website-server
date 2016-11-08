@@ -9,7 +9,7 @@ var authCommon = require('./authentication/common/auth-common.js');
 * @apiVersion 0.0.1
 * @apiName PostProfile
 * @apiGroup Profile
-* @apiPermission none
+* @apiPermission authentication
 *
 * @apiDescription Update the user's profile data.
 * The email field is an additional profile information and not the value used to login.
@@ -21,18 +21,18 @@ var authCommon = require('./authentication/common/auth-common.js');
 * @apiParam {String} surname Profile surname (required).
 * @apiParam {String} nickname Profile nickname (required).
 * @apiParam {String} email Profile email address (required).
-
+*
 * @apiHeaderExample {json} Header-Example:
 *     {
 *       "Content-Type": "application/json",
-*				"XSRF-TOKEN": "<TOKEN>"
+*				"XSRF-TOKEN": "A VALID TOKEN"
 *     }
 *
 * @apiSuccess {String} message Constant that contains 'Profile updated successfully!'.
 *
 * @apiError ServiceNameError 400 <code>serviceName</code> is required.
 * @apiError LocalUserEmailError 400 <code>LocalUserEmail</code> is required if you pass serviceName = local.
-* @apiError IdError 400 <code>id</code> is required if you pass serviceName != local.
+* @apiError IdError 400 <code>id</code> is required if you pass serviceName != local. It's the id obtained from the 3dparty service.
 * @apiError ParamsError 400 All profile params are mandatory.
 * @apiError DbReadError 401 Cannot update your profile. Please try to logout and login again.
 * @apiError DbSaveError 404 Error while updating your profile. Please retry.
