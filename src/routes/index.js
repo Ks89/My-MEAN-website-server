@@ -19,8 +19,6 @@ module.exports = function (express) {
 	router.get('/projects/:projectid', ctrlProjects.projectsReadOne);
 	//contacts
 	router.post('/email', ctrlContact.sendEmailWithRecaptcha);
-	//users for authentication
-	router.get('/users/:id', ctrlUser.usersReadOneById);
 
 	//-----------------------------------------------------------------------------------------
 	//-----------------------------------authentication----------------------------------------
@@ -43,7 +41,6 @@ module.exports = function (express) {
 	router.get('/auth/linkedin', ctrlAuth3dParty.authLinkedin);
 	router.get('/auth/linkedin/callback', ctrlAuth3dParty.authLinkedinCallback, ctrlAuth3dParty.callbackRedirectLinkedin);
 
-
 	// -----------------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------------
 	// 				  	      REST services used only for testing/ci!!!
@@ -65,6 +62,8 @@ module.exports = function (express) {
 	// -----------------------------------------------------------------------------------------
 	router.use(restAuthMiddleware.restAuthenticationMiddleware);
 
+	//users
+	router.get('/users/:id', ctrlUser.usersReadOneById);
 	//profile
 	router.post('/profile', ctrlProfile.update);
 	//common - 3dparty + local

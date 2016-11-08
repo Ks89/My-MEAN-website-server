@@ -76,7 +76,7 @@ describe('profile', () => {
 		});
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialPostRequest (apiUrl) {
 		return agent
 			.post(apiUrl)
@@ -87,9 +87,7 @@ describe('profile', () => {
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => {
-			done(err);
-		});
+		User.remove({}, err => done(err));
 	}
 
 	describe('#login()', () => {
@@ -135,16 +133,15 @@ describe('profile', () => {
 						User.findOne({ 'local.email': USER_EMAIL }, (err, usr) => {
 							expect(usr.local.name).to.be.equals(user.local.name);
 							expect(usr.local.email).to.be.equals(user.local.email);
-					       	expect(usr.validPassword(USER_PASSWORD));
+		          expect(usr.validPassword(USER_PASSWORD));
 							expect(usr.profile.name).to.be.equals(user.profile.name);
 							expect(usr.profile.surname).to.be.equals(user.profile.surname);
 							expect(usr.profile.nickname).to.be.equals(user.profile.nickname);
 							expect(usr.profile.email).to.be.equals(user.profile.email);
 							//expect(usr.profile.updated).to.be.equals(user.profile.updated);
 							expect(usr.profile.visible).to.be.equals(user.profile.visible);
-
 							asyncDone(err);
-					    });
+					  });
 					}
 				], (err, response) => done(err));
 			});
