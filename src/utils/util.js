@@ -147,8 +147,7 @@ class Utils {
 
   // This method returns true if the parameter is NOT acceptable, i.e.
   // is a function OR
-  // is a RegExp OR
-  // is an Error OR
+  // is _isNotValidJavascriptObject OR
   // is null OR
   // is undefined OR
   // is NaN;
@@ -160,18 +159,64 @@ class Utils {
   static isAcceptableValue(param) {
     return _isAcceptableValue(param);
   }
+
+  // Returns true if the parameter is NOT a valid Javascript
+  //    Object for this application, i.e.
+  // is ArrayBuffer OR
+  // is Buffer OR
+  // is Uint8Array OR
+  // is Error OR
+  // is Map OR
+  // is WeakMap OR
+  // is Set OR
+  // is WeakSet OR
+  // is Symbol OR
+  // is RegExp OR
+  // false otherwise.
+  static isNotValidJavascriptObject(param) {
+    return _isNotValidJavascriptObject(param);
+  }
+
+  static isNotValidArray(param) {
+    return _isNotValidArray(param);
+  }
+
+  static isSet(param) {
+    return _isSet(param);
+  }
+
+  static isMap(param) {
+    return _isMap(param);
+  }
 }
 
-// private functions that I can call inside this class.
-// Also, I exposed these functions using two static methods (without `_`)
+// ---------- private functions that I can call inside this class ----------
+// Also, I exposed some of these functions using static methods (without `_`)
 function _isNotAcceptableValue(param) {
-  return _.isFunction(param) || _.isRegExp(param) ||
-  _.isError(param) || _.isNull(param) ||
-  _.isUndefined(param) || _.isNaN(param);
+  return _.isFunction(param) || _isNotValidJavascriptObject(param) ||
+   _.isNil(param) || _.isNaN(param);
 }
 
 function _isAcceptableValue(param) {
   return !_isNotAcceptableValue(param);
+}
+
+function _isNotValidJavascriptObject(p) {
+  return  _.isBuffer(p) || _.isError(p) ||
+  _.isRegExp(p) ||  _.isSymbol(p) ||
+  _isSet(p) || _isMap(p) || _isNotValidArray(p);
+}
+
+function _isNotValidArray(p) {
+  return _.isArrayBuffer(p) || _.isTypedArray(p);
+}
+
+function _isSet(p) {
+  return _.isSet(p) || _.isWeakSet(p);
+}
+
+function _isMap(p) {
+  return _.isMap(p) || _.isWeakMap(p);
 }
 
 module.exports = Utils;

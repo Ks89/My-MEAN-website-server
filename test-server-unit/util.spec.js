@@ -494,4 +494,50 @@ describe('util', () => {
       });
     });
   });
+
+  describe('#isNotValidJavascriptObject()', () => {
+    describe('---YES---', () => {
+      it('should return true', () => {
+        expect(Utils.isNotValidJavascriptObject(new Buffer(1))).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(/fooRegex/i)).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new RegExp(/fooRegex/,'i'))).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new RegExp('/fooRegex/','i'))).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new Error())).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(Symbol.iterator)).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new Set())).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new WeakSet())).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new Map())).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new WeakMap())).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new ArrayBuffer())).to.be.true;
+        expect(Utils.isNotValidJavascriptObject(new Uint8Array())).to.be.true;
+      });
+    });
+  });
+
+  describe('#isNotValidArray()', () => {
+    describe('---YES---', () => {
+      it('should return true', () => {
+        expect(Utils.isNotValidArray(new ArrayBuffer())).to.be.true;
+        expect(Utils.isNotValidArray(new Uint8Array())).to.be.true;
+      });
+    });
+  });
+
+  describe('#isMap()', () => {
+    describe('---YES---', () => {
+      it('should return true', () => {
+        expect(Utils.isMap(new Map())).to.be.true;
+        expect(Utils.isMap(new WeakMap())).to.be.true;
+      });
+    });
+  });
+
+  describe('#isSet()', () => {
+    describe('---YES---', () => {
+      it('should return true', () => {
+        expect(Utils.isSet(new Set())).to.be.true;
+        expect(Utils.isSet(new WeakSet())).to.be.true;
+      });
+    });
+  });
 });

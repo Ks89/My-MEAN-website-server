@@ -1,17 +1,17 @@
+const ctrlProjects = require('../controllers/projects');
+const ctrlContact = require('../controllers/contact');
+const restAuthMiddleware = require('./rest-auth-middleware');
+const ctrlUser = require('../controllers/users');
+const ctrlProfile = require('../controllers/profile');
+const ctrlAuthLocal = require('../controllers/authentication/local/auth-local');
+const ctrlAuth3dParty = require('../controllers/authentication/3dparty/auth-3dparty');
+const ctrlAuthCommon = require('../controllers/authentication/common/auth-common');
+
 module.exports = function (express) {
-	var app = express();
-	var router = express.Router();
-	var Utils = require('../utils/util');
-
-	var restAuthMiddleware = require('./rest-auth-middleware');
-
-	var ctrlAuthLocal = require('../controllers/authentication/local/auth-local');
-	var ctrlAuth3dParty = require('../controllers/authentication/3dparty/auth-3dparty');
-	var ctrlAuthCommon = require('../controllers/authentication/common/auth-common');
-	var ctrlProjects = require('../controllers/projects');
-	var ctrlContact = require('../controllers/contact');
-	var ctrlUser = require('../controllers/users');
-	var ctrlProfile = require('../controllers/profile');
+	let router = express.Router();
+	// if is test or ci, modify and returns `router` with test rest apis,
+	//	otherwise return the same `router`
+	router = isTestOrCi() ? require('./testing-api')(router) : router;
 
 	// projects
 	router.get('/projects', ctrlProjects.projectsList);
@@ -40,17 +40,6 @@ module.exports = function (express) {
 	router.get('/auth/twitter/callback', ctrlAuth3dParty.authTwitterCallback, ctrlAuth3dParty.callbackRedirectTwitter);
 	router.get('/auth/linkedin', ctrlAuth3dParty.authLinkedin);
 	router.get('/auth/linkedin/callback', ctrlAuth3dParty.authLinkedinCallback, ctrlAuth3dParty.callbackRedirectLinkedin);
-
-	// -----------------------------------------------------------------------------------------
-	// -----------------------------------------------------------------------------------------
-	// 				  	      REST services used only for testing/ci!!!
-	// -----------------------------------------------------------------------------------------
-	if(process.env.NODE_ENV === 'test' || (process.env.CI && process.env.CI === 'yes')) {
-		router = require('./testing-api')(router);
-	}
-	// -----------------------------------------------------------------------------------------
-	// -----------------------------------------------------------------------------------------
-
 
 	// -----------------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------------
@@ -92,3 +81,7 @@ module.exports = function (express) {
 	module.exports = router;
 	return router;
 };
+
+function isTestOrCi() {
+	return process.env.NODE_ENV === 'test' || (process.env.CI && process.env.CI === 'yes');
+}

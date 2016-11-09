@@ -17,7 +17,6 @@ class AuthUtils {
     }
 
     if(whitelistServices.indexOf(serviceName) === -1) {
-      console.log('Service name not recognized in checkIfLastUnlink');
       return false;
     }
 
@@ -28,17 +27,12 @@ class AuthUtils {
     const filteredServices = _.without(noProfileServices, serviceName);
 
     for(let service of filteredServices) {
-      if(service === 'local') {
-        checkProp = 'email';
-      } else {
-        checkProp = 'id';
-      }
+      checkProp = service === 'local' ? 'email' : 'id';
 
       //something like !user.facebook.id or !user.local.email and so on
       result = !user[service][checkProp];
 
       if(!result) {
-        console.log("breaking....");
         break;
       }
     }
@@ -57,11 +51,11 @@ class AuthUtils {
       throw 'Service name must be a String';
     }
 
-    if(whitelistServices.indexOf(serviceName) !== -1) {
-      user[serviceName] = undefined;
-    } else {
+    if(whitelistServices.indexOf(serviceName) === -1) {
       throw 'Service name not valid';
     }
+
+    user[serviceName] = undefined;
     return user;
   }
 }
