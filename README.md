@@ -28,7 +28,6 @@ The problem is that to test PassportJS without a browser it's really diffult. I 
 For this reason, I decided to unit-tests these APIs (not APIs theirself but their functions/logics).
 If you want to help me to write integration-test's case for PassportJS, check [this file](https://github.com/Ks89/My-MEAN-website/blob/master/test-server-integration/TODO-auth-3dparty.js)
 
-
 ## Requirements
 - Node.js
 - MongoDB
@@ -36,7 +35,6 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - npm
 - some global npm dependencies: mocha, nodemon, gulp 4.0 alpha, remap-istanbul
 - work in progress... (this is only an alpha, please be patient)
-
 
 ## News
 - *10/27/2016* - **My MEAN website** Alpha 2 public release [HERE](https://github.com/Ks89/My-MEAN-website/releases)
@@ -115,7 +113,6 @@ All REST webservices will be available at http://localhost:3001
 ## How to run tests (server-side)
 If you want to run server's tests execute this command `gulp test`.
 
-
 ## How to start
 
 - cd <Main folder>
@@ -125,10 +122,8 @@ If you want to run server's tests execute this command `gulp test`.
 ## Features
 Work in progress... (this is only an alpha, please be patient)
 
-
 ## Future extensions
 Work in progress... (this is only an alpha, please be patient)
-
 
 ## Images
 Work in progress...
@@ -155,10 +150,8 @@ Note: updated local profile info
 Note: multiple account connected (Facebook and Github)
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-fb-github.png)
 
-
 ## Configuration
 Work in progress... (this is only an alpha, please be patient)
-
 
 ## Thanks
 A special thanks to the authors of this book, because very useful to understand how to develop a modern web application: [BOOK1](https://www.manning.com/books/getting-mean-with-mongo-express-angular-and-node)

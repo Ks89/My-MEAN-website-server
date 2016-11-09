@@ -10,13 +10,13 @@ class Utils {
     let contentToReturn;
 
     //check status param
-    if(!_.isNumber(status) || _.isNaN(status) || status < 100 || status >= 600) {
+    if(_isNotValidNumber(status) || status < 100 || status >= 600) {
       throw "Status must be a valid http status code  number";
     }
 
     //check content param
     //because content can be only String, Array, Object (but no all of the others)
-    if((!_.isString(content) && !_.isArray(content) && !_.isObject(content)) ||
+    if(_isNotStringArrayObject(content) ||
       _isNotAcceptableValue(content) || _.isDate(content) || _.isBoolean(content) ||
       _.isNumber(content)) {
       throw "Content must be either String, or Array, or Object (no Error, RegExp, and so on )";
@@ -209,6 +209,18 @@ function _isNotValidJavascriptObject(p) {
 
 function _isNotValidArray(p) {
   return _.isArrayBuffer(p) || _.isTypedArray(p);
+}
+
+function _isNotValidNumber(p) {
+  return !_.isNumber(p) || _.isNaN(p);
+}
+
+function _isNotStringArrayObject(p) {
+  return !_isStringOrArrayOrObject(p);
+}
+
+function _isStringOrArrayOrObject(p) {
+  return _.isString(content) || _.isArray(content) || _.isObject(content);
 }
 
 function _isSet(p) {
