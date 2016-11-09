@@ -1,6 +1,11 @@
 var Utils = require('../utils/util');
 var jwt = require('jsonwebtoken');
 
+// -----------------------------------------------------------------------
+// no documentation yet,
+// because these apis are available only while running tests (NODE_ENV=test)
+// -----------------------------------------------------------------------
+
 var destroySession = function(req, res) {
   req.session.destroy(() => {
     console.log('destroySession forced -> session.destroy');
