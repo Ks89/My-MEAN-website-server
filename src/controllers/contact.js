@@ -21,8 +21,52 @@ if(process.env.NODE_ENV === 'test') {
 	});
 }
 
-/* POST to send an email */
-/* /api/email */
+/**
+* @api {post} /api/email Send an email to the administrator.
+* @apiVersion 0.0.1
+* @apiName PostContact
+* @apiGroup Contact
+* @apiPermission none
+*
+* @apiDescription Send an email to the administrator with a text message.
+*
+* @apiParam {String} response Text with the response received by Google Recaptcha2.
+* @apiParam {Object} emailFormData Object with email, object and message texts.
+* @apiParam {String} emailFormData.email Text with the sender email.
+* @apiParam {String} emailFormData.messageText Text message.
+* @apiParam {String} emailFormData.object Text with the email subject (title).
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "Content-Type": "application/json",
+*				"XSRF-TOKEN": "A VALID TOKEN"
+*     }
+*
+* @apiSuccess {String} message Text that contains the same emailMessage passed into the request's body.
+*
+* @apiError RecaptchaError 401 Unknown recaptcha error. It returns recaptcha's response.
+* @apiError RecaptchaVerifyError 401 Recaptcha error while verifying. It returns 'Recaptcha verify answered FALSE!'.
+* @apiError MissingParamsError 400 It returns 'Missing input params'.
+* @apiError EmailSendError 404 It returns null (the value null, not a text).
+* @apiError ImpossibleSendError 500 It returns 'Impossibile to send the email'.
+* @apiError UnknownError 500 It returns 'Unknown error'.
+*
+* @apiParamExample {json} Request-Example:
+*     {
+*       "response": "fsdfsdfsdfsd-response-dasdfasdas",
+*       "emailFormData": {
+*         "email": "email@emai.it",
+*         "messageText": "email message",
+*         "object": "email title"
+*       }
+*     }
+*
+* @apiSuccessExample {json} Success-Response:
+*   HTTP/1.1 200 OK
+*   {
+*     "message": "email@emai.it"
+*   }
+*/
 module.exports.sendEmailWithRecaptcha = function(req, res) {
 	console.log("verifyCaptcha api called in app-api controllers " +req.body.response);
 
@@ -92,7 +136,6 @@ module.exports.sendEmailWithRecaptcha = function(req, res) {
 			});
 		},
 		(resultHttpCode, formEmail, done) => {
-
 			console.log("resultHttpCode: " + resultHttpCode);
 			if(resultHttpCode === 200) {
 				console.log('Message sent successfully to: ' + formEmail.email);
