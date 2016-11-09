@@ -94,6 +94,10 @@ console.log("Initializing helmet");
 */
 app.use(helmet());
 
+// --SEC-- - hidePoweredBy: X-Powered-By forced to a fake value to
+// hide the default 'express' value [helmet]
+app.use(helmet.hidePoweredBy({ setTo: 'f__k u idiot' }));
+
 // --SEC-- - noCache to disable client-side caching [helmet]
 // I don't want this for better performances (leave commented :))
 // app.use(helmet.noCache())
