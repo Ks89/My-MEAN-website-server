@@ -55,8 +55,45 @@ function createRandomToken(done) {
   });
 }
 
-/* POST to register a local user */
-/* /api/register */
+/**
+* @api {post} /api/register Register a new local user.
+* @apiVersion 0.0.1
+* @apiName RegisterLocal
+* @apiGroup AuthLocal
+* @apiPermission none
+*
+* @apiDescription Register a new local user.
+*   It will send an email to <code>email</code> with further instructions to activate the account.
+*
+* @apiParam {String} name User name.
+* @apiParam {String} email User email.
+* @apiParam {String} password User password.
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "Content-Type": "application/json",
+*				"XSRF-TOKEN": "A VALID TOKEN"
+*     }
+*
+* @apiSuccess {String} message Text 'User with email <code>email</code> registered.'.
+*
+* @apiError ParamsError 400 All fields required.
+* @apiError DbReadError 500 Unknown error while registering...
+* @apiError UserExistsError 404 User already exists. Try to login.
+*
+* @apiParamExample {json} Request-Example:
+*     {
+*       "name": "fake",
+*       "email": "fake@fake.it",
+*       "password": "Qw12345678"
+*     }
+*
+* @apiSuccessExample {json} Success-Response:
+*   HTTP/1.1 200 OK
+*   {
+*     "message": "User with email fake@fake.it registered."
+*   }
+*/
 module.exports.register = (req, res) => {
   console.log('called register server side');
   if(!req.body.name || !req.body.email || !req.body.password) {
@@ -118,8 +155,43 @@ module.exports.register = (req, res) => {
   });
 };
 
-/* POST to login as local user */
-/* /api/login */
+/**
+* @api {post} /api/login Login as local user.
+* @apiVersion 0.0.1
+* @apiName LocalLocal
+* @apiGroup AuthLocal
+* @apiPermission none
+*
+* @apiDescription Login as local user.
+*
+* @apiParam {String} email User email.
+* @apiParam {String} password User password.
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "Content-Type": "application/json",
+*				"XSRF-TOKEN": "A VALID TOKEN"
+*     }
+*
+* @apiSuccess {String} token Text with the jwt token.
+*
+* @apiError ParamsError 400 All fields required.
+* @apiError NotAuthError 401 Incorrect username or password. Or this account is not activated, check your mailbox.
+* @apiError SessionError 500 Impossible to generateSessionJwtToken
+* @apiError UserNotEnabledError 401 Incorrect username or password. Or this account is not activated, check your mailbox.
+*
+* @apiParamExample {json} Request-Example:
+*     {
+*       "email": "fake@fake.it",
+*       "password": "Qw12345678"
+*     }
+*
+* @apiSuccessExample {json} Success-Response:
+*   HTTP/1.1 200 OK
+*   {
+*     "token":"JWT TOKEN"
+*   }
+*/
 module.exports.login = (req, res) => {
   if(!req.body.email || !req.body.password) {
     Utils.sendJSONres(res, 400, "All fields required");
@@ -157,14 +229,66 @@ module.exports.login = (req, res) => {
   })(req, res);
 };
 
-/* GET to unlink the local account */
-/* /api/unlink/local */
+/**
+* @api {get} /api/unlink/local Unlink the local account.
+* @apiVersion 0.0.1
+* @apiName UnlinkLocal
+* @apiGroup AuthLocal
+* @apiPermission authenticate
+*
+* @apiDescription Unlink the local account (actually logged in).
+*
+* @apiSuccess {String} Constant plain-text: "User unlinked correctly!"
+*
+* @apiError SessionError 401 Text message 'Session not valid, probably it's expired'.
+*
+* @apiSuccessExample {text} Success-Response:
+*   HTTP/1.1 200 OK
+*     "User unlinked correctly!"
+*
+* @apiErrorExample {json} Error-Response:
+*   HTTP/1.1 401 NOT FOUND
+*   {
+*     "message": "Session not valid, probably it's expired"
+*   }
+*/
 module.exports.unlinkLocal = (req, res) => {
   authCommon.unlinkServiceByName(req, 'local', res);
 };
 
-/* POST to reset the local password */
-/* /api/reset */
+/**
+* @api {post} /api/reset Reset the local password.
+* @apiVersion 0.0.1
+* @apiName ResetLocal
+* @apiGroup AuthLocal
+* @apiPermission none
+*
+* @apiDescription Reset the local password.
+*
+* @apiParam {String} email User email.
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "Content-Type": "application/json",
+*				"XSRF-TOKEN": "A VALID TOKEN"
+*     }
+*
+* @apiSuccess {String} message Text 'An e-mail has been sent to <code>email</code> with further instructions.'.
+*
+* @apiError ParamsError 400 Email field is required.
+* @apiError NotExistError 404 No account with that email address exists.
+*
+* @apiParamExample {json} Request-Example:
+*     {
+*       "email": "fake@fake.it"
+*     }
+*
+* @apiSuccessExample {json} Success-Response:
+*   HTTP/1.1 200 OK
+*   {
+*     "message":"An e-mail has been sent to <code>email</code> with further instructions."
+*   }
+*/
 module.exports.reset = (req, res) => {
   if(!req.body.email) {
     Utils.sendJSONres(res, 400, "Email fields is required.");
@@ -208,8 +332,41 @@ module.exports.reset = (req, res) => {
   });
 };
 
-/* POST to reset the local password */
-/* /api/resetNewPassword */
+/**
+* @api {post} /api/resetNewPassword Change the local password.
+* @apiVersion 0.0.1
+* @apiName ResetPasswordLocal
+* @apiGroup AuthLocal
+* @apiPermission none
+*
+* @apiDescription Change the local password after the reset.
+*
+* @apiParam {String} newPassword New user password.
+* @apiParam {String} emailToken Token received by email after the reset.
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "Content-Type": "application/json",
+*				"XSRF-TOKEN": "A VALID TOKEN"
+*     }
+*
+* @apiSuccess {String} message Text 'An e-mail has been sent to <code>email</code> with further instructions.'.
+*
+* @apiError ParamsError 400 Password and emailToken fields are required.
+* @apiError NotExistError 404 No account with that token exists.
+*
+* @apiParamExample {json} Request-Example:
+*     {
+*       "newPassword": "Qw12345678",
+*       "emailToken": "TOKEN RECEIVED BY EMAIL"
+*     }
+*
+* @apiSuccessExample {json} Success-Response:
+*   HTTP/1.1 200 OK
+*   {
+*     "message":"An e-mail has been sent to <code>email</code> with further instructions."
+*   }
+*/
 module.exports.resetPasswordFromEmail = (req, res) => {
   if(!req.body.newPassword || !req.body.emailToken) {
     Utils.sendJSONres(res, 400, "Password and emailToken fields are required.");
@@ -252,9 +409,42 @@ module.exports.resetPasswordFromEmail = (req, res) => {
   });
 };
 
-/* POST to activate the local account, using
-the token received on user's mailbox */
-/* /api/activate */
+/**
+* @api {post} /api/activateAccount Activate the local account.
+* @apiVersion 0.0.1
+* @apiName ActivateLocal
+* @apiGroup AuthLocal
+* @apiPermission none
+*
+* @apiDescription Activate the local account, using the token received on user's mailbox.
+*
+* @apiParam {String} emailToken Token received by email after the registration.
+* @apiParam {String} username Local user name.
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "Content-Type": "application/json",
+*				"XSRF-TOKEN": "A VALID TOKEN"
+*     }
+*
+* @apiSuccess {String} message Text 'An e-mail has been sent to <code>email</code> with further instructions.'.
+*
+* @apiError ParamsError 400 EmailToken and userName fields are required.
+* @apiError NotExistError 404 No account with that token exists.
+* @apiError LinkExpiredError 404 Link exprired! Your account is removed. Please, create another account, also with the same email address.
+*
+* @apiParamExample {json} Request-Example:
+*     {
+*       "emailToken": "TOKEN RECEIVED BY EMAIL"
+*       "username": "Username",
+*     }
+*
+* @apiSuccessExample {json} Success-Response:
+*   HTTP/1.1 200 OK
+*   {
+*     "message":"An e-mail has been sent to <code>email</code> with further instructions."
+*   }
+*/
 module.exports.activateAccount = (req, res) => {
   if(!req.body.emailToken || !req.body.userName) {
     Utils.sendJSONres(res, 400, "EmailToken and userName fields are required.");
