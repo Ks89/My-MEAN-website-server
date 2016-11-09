@@ -220,7 +220,7 @@ function _isNotStringArrayObject(p) {
 }
 
 function _isStringOrArrayOrObject(p) {
-  return _.isString(content) || _.isArray(content) || _.isObject(content);
+  return _.isString(p) || _.isArray(p) || _.isObject(p);
 }
 
 function _isSet(p) {
