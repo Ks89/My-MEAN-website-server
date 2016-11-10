@@ -273,7 +273,7 @@ module.exports.unlinkLocal = (req, res) => {
 *				"XSRF-TOKEN": "A VALID TOKEN"
 *     }
 *
-* @apiSuccess {String} message Text 'An e-mail has been sent to <code>email</code> with further instructions.'.
+* @apiSuccess {String} message Text 'An e-mail has been sent to fake@fake.it with further instructions.'.
 *
 * @apiError ParamsError 400 Email field is required.
 * @apiError NotExistError 404 No account with that email address exists.
@@ -286,7 +286,7 @@ module.exports.unlinkLocal = (req, res) => {
 * @apiSuccessExample {json} Success-Response:
 *   HTTP/1.1 200 OK
 *   {
-*     "message":"An e-mail has been sent to <code>email</code> with further instructions."
+*     "message":"An e-mail has been sent to fake@fake.it with further instructions."
 *   }
 */
 module.exports.reset = (req, res) => {
@@ -350,7 +350,7 @@ module.exports.reset = (req, res) => {
 *				"XSRF-TOKEN": "A VALID TOKEN"
 *     }
 *
-* @apiSuccess {String} message Text 'An e-mail has been sent to <code>email</code> with further instructions.'.
+* @apiSuccess {String} message Text 'An e-mail has been sent to fake@fake.it with further instructions.'.
 *
 * @apiError ParamsError 400 Password and emailToken fields are required.
 * @apiError NotExistError 404 No account with that token exists.
@@ -364,7 +364,7 @@ module.exports.reset = (req, res) => {
 * @apiSuccessExample {json} Success-Response:
 *   HTTP/1.1 200 OK
 *   {
-*     "message":"An e-mail has been sent to <code>email</code> with further instructions."
+*     "message":"An e-mail has been sent to fake@fake.it with further instructions."
 *   }
 */
 module.exports.resetPasswordFromEmail = (req, res) => {
@@ -427,7 +427,7 @@ module.exports.resetPasswordFromEmail = (req, res) => {
 *				"XSRF-TOKEN": "A VALID TOKEN"
 *     }
 *
-* @apiSuccess {String} message Text 'An e-mail has been sent to <code>email</code> with further instructions.'.
+* @apiSuccess {String} message Text 'An e-mail has been sent to fake@fake.it with further instructions.'.
 *
 * @apiError ParamsError 400 EmailToken and userName fields are required.
 * @apiError NotExistError 404 No account with that token exists.
@@ -442,7 +442,7 @@ module.exports.resetPasswordFromEmail = (req, res) => {
 * @apiSuccessExample {json} Success-Response:
 *   HTTP/1.1 200 OK
 *   {
-*     "message":"An e-mail has been sent to <code>email</code> with further instructions."
+*     "message":"An e-mail has been sent to fake@fake.it with further instructions."
 *   }
 */
 module.exports.activateAccount = (req, res) => {
