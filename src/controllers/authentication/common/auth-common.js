@@ -8,8 +8,29 @@ var async = require('async');
 var _ = require('lodash');
 var whitelistServices = require('../serviceNames');
 
-/* GET to decode a JWT passing the token itself*/
-/* /api/decodeToken/:token */
+
+/**
+* @api {get} /api/decodeToken/:token Get the decoded token from the input pathparam.
+* @apiVersion 0.0.1
+* @apiName DecodeToken
+* @apiGroup AuthCommon
+* @apiPermission authenticate
+*
+* @apiDescription Get the decoded token from <code>token</code>.
+*   It returns a stringified decoded jwt token.
+*
+* @apiSuccess {String} text A stringified decoded jwt token.
+*
+* @apiError JwtError 401 Text message 'Jwt not valid or corrupted'.
+* @apiError DateError 401 Text message 'Token Session expired (date).'.
+* @apiError JwtNotValidError 401 Text message 'Impossible to decode token.'.
+* @apiError TokenNotFoundError 404 Text message 'No token found'.
+* @apiError JwtUnknownError 500 Text message 'Impossible to check if jwt is valid'.
+*
+* @apiErrorExample {text} Error-Response:
+*   HTTP/1.1 404 NOT FOUND
+*   a stringified jwt decoded token
+*/
 var decodeToken = function(req, res) {
   console.log(req.params);
 
@@ -31,8 +52,31 @@ var decodeToken = function(req, res) {
 };
 
 
-/* GET to logout removing session data stored in Redis */
-/* /api/logout */
+/**
+* @api {get} /api/logout Logout, removing session data stored in Redis.
+* @apiVersion 0.0.1
+* @apiName Logout
+* @apiGroup AuthCommon
+* @apiPermission authenticate
+*
+* @apiDescription Logout, removing session data stored in Redis.
+*
+* @apiSuccess {String} message Constant text 'Logout succeeded'.
+*
+* @apiError NoTokenError 404 Text message 'Authtoken not available as session data'.
+*
+* @apiParamExample {json} Request-Example (local service):
+* HTTP/1.1 200 OK
+*   {
+*     "message": "Logout succeeded"
+*   }
+*
+* @apiErrorExample {json} Error-Response:
+*   HTTP/1.1 404 NOT FOUND
+*   {
+*     "message": "Authtoken not available as session data"
+*   }
+*/
 var logout = function(req, res) {
   console.log('logout called (authToken): ' + req.session.authToken);
   if(req.session.authToken) {
@@ -46,8 +90,29 @@ var logout = function(req, res) {
   }
 };
 
-/* GET to obtain the sessionToken stored in Redis */
-/* /api/sessionToken */
+/**
+* @api {get} /api/logout Get sessionToken stored in Redis.
+* @apiVersion 0.0.1
+* @apiName GetSessionToken
+* @apiGroup AuthCommon
+* @apiPermission authenticate
+*
+* @apiDescription Get sessionToken stored in Redis.
+*
+* @apiSuccess {String} text A stringified jwt token. The stringified object contains a token field.
+*
+* @apiError NoTokenError 404 Text message 'Authtoken not available as session data'.
+*
+* @apiParamExample {text} Request-Example (local service):
+*  HTTP/1.1 200 OK
+*    "{\"token\":\"your.session.token\"}"
+*
+* @apiErrorExample {json} Error-Response:
+*   HTTP/1.1 404 NOT FOUND
+*   {
+*     "message": "Authtoken not available as session data"
+*   }
+*/
 var sessionToken = function(req, res) {
   console.log('sessionToken called');
   console.log('data available (authToken): ' + req.session.authToken);
