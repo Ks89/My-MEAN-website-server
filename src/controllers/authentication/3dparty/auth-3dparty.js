@@ -71,7 +71,7 @@ var connectRedirect = {
 * @apiVersion 0.0.1
 * @apiName Auth3dParty
 * @apiGroup 3dPartyAuth
-* @apiPermission none
+* @apiPermission authenticate
 *
 * @apiDescription Remove <code>serviceName</code> from the logged user. This will destroy <code>serviceName</code>
 *   data inside the db. The user won't login again with this <code>serviceName</code>.
