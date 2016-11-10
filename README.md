@@ -1,8 +1,9 @@
-[![Build Status](https://travis-ci.org/Ks89/My-MEAN-website.svg?branch=master)](https://travis-ci.org/Ks89/My-MEAN-website)   [![Code Climate](https://codeclimate.com/github/Ks89/My-MEAN-website/badges/gpa.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website)   [![Test Coverage](https://codeclimate.com/github/Ks89/My-MEAN-website/badges/coverage.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website/coverage)   [![Known Vulnerabilities](https://snyk.io/test/github/ks89/my-mean-website/badge.svg)](https://snyk.io/test/github/ks89/my-mean-website)
+[![Build Status](https://travis-ci.org/Ks89/My-MEAN-website.svg?branch=master)](https://travis-ci.org/Ks89/My-MEAN-website)   [![Code Climate](https://codeclimate.com/github/Ks89/My-MEAN-website/badges/gpa.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website)   [![Test Coverage](https://codeclimate.com/github/Ks89/My-MEAN-website/badges/coverage.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website/coverage)   [![Known Vulnerabilities](https://snyk.io/test/github/ks89/my-mean-website/d620ace0396e9b862127bb9700b71af1a20eaca1/badge.svg)](https://snyk.io/test/github/ks89/my-mean-website/d620ace0396e9b862127bb9700b71af1a20eaca1)
 <br>
-# My M.E.A.N. website server (Alpha 3)
+# My M.E.A.N. website server/back-end (Alpha)
 <br>
-
+This is the server side. Client side is available [HERE](https://github.com/Ks89/My-MEAN-website-client)
+<br>
 ## Informations
 My MEAN website is a MEAN's web application that I'm creating as a personal website, but also for other uses.
 It's composed by:
@@ -37,6 +38,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - work in progress... (this is only an alpha, please be patient)
 
 ## News
+- *??/??/2016* - **My MEAN website** Alpha 3 See [HERE](https://github.com/Ks89/My-MEAN-website-server/milestones) for the schedule
 - *10/27/2016* - **My MEAN website** Alpha 2 public release [HERE](https://github.com/Ks89/My-MEAN-website/releases)
 - *08/15/2016* - **My MEAN website** Alpha 1 public release [HERE](https://github.com/Ks89/My-MEAN-website/releases)
 
