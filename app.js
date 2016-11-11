@@ -168,7 +168,7 @@ console.log("Initializing morgan (logger)");
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(morgan({ "stream": logger.stream }));
+app.use(morgan("default", { "stream": logger.stream }));
 
 console.log("Initializing static resources");
 app.use(express.static(pathFrontEndFolder));

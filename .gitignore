@@ -20,6 +20,7 @@ node_modules
 ~/
 .DS_Store
 .env
+.idea
 
 # docs api generated with apidocjs
 docs/api
