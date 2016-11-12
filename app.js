@@ -7,14 +7,14 @@ if(!(process.env.CI && process.env.CI === 'yes')) {
   //attention: i'm using "dotenv" 2.0 and for this reason I must call "config()".
 }
 
-var path = require('path');
+let path = require('path');
 
 // --------------------------------------------------------
 // --------------------------------------------------------
 // See this issue here https://github.com/Ks89/My-MEAN-website/issues/30
 //  to understand this piece of code.
-var pathFrontEndFolder, pathFrontEndIndex;
-var pathFrontEndAdminIndex;
+let pathFrontEndFolder, pathFrontEndIndex;
+let pathFrontEndAdminIndex;
 if((process.env.CI && process.env.CI === 'yes') || process.env.NODE_ENV === 'test') {
   console.log("Executed in CI or TEST - providing fake '../My-MEAN-Website-client' and index.html");
   //provides fake directories and files to be able to run this files
@@ -31,18 +31,18 @@ if((process.env.CI && process.env.CI === 'yes') || process.env.NODE_ENV === 'tes
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-var express = require('express');
-var compression = require('compression');
-var favicon = require('serve-favicon');
-var morgan = require('morgan');
-var session = require('express-session');
-var bodyParser = require('body-parser');
+let express = require('express');
+let compression = require('compression');
+let favicon = require('serve-favicon');
+let morgan = require('morgan');
+let session = require('express-session');
+let bodyParser = require('body-parser');
 //logger created with winston
-var logger = require("./src/utils/logger");
+let logger = require("./src/utils/logger");
 
-var redis   = require("redis"); //it's really useful?
-var RedisStore = require('connect-redis')(session);
-var client  = redis.createClient(); //it's really useful?
+let redis   = require("redis"); //it's really useful?
+let RedisStore = require('connect-redis')(session);
+let client  = redis.createClient(); //it's really useful?
 
 // --------------------------------------------------------------------------
 // ----------------------------security packages-----------------------------
@@ -50,18 +50,18 @@ var client  = redis.createClient(); //it's really useful?
 // All security features are prefixed with `--SEC--`
 // --SEC-- - github analog-nico/hpp [NOT helmet]
 //    [http params pollution] security package to prevent http params pollution
-var hpp = require('hpp');
+let hpp = require('hpp');
 // --SEC-- - [CSRF] github.com/expressjs/csurf [NOT helmet]
-var csrf = require('csurf');
+let csrf = require('csurf');
 // --SEC-- - authentication local/3dparty (OAuth)
-var passport = require('passport');
+let passport = require('passport');
 // --SEC-- - github ericmdantas/express-content-length-validator [NOT helmet]
 //    large payload attacks - Make sure this application is
 //    not vulnerable to large payload attacks
-var contentLength = require('express-content-length-validator');
+let contentLength = require('express-content-length-validator');
 const MAX_CONTENT_LENGTH_ACCEPTED = 9999; // constants used with `contentLength`
 // --SEC-- - Helmet
-var helmet = require('helmet');
+let helmet = require('helmet');
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ require('./src/models/db');
 require('./src/controllers/authentication/passport')(passport);
 
 console.log("Initializing expressjs");
-var app = express();
+let app = express();
 
 console.log("Initializing helmet");
 // --SEC-- - [helmet] enable helmet
@@ -210,7 +210,7 @@ console.log("Initializing REST apis and CSRF");
 // --------------------------------------- ROUTES ---------------------------------------
 // dedicated routes for angular logging with stacktracejs
 // these router aren't protected with csrf, because declared before app.use(csrf()).
-var loggerApi = require('./src/routes/log-api')(express);
+let loggerApi = require('./src/routes/log-api')(express);
 app.use('/api/log', loggerApi);
 
 // enable middleware CSRF by csurf package [NOT helmet]
@@ -224,7 +224,7 @@ app.use(function (req, res, next) {
 });
 
 // APIs for all route protected with CSRF (all routes except for angular log's service)
-var routesApi = require('./src/routes/index')(express);
+let routesApi = require('./src/routes/index')(express);
 app.use('/api', routesApi);
 // --------------------------------------------------------------------------------------
 
@@ -251,7 +251,7 @@ app.use(function (err, req, res, next) {
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
