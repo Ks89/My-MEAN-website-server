@@ -1,9 +1,7 @@
 // ------------- imported from app.js ---------------
 module.exports = function (express) {
-	var app = express();
-	var router = express.Router();
-
-	var ctrlLogger = require('../controllers/logger');
+	let router = express.Router();
+	let ctrlLogger = require('../controllers/logger');
 
 	router.post('/debug', ctrlLogger.debug);
 	router.post('/error', ctrlLogger.error);

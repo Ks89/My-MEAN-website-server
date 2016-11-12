@@ -1,7 +1,7 @@
 // ------------- imported from ./index.js ---------------
 
 module.exports = function (router) {
-  var ctrlTesting = require('../controllers/testing');
+  let ctrlTesting = require('../controllers/testing');
 
   // -----------------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------------
