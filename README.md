@@ -50,7 +50,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 
 ## How to install (Windows)
 - install Node.js, MongoDb, redis-server and so on
-- from the `setup` folder of this project, run `bash install-macos.sh`
+- from the `setup` folder of this project, run `bash install-windows.sh`
 - TODO improve this tutorial :)
 
 ## How to setup
@@ -102,8 +102,7 @@ All REST webservices will be available at http://localhost:3001
 If you want to run server's tests execute this command `gulp test`.
 
 ## How to start
-
-- cd <Main folder>
+- cd 'main folder of this project'
 - `gulp`
 - all REST services will be available at http://localhost:3001
 
