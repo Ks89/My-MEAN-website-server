@@ -2,7 +2,7 @@
 <br>
 # My M.E.A.N. website server/back-end (Alpha)
 <br>
-This is the server side. Client side is available [HERE](https://github.com/Ks89/My-MEAN-website-client)
+**This is the server side.** Client side is available [HERE](https://github.com/Ks89/My-MEAN-website-client)
 <br>
 ## Informations
 My MEAN website is a MEAN's web application that I'm creating as a personal website, but also for other uses.
@@ -38,34 +38,20 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - work in progress... (this is only an alpha, please be patient)
 
 ## News
-- *??/??/2016* - **My MEAN website** Alpha 3 See [HERE](https://github.com/Ks89/My-MEAN-website-server/milestones) for the schedule
+- *11/30/2016* - **My MEAN website** Alpha 3 See [HERE](https://github.com/Ks89/My-MEAN-website-server/milestones) for the schedule
 - *10/27/2016* - **My MEAN website** Alpha 2 public release [HERE](https://github.com/Ks89/My-MEAN-website/releases)
 - *08/15/2016* - **My MEAN website** Alpha 1 public release [HERE](https://github.com/Ks89/My-MEAN-website/releases)
 
 ## How to install (MacOS)
-- download and install Node.js 7.0 or higher
-- Install homebrew:
-  - ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  - brew update
-  - brew upgrade
-- Install MongoDB
-  - brew install wget
-  - brew install mongodb --with-openssl
-  - sudo mkdir -p /data/db
-- Install redis
-  - wget http://download.redis.io/redis-stable.tar.gz
-  - tar xvzf redis-stable.tar.gz
-  - cd redis-stable
-  - make install
-  - cd ..
-  - rm -rf redis-stable
-  - rm -f redis-stable.tar.gz
-- Install global npm packages
-  - sudo npm install -g mocha
-  - sudo npm install -g nodemon
-  - sudo npm install -g gulp@github:gulpjs/gulp#4.0
-  - sudo npm install -g remap-istanbul
-  - sudo npm install -g istanbul
+- from the `setup` folder of this project, run `bash install-macos.sh`
+
+## How to install (Linux)
+- from the `setup` folder of this project, run `bash install-linux.sh`
+
+## How to install (Windows)
+- install Node.js, MongoDb, redis-server and so on
+- from the `setup` folder of this project, run `bash install-macos.sh`
+- TODO improve this tutorial :)
 
 ## How to setup
 
@@ -105,10 +91,10 @@ RECAPTCHA_SECRET=YOUR GOOGLE RECAPTCHA 2 SECRET KEY
 1d. reaplce INSERT A JWT SECRET HERE with an alphanumerical string (I'm using a random string with a length = 72)
 
 2. install all necessary tools (Node.js, redis-server, mongo db)
-3. execute this command 'npm install' into the root folder
-4. execute this command 'redis-server
-5. execute this command 'mongod' (on Mac OSX use 'sudo mongod')
-6. execute this command 'gulp' into the root folder to start this application (back-end)
+3. execute this command `npm install` into the root folder
+4. execute this command `redis-server
+5. execute this command `mongod` (on Mac OSX use `sudo mongod`)
+6. execute this command `gulp` into the root folder to start this application (back-end)
 
 All REST webservices will be available at http://localhost:3001
 
@@ -118,7 +104,7 @@ If you want to run server's tests execute this command `gulp test`.
 ## How to start
 
 - cd <Main folder>
-- gulp
+- `gulp`
 - all REST services will be available at http://localhost:3001
 
 ## Features
@@ -128,19 +114,18 @@ Work in progress... (this is only an alpha, please be patient)
 Work in progress... (this is only an alpha, please be patient)
 
 ## Images
-Work in progress...
 
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/home.png)
 <br/><br/>
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projects.png)
 <br/><br/>
-![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/project-detail.png)
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projectDetail.png)
 <br/><br/>
-![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projectDetail-imagegallery.png)
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projectDetail-image.png)
 <br/><br/>
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/contact.png)
 <br/><br/>
-![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/contact-recaptcha.png)
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/contact-images.png)
 <br/><br/>
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/signin.png)
 <br/><br/>
@@ -150,7 +135,7 @@ Note: updated local profile info
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-updated.png)
 <br/><br/>
 Note: multiple account connected (Facebook and Github)
-![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-fb-github.png)
+![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-multiple.png)
 
 ## Configuration
 Work in progress... (this is only an alpha, please be patient)
