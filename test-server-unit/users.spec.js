@@ -19,12 +19,8 @@ var User;
 var mongoose = require('mongoose');
 require('../src/models/users');
 
-before(done => {
-	// Connecting to a local test database or creating it on the fly
-	mongoose.connect('mongodb://localhost/test-db');
-	User = mongoose.model('User');
-	done();
-});
+mongoose.createConnection('mongodb://localhost/test-db');
+User = mongoose.model('User');
 
 describe('users model', () => {
 
@@ -222,10 +218,12 @@ describe('users model', () => {
 		expect(decoded.user.profile.visible).to.be.true;
 	}
 
-	after(done => {
-		User.remove({}, err => {
-			console.log('collection removed')
-			done(err);
-		});
-	});
+});
+
+after(done => {
+  User.remove({}, err => {
+    console.log('collection removed');
+    // mongoose.disconnect();
+    done(err);
+  });
 });

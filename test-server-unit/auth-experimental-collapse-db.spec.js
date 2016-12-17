@@ -19,7 +19,7 @@ var User;
 var mongoose = require('mongoose');
 require('../src/models/users');
 
-mongoose.connect('mongodb://localhost/test-db');
+mongoose.createConnection('mongodb://localhost/test-db');
 User = mongoose.model('User');
 
 var userDb;

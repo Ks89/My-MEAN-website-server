@@ -24,7 +24,7 @@ describe('passport', () => {
 
   before(done => {
     // Connecting to a local test database or creating it on the fly
-    mongoose.connect('mongodb://localhost/test-db');
+    mongoose.createConnection('mongodb://localhost/test-db');
     User = mongoose.model('User');
     done();
   });
