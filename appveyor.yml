@@ -10,10 +10,10 @@ environment:
 
 # Install scripts. (runs after repo cloning)
 install:
-  - cmd: >-
-      nuget install redis-64 -excludeversion
-      redis-64\tools\redis-server.exe --service-install
-      redis-64\tools\redis-server.exe --service-start
+  - nuget install redis-64 -excludeversion
+  - redis-64\tools\redis-server.exe --service-install
+  - redis-64\tools\redis-server.exe --service-start
+  - '@ECHO Redis Started'
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   - set JWT_SECRET=faketestjwt
