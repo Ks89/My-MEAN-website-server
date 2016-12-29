@@ -8,6 +8,40 @@ environment:
 #  - x86
 #  - x64
 
+# branches to build
+branches:
+  # blacklist
+  except:
+    - gh-pages
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+environment:
+  JWT_SECRET:faketestjwt
+  TWITTER_CONSUMER_KEY:consumerkey
+  TWITTER_CONSUMER_SECRET:consumersecret
+  TWITTER_CALLBACK_URL:http://127.0.0.1:3300/api/auth/twitter/callback
+  FACEBOOK_APP_ID:appid
+  FACEBOOK_APP_SECRET:appsecret
+  FACEBOOK_CALLBACK_URL:http://localhost:3300/api/auth/facebook/callback
+  GOOGLE_CLIENT_ID:clientid
+  GOOGLE_CLIENT_SECRET:clientsecret
+  GOOGLE_CALLBACK_URL:http://localhost:3300/api/auth/google/callback
+  GITHUB_CLIENT_ID:clientid
+  GITHUB_CLIENT_SECRET:clientsecret
+  GITHUB_CALLBACK_URL:http://localhost:3300/api/auth/github/callback
+  LINKEDIN_CLIENT_ID:clientid
+  LINKEDIN_CLIENT_SECRET:clientsecret
+  LINKEDIN_CALLBACK_URL:http://localhost:3300/api/auth/linkedin/callback
+  USER_EMAIL:fake@fake.it
+  PASS_EMAIL:fakepasswordemail
+  RECAPTCHA_PUBLIC:recaptchapublic
+  RECAPTCHA_SECRET:recaptchasecret
+  NODE_ENV:test
+  CI:yes
+
 # Install scripts. (runs after repo cloning)
 install:
   - nuget install redis-64 -excludeversion
@@ -16,28 +50,6 @@ install:
   - '@ECHO Redis Started'
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
-  - set JWT_SECRET=faketestjwt
-  - set TWITTER_CONSUMER_KEY=consumerkey
-  - set TWITTER_CONSUMER_SECRET=consumersecret
-  - set TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback
-  - set FACEBOOK_APP_ID=appid
-  - set FACEBOOK_APP_SECRET=appsecret
-  - set FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback
-  - set GOOGLE_CLIENT_ID=clientid
-  - set GOOGLE_CLIENT_SECRET=clientsecret
-  - set GOOGLE_CALLBACK_URL=http://localhost:3300/api/auth/google/callback
-  - set GITHUB_CLIENT_ID=clientid
-  - set GITHUB_CLIENT_SECRET=clientsecret
-  - set GITHUB_CALLBACK_URL=http://localhost:3300/api/auth/github/callback
-  - set LINKEDIN_CLIENT_ID=clientid
-  - set LINKEDIN_CLIENT_SECRET=clientsecret
-  - set LINKEDIN_CALLBACK_URL=http://localhost:3300/api/auth/linkedin/callback
-  - set USER_EMAIL=fake@fake.it
-  - set PASS_EMAIL=fakepasswordemail
-  - set RECAPTCHA_PUBLIC=recaptchapublic
-  - set RECAPTCHA_SECRET=recaptchasecret
-  - set NODE_ENV=test
-  - set CI=yes
   - npm -g install npm@latest
   - set PATH=%APPDATA%\npm;%PATH%
   - npm install -g mocha
@@ -58,39 +70,6 @@ cache:
   - '%USERPROFILE%\.nuget\packages -> **\project.json'  # project.json cache
 
 before_build:
-#- ps: >-
-#    Invoke-WebRequest "https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.zip" -OutFile .\redis-3.2.100.zip;
-#
-#    $destFolder = "redis-3.2.100";
-#
-#    $shell = new-object -com shell.application;
-#
-#
-#    $zip = $shell.NameSpace("$pwd\redis-3.2.100.zip");
-#
-#    if (Test-Path $pwd\$destFolder )
-#
-#    {
-#        del $pwd\$destFolder -Force -Recurse
-#    }
-#
-#    md ".\redis-3.2.100";
-#
-#    foreach($item in $zip.items())
-#
-#    {
-#        $shell.Namespace("$pwd\redis-3.2.100").copyhere($item);
-#    }
-#
-#    cd $destFolder
-#
-#    .\redis-server.exe --service-install
-#
-#    .\redis-server.exe --service-start
-#
-#    cd ..
-#    cd ..
-# - cmd: nuget restore
 
 
 build: false
