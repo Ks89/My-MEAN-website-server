@@ -47,6 +47,11 @@ install:
 matrix:
   fast_finish: true
 
+cache:
+  - packages -> **\packages.config      # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+  - node_modules                        # local npm modules
+  - '%APPDATA%\npm-cache'               # npm cache
+  - '%USERPROFILE%\.nuget\packages -> **\project.json'  # project.json cache
 
 before_build:
 - ps: >-
@@ -80,8 +85,7 @@ before_build:
     .\redis-server.exe --service-start
 
     cd ..
-- nuget restore Hangfire.Redis.StackExchange.sln
-
+    
 build:
   publish_nuget: false
   publish_nuget_symbols: false
