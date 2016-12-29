@@ -84,10 +84,13 @@ before_build:
 
     .\redis-server.exe --service-start
 
-build:
-  publish_nuget: false
-  publish_nuget_symbols: false
-  verbosity: minimal
+    cd ..
+    cd ..
+
+build: false
+  # publish_nuget: false
+  # publish_nuget_symbols: false
+  # verbosity: minimal
 
 shallow_clone: true
 
