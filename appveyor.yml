@@ -73,8 +73,6 @@ before_build:
         $shell.Namespace("$pwd\redis-3.2.100").copyhere($item);
     }
 
-    it kind of worked
-
     cd $destFolder
 
     .\redis-server.exe --service-install
