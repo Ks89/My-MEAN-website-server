@@ -1,20 +1,96 @@
 # Test against this version of Node.js
 environment:
   matrix:
-    # node.js
-    - nodejs_version: "7.0"
-    - nodejs_version: "6.0"
+    - nodejs_version: "7"
+ #   - nodejs_version: "6"
 
-platform:
-  - x86
-  - x64
+#platform:
+#  - x86
+#  - x64
 
 # Install scripts. (runs after repo cloning)
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
-  # install modules
+  - set JWT_SECRET=faketestjwt
+  - set TWITTER_CONSUMER_KEY=consumerkey
+  - set TWITTER_CONSUMER_SECRET=consumersecret
+  - set TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback
+  - set FACEBOOK_APP_ID=appid
+  - set FACEBOOK_APP_SECRET=appsecret
+  - set FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback
+  - set GOOGLE_CLIENT_ID=clientid
+  - set GOOGLE_CLIENT_SECRET=clientsecret
+  - set GOOGLE_CALLBACK_URL=http://localhost:3300/api/auth/google/callback
+  - set GITHUB_CLIENT_ID=clientid
+  - set GITHUB_CLIENT_SECRET=clientsecret
+  - set GITHUB_CALLBACK_URL=http://localhost:3300/api/auth/github/callback
+  - set LINKEDIN_CLIENT_ID=clientid
+  - set LINKEDIN_CLIENT_SECRET=clientsecret
+  - set LINKEDIN_CALLBACK_URL=http://localhost:3300/api/auth/linkedin/callback
+  - set USER_EMAIL=fake@fake.it
+  - set PASS_EMAIL=fakepasswordemail
+  - set RECAPTCHA_PUBLIC=recaptchapublic
+  - set RECAPTCHA_SECRET=recaptchasecret
+  - set NODE_ENV=test
+  - set CI=yes
+  - npm -g install npm@latest
+  - set PATH=%APPDATA%\npm;%PATH%
+  - npm install -g mocha
+  - npm install -g nodemon
+  - npm install -g gulp@github:gulpjs/gulp#4.0
+  - npm install -g istanbul
+  - npm install -g remap-istanbul
+  - npm install -g codeclimate-test-reporter
   - npm install
+
+matrix:
+  fast_finish: true
+
+
+before_build:
+- ps: >-
+    Invoke-WebRequest "https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.zip" -OutFile .\redis-3.2.100.zip;
+
+    $destFolder = "redis-3.2.100";
+
+    $shell = new-object -com shell.application;
+
+
+    $zip = $shell.NameSpace("$pwd\redis-3.2.100.zip");
+
+    if (Test-Path $pwd\$destFolder )
+
+    {
+        del $pwd\$destFolder -Force -Recurse
+    }
+
+    md ".\redis-3.2.100";
+
+    foreach($item in $zip.items())
+
+    {
+        $shell.Namespace("$pwd\redis-3.2.100").copyhere($item);
+    it kind of worked
+
+    cd $destFolder
+
+    .\redis-server.exe --service-install
+
+    .\redis-server.exe --service-start
+
+    cd ..
+- nuget restore Hangfire.Redis.StackExchange.sln
+
+build:
+  publish_nuget: false
+  publish_nuget_symbols: false
+  verbosity: minimal
+
+shallow_clone: true
+
+services:
+  - mongodb
 
 # Post-install test scripts.
 test_script:
@@ -30,7 +106,3 @@ test_script:
   - mocha test-server-unit/passport.spec.js
   - mocha test-server-unit/users.spec.js
   - mocha test-server-unit/util.spec.js
-
-
-# Don't actually build.
-build: off
