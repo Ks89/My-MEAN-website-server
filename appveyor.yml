@@ -84,8 +84,6 @@ before_build:
 
     .\redis-server.exe --service-start
 
-    cd ..
-    
 build:
   publish_nuget: false
   publish_nuget_symbols: false
