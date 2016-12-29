@@ -90,13 +90,13 @@ before_build:
 #
 #    cd ..
 #    cd ..
-- cmd: nuget restore
+# - cmd: nuget restore
 
 
-build:
+build: false
   # publish_nuget: false
   # publish_nuget_symbols: false
-  verbosity: minimal
+  # verbosity: minimal
 
 shallow_clone: true
 
