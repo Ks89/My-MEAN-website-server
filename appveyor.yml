@@ -10,6 +10,10 @@ environment:
 
 # Install scripts. (runs after repo cloning)
 install:
+  - cmd: >-
+      nuget install redis-64 -excludeversion
+      redis-64\tools\redis-server.exe --service-install
+      redis-64\tools\redis-server.exe --service-start
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   - set JWT_SECRET=faketestjwt
@@ -54,43 +58,45 @@ cache:
   - '%USERPROFILE%\.nuget\packages -> **\project.json'  # project.json cache
 
 before_build:
-- ps: >-
-    Invoke-WebRequest "https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.zip" -OutFile .\redis-3.2.100.zip;
+#- ps: >-
+#    Invoke-WebRequest "https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.zip" -OutFile .\redis-3.2.100.zip;
+#
+#    $destFolder = "redis-3.2.100";
+#
+#    $shell = new-object -com shell.application;
+#
+#
+#    $zip = $shell.NameSpace("$pwd\redis-3.2.100.zip");
+#
+#    if (Test-Path $pwd\$destFolder )
+#
+#    {
+#        del $pwd\$destFolder -Force -Recurse
+#    }
+#
+#    md ".\redis-3.2.100";
+#
+#    foreach($item in $zip.items())
+#
+#    {
+#        $shell.Namespace("$pwd\redis-3.2.100").copyhere($item);
+#    }
+#
+#    cd $destFolder
+#
+#    .\redis-server.exe --service-install
+#
+#    .\redis-server.exe --service-start
+#
+#    cd ..
+#    cd ..
+- cmd: nuget restore
 
-    $destFolder = "redis-3.2.100";
 
-    $shell = new-object -com shell.application;
-
-
-    $zip = $shell.NameSpace("$pwd\redis-3.2.100.zip");
-
-    if (Test-Path $pwd\$destFolder )
-
-    {
-        del $pwd\$destFolder -Force -Recurse
-    }
-
-    md ".\redis-3.2.100";
-
-    foreach($item in $zip.items())
-
-    {
-        $shell.Namespace("$pwd\redis-3.2.100").copyhere($item);
-    }
-
-    cd $destFolder
-
-    .\redis-server.exe --service-install
-
-    .\redis-server.exe --service-start
-
-    cd ..
-    cd ..
-
-build: false
+build:
   # publish_nuget: false
   # publish_nuget_symbols: false
-  # verbosity: minimal
+  verbosity: minimal
 
 shallow_clone: true
 
