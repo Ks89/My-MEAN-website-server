@@ -160,4 +160,8 @@ describe('auth-common', () => {
 
 		});
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

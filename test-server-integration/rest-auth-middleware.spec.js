@@ -159,4 +159,8 @@ describe('rest-auth-middleware', () => {
 			afterEach(done => dropUserTestDbAndLogout(done));
 		});
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

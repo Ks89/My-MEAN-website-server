@@ -11,13 +11,11 @@ if(!process.env.CI || process.env.CI !== 'yes') {
   require('dotenv').config();
 }
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+var expect = require('chai').expect;
+var jwt = require('jsonwebtoken');
 var Utils = require('../src/utils/util');
 var MockedRes = require('./mocked-res-class');
 var mockedRes = new MockedRes();
-var jwt = require('jsonwebtoken');
 
 describe('util', () => {
 

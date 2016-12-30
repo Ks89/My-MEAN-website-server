@@ -261,4 +261,8 @@ describe('auth-local', () => {
 			});
 		});
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

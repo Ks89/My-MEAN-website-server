@@ -11,21 +11,16 @@ if(!process.env.CI || process.env.CI !== 'yes') {
 	require('dotenv').config();
 }
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-
-var User;
+var expect = require('chai').expect;
+const serviceNames = require('../src/controllers/authentication/serviceNames');
+var Promise = require('bluebird');
 var mongoose = require('mongoose');
+var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
+
 require('../src/models/users');
+var User = mongoose.model('User');
 
-mongoose.createConnection('mongodb://localhost/test-db');
-User = mongoose.model('User');
-
-var userDb;
-
-var util = require('../src/utils/util');
-var serviceNames = require('../src/controllers/authentication/serviceNames');
+var collapser = require('../src/controllers/authentication/common/auth-experimental-collapse-db');
 
 //add session property to the mocked
 //request (used to store jwt session token by redis)
@@ -34,9 +29,6 @@ var mockedReq = {
 			authToken : null
 	}
 };
-
-var jwt = require('jsonwebtoken');
-var collapser = require('../src/controllers/authentication/common/auth-experimental-collapse-db');
 
 const USERNAME = 'username';
 const EMAIL = 'email@email.it';
@@ -58,6 +50,21 @@ const PROFILEVISIBLE2 = true;
 const PROFILEDATE = new Date();
 
 describe('auth-experimental-collapse-db', () => {
+
+  before(done => {
+    //Connection ready state: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    if (mongoose.connections[0] && mongoose.connections[0]._readyState !== 0) {
+      console.log("readyState: " + mongoose.connections[0]._readyState);
+      console.log("----------------- already connected");
+      done();
+    } else {
+      connectMongoose('mongodb://localhost/test-db', mongoose)
+        .then(() => {
+          console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
+          done();
+        });
+    }
+  });
 
 	describe('#collapseDb()', () => {
 
@@ -327,7 +334,7 @@ describe('auth-experimental-collapse-db', () => {
 					new RegExp('/fooRegex/','i'), new Error(), true, false, new Array()];
 
 			for(let i=0; i<loggedUserWrongMock.length; i++) {
-				it('should catch an error, because you must pass an object as loggedUser\'s parameter. Test i=' + i, done => {
+				it(`should catch an error, because you must pass an object as loggedUser's parameter. Test i=${i}`, done => {
 					collapser.collapseDb(loggedUserWrongMock[i], 'local', mockedReq)
           .then(result => {}, reason => {
             expect(reason).to.be.equals('impossible to collapseDb because loggedUser is not an object');
@@ -396,6 +403,12 @@ describe('auth-experimental-collapse-db', () => {
 			});
 		});
 	});
-});
 
-after(() => User.remove({}, err => err));
+  after(done => {
+    console.info("Disconnecting");
+    mongoose.disconnect(() => {
+      console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
+      done();
+    });
+  });
+});

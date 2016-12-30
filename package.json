@@ -61,6 +61,7 @@
     "gulp-cached": "^1.1.1",
     "gulp-concat": "^2.6.1",
     "gulp-eslint": "^3.0.1",
+    "gulp-exit": "0.0.2",
     "gulp-istanbul": "^1.1.1",
     "gulp-jasmine": "^2.4.2",
     "gulp-jshint": "^2.0.4",

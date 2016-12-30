@@ -270,4 +270,8 @@ describe('profile', () => {
 			.end(() => done());
 		});
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

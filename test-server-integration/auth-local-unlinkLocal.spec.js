@@ -265,6 +265,9 @@ describe('auth-local', () => {
 
 			afterEach(done => dropUserTestDbAndLogout(done));
 		});
-
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

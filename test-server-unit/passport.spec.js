@@ -11,23 +11,39 @@ if(!process.env.CI || process.env.CI !== 'yes') {
   require('dotenv').config();
 }
 
-var chai = require('chai');
-var expect = chai.expect;
-
-require('../src/models/users');
+var expect = require('chai').expect;
+var Promise = require('bluebird');
 var mongoose = require('mongoose');
-var User = mongoose.model('User');
+var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 var passport = require('../src/controllers/authentication/passport');
 var userId;
+
+require('../src/models/users');
+var User = mongoose.model('User');
 
 describe('passport', () => {
 
   before(done => {
-    // Connecting to a local test database or creating it on the fly
-    mongoose.createConnection('mongodb://localhost/test-db');
-    User = mongoose.model('User');
-    done();
+    //Connection ready state: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    if (mongoose.connections[0] && mongoose.connections[0]._readyState !== 0) {
+      console.log("readyState: " + mongoose.connections[0]._readyState);
+      console.log("----------------- already connected");
+      done();
+    } else {
+      connectMongoose('mongodb://localhost/test-db', mongoose)
+      .then(() => {
+        console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
+        done();
+      });
+    }
   });
+
+  // before(done => {
+  //   // Connecting to a local test database or creating it on the fly
+  //   mongoose.createConnection('mongodb://localhost/test-db');
+  //   User = mongoose.model('User');
+  //   done();
+  // });
 
   describe('serializeUser and deserializeUser', () => {
 
@@ -57,7 +73,7 @@ describe('passport', () => {
         var userMock = { id: '' };
         function mockedDoneDeserialize(err, userMock) {
           expect(userMock._id+"").to.be.equals(userId+"");
-        };
+        }
         function deserialize(id, mockedDoneDeserialize) {
           mockedDoneDeserialize(null, id);
         }
@@ -76,7 +92,7 @@ describe('passport', () => {
           use: function(strategy) {
             // mocked use function
           }
-        }
+        };
 
         // call passport.js with the mocked infos
         // it will call done functions automatically, in particular
@@ -88,12 +104,13 @@ describe('passport', () => {
       });
 
     });
+  });
 
-    after(done => {
-      User.remove({}, err => {
-        console.log('collection removed')
-        done(err);
-      });
+  after(done => {
+    console.info("Disconnecting");
+    mongoose.disconnect(() => {
+      console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
+      done();
     });
   });
-})
+});

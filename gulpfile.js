@@ -9,7 +9,7 @@ var nodemon 		= require('gulp-nodemon');
 var sourcemaps  = require('gulp-sourcemaps');
 var through     = require('through2');
 var arguments 	= require('yargs').argv;
-
+var exit 				= require('gulp-exit');
 var isprod = (arguments.env === 'prod');
 
 var noop = function() {
@@ -36,8 +36,16 @@ gulp.task('hint', function hintInternal() {
 
 
 var testPaths = [
+                 'test-server-unit/util.spec.js',
 								 'test-server-integration/**/*.spec.js',
-								 'test-server-unit/**/*.spec.js'
+	               'test-server-unit/3dparty-passport.spec.js',
+                 'test-server-unit/auth-experimental-collapse-db.spec.js',
+                 'test-server-unit/auth-util.spec.js',
+                 'test-server-unit/passport.spec.js',
+                 'test-server-unit/users.spec.js'
+                 // 'test-server-unit/util.spec.js'
+
+  // 'test-server-unit/**/*.spec.js'
 								];
 
 gulp.task('pre-test', function pretestInternal() {
@@ -63,6 +71,7 @@ gulp.task('test',
     .pipe(istanbul.writeReports())
     // Enforce a coverage of at least 90% otherwise throw an error
     .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } }));
+//     .pipe(exit());
 }));
 
 gulp.task('nodemon', function nodemonInternal(cb) {

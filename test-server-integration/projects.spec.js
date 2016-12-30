@@ -286,4 +286,8 @@ describe('projects', () => {
 			});
 		});
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

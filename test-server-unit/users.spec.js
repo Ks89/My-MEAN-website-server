@@ -11,18 +11,31 @@ if(!process.env.CI || process.env.CI !== 'yes') {
 	require('dotenv').config();
 }
 
-var chai = require('chai');
-var expect = chai.expect;
+var expect = require('chai').expect;
 var jwt = require('jsonwebtoken');
-
-var User;
+var Promise = require('bluebird');
 var mongoose = require('mongoose');
-require('../src/models/users');
+var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 
-mongoose.createConnection('mongodb://localhost/test-db');
-User = mongoose.model('User');
+require('../src/models/users');
+var User = mongoose.model('User');
 
 describe('users model', () => {
+
+  before(done => {
+    //Connection ready state: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    if (mongoose.connections[0] && mongoose.connections[0]._readyState !== 0) {
+      console.log("readyState: " + mongoose.connections[0]._readyState);
+      console.log("----------------- already connected");
+      done();
+    } else {
+      connectMongoose('mongodb://localhost/test-db', mongoose)
+      .then(() => {
+        console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
+        done();
+      });
+    }
+  });
 
 	const USERNAME = 'username';
 	const EMAIL = 'email@email.it';
@@ -113,7 +126,7 @@ describe('users model', () => {
 					expect(decoded.user.local).is.not.null;
 					expect(decoded.user.local.name).to.be.equals(USERNAME);
 					expect(decoded.user.local.email).to.be.equals(EMAIL);
-					done(err)
+					done(err);
 				});
 			});
 
@@ -123,7 +136,7 @@ describe('users model', () => {
 				expect(jsonWebToken).to.be.not.null;
 				jwt.verify(jsonWebToken, process.env.JWT_SECRET, (err, decoded) => {
 					expectValidCompleteUserJwt(err, decoded, newUser._id+'');
-					done(err)
+					done(err);
 				});
 			});
 		});
@@ -137,7 +150,7 @@ describe('users model', () => {
 				expect(jasonWebToken).is.not.null;
 				jwt.verify(jasonWebToken, process.env.JWT_SECRET, (err, decoded) => {
 					expectValidUserJwt(err, decoded);
-					done(err)
+					done(err);
 				});
 			});
 
@@ -147,7 +160,7 @@ describe('users model', () => {
 				expect(jsonWebToken).to.be.not.null;
 				jwt.verify(jsonWebToken, process.env.JWT_SECRET, (err, decoded) => {
 					expectValidCompleteUserJwt(err, decoded, newUser._id+'');
-					done(err)
+					done(err);
 				});
 			});
 		});
@@ -218,12 +231,12 @@ describe('users model', () => {
 		expect(decoded.user.profile.visible).to.be.true;
 	}
 
-});
-
-after(done => {
-  User.remove({}, err => {
-    console.log('collection removed');
-    // mongoose.disconnect();
-    done(err);
+  after(done => {
+    console.info("Disconnecting");
+    mongoose.disconnect(() => {
+      console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
+      done();
+    });
   });
+
 });

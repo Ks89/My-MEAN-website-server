@@ -242,4 +242,8 @@ describe('auth-common', () => {
 			afterEach(done => dropUserTestDbAndLogout(done));
 		});
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

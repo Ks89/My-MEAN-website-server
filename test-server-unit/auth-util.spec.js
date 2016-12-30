@@ -11,22 +11,37 @@ if(!process.env.CI || process.env.CI !== 'yes') {
 	require('dotenv').config();
 }
 
-var chai = require('chai');
-var expect = chai.expect;
+var expect = require('chai').expect;
+var Promise = require('bluebird');
+var mongoose = require('mongoose');
+var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
+var AuthUtil = require('../src/utils/auth-util');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var AuthUtil = require('../src/utils/auth-util');
 
 const FAKE = 'fake';
 const WRONG_SERVICE_NAME = 'wrong';
-
 const SERVICENAME_NOT_VALID = 'Service name not valid';
 const SERVICENAME_MUSTBE_STRING = 'Service name must be a String';
 const USER_MUSTBE_OBJECT = 'User must be a valid object';
 
 describe('auth-util', () => {
+
+  before(done => {
+    //Connection ready state: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    if (mongoose.connections[0] && mongoose.connections[0]._readyState !== 0) {
+      console.log("readyState: " + mongoose.connections[0]._readyState);
+      console.log("----------------- already connected");
+      done();
+    } else {
+      connectMongoose('mongodb://localhost/test-db', mongoose)
+        .then(() => {
+          console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
+          done();
+        });
+    }
+  });
 
   describe('#constructor()', () => {
     it('should create an object calling the constructor', () => {
@@ -265,4 +280,12 @@ describe('auth-util', () => {
 			});
 		});
 	});
+
+  after(done => {
+    console.info("Disconnecting");
+    mongoose.disconnect(() => {
+      console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
+      done();
+    });
+  });
 });

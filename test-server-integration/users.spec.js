@@ -195,4 +195,8 @@ describe('users', () => {
 
 		after(done => dropUserTestDbAndLogout(done));
 	});
+
+  after(() => {
+    // mongoose.disconnect();
+  });
 });

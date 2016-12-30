@@ -432,4 +432,9 @@ describe('auth-3dparty', () => {
 			afterEach(done => dropUserTestDb(done));
 		});
 	});
+
+  after((done) => {
+    // mongoose.disconnect();
+    done();
+  });
 });
