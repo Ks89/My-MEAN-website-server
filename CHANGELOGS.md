@@ -1,5 +1,24 @@
 # Changelog
 
+## Alpha 4
+
+Alpha 4 is dedicated manly to the front-end side, but I made some changes also to server-side.
+
+### **Features**
+- AppVeyor #38
+- test everything #14
+- client unit test - coverage >=90% (istanbul report) #25
+
+### **Chore**
+- Improve travisci config with caching npm #35
+
+### **Bugfixes**
+- Fix tests #52
+- Refactor test to fix problem related to mongoose timeout #53
+
+and other small changes everywhere... :)
+
+
 ## Alpha 3
 
 Starting from this version, **server side and client side will be in two standalone projects on Github.**
