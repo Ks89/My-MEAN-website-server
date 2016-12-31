@@ -24,9 +24,23 @@ var prod = function(task) {
 	return isprod ? task : noop();
 };
 
-var testHintJs = ['src/**/*.js', 'app.js'];
+// files
+var filePaths = ['src/**/*.js', './app.js'];
+var testHintJs = ['src/**/*.js', './app.js'];
+var testPaths = [
+  'test-server-unit/util.spec.js',
+  'test-server-integration/**/*.spec.js',
+  'test-server-unit/3dparty-passport.spec.js',
+  'test-server-unit/auth-experimental-collapse-db.spec.js',
+  'test-server-unit/auth-util.spec.js',
+  'test-server-unit/passport.spec.js',
+  'test-server-unit/users.spec.js'
+];
 
-//TODO FIXME - broken in alpha 2
+// ***************************************************
+// *                     JSHINT                      *
+// ***************************************************
+
 gulp.task('hint', function hintInternal() {
 	return gulp.src(testHintJs /*, {since: gulp.lastRun('hint')}*/)
 	.pipe(jshint())
@@ -34,19 +48,9 @@ gulp.task('hint', function hintInternal() {
 	.pipe(jshint.reporter('fail'));
 });
 
-
-var testPaths = [
-                 'test-server-unit/util.spec.js',
-								 'test-server-integration/**/*.spec.js',
-	               'test-server-unit/3dparty-passport.spec.js',
-                 'test-server-unit/auth-experimental-collapse-db.spec.js',
-                 'test-server-unit/auth-util.spec.js',
-                 'test-server-unit/passport.spec.js',
-                 'test-server-unit/users.spec.js'
-                 // 'test-server-unit/util.spec.js'
-
-  // 'test-server-unit/**/*.spec.js'
-								];
+// ***************************************************
+// *                      TEST                       *
+// ***************************************************
 
 gulp.task('pre-test', function pretestInternal() {
   return gulp.src(['src/**/*.js'])
@@ -74,6 +78,10 @@ gulp.task('test',
 //     .pipe(exit());
 }));
 
+// ***************************************************
+// *                    LOCAL ENV                    *
+// ***************************************************
+
 gulp.task('nodemon', function nodemonInternal(cb) {
 	var started = false;
 	return nodemon({
@@ -94,7 +102,7 @@ gulp.task('nodemon', function nodemonInternal(cb) {
 	.on('error', function nodemonErrInternal(err) {
      // Make sure failure causes gulp to exit
      throw err;
- })
+ });
 });
 
 
@@ -113,12 +121,12 @@ gulp.task('server',
 
 	    // open the proxied app in chrome
 	    browser: ["google chrome"]
-	 })
+	 });
 	})
 );
 
 gulp.task('default',
-	gulp.series('server', function watcher(done) {
-		    gulp.watch(['src/**/*.js', 'app.js'], browserSync.reload);
+	gulp.series('hint', 'server', function watcher(done) {
+		    gulp.watch(filePaths, browserSync.reload);
 		})
 );
