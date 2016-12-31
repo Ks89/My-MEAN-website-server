@@ -2,7 +2,7 @@ console.log("Starting with NODE_ENV=" + process.env.NODE_ENV);
 console.log("process.env.CI is " + process.env.CI);
 
 if(!(process.env.CI && process.env.CI === 'yes')) {
-  console.log("Initializing dotenv (requires .env file)")
+  console.log("Initializing dotenv (requires .env file)");
   require('dotenv').config(); //to read info from .env file
   //attention: i'm using "dotenv" 2.0 and for this reason I must call "config()".
 }
@@ -103,7 +103,7 @@ app.use(helmet.hidePoweredBy({ setTo: 'f__k u idiot' }));
 // app.use(helmet.noCache())
 
 // --SEC-- - referrer-policy to hide the Referer header [helmet]
-app.use(helmet.referrerPolicy({ policy: 'no-referrer' }))
+app.use(helmet.referrerPolicy({ policy: 'no-referrer' }));
 
 // --SEC-- - Public Key Pinning (hpkp): HTTPS certificates can be forged,
 //    allowing man-in-the middle attacks.
