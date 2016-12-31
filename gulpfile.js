@@ -30,16 +30,29 @@ var prod = function(task) {
 
 var filePaths = ['src/**/*.js', './app.js'];
 var testHintJs = ['src/**/*.js', './app.js'];
-var testPaths = [
-  'test-server-unit/util.spec.js',
-  // 'test-server-integration/auth-3dparty-unlinkServiceByName.spec.js',
-  //'test-server-integration/**/*.spec.js',
-  'test-server-unit/3dparty-passport.spec.js',
-  'test-server-unit/auth-experimental-collapse-db.spec.js',
-  'test-server-unit/auth-util.spec.js',
-  'test-server-unit/passport.spec.js',
-  'test-server-unit/users.spec.js'
-];
+var testPaths;
+if(process.env.CI) {
+  testPaths = [
+    'test-server-unit/util.spec.js',
+    //'test-server-integration/**/*.spec.js',
+    'test-server-unit/3dparty-passport.spec.js',
+    'test-server-unit/auth-experimental-collapse-db.spec.js',
+    'test-server-unit/auth-util.spec.js',
+    'test-server-unit/passport.spec.js',
+    'test-server-unit/users.spec.js'
+  ];
+} else {
+  testPaths = [
+    'test-server-unit/util.spec.js',
+    'test-server-integration/**/*.spec.js',
+    'test-server-unit/3dparty-passport.spec.js',
+    'test-server-unit/auth-experimental-collapse-db.spec.js',
+    'test-server-unit/auth-util.spec.js',
+    'test-server-unit/passport.spec.js',
+    'test-server-unit/users.spec.js'
+  ];
+}
+
 var sourcemapPaths = ['src/**/*.js'];
 
 // ***************************************************
