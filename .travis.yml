@@ -1,12 +1,14 @@
 language: node_js
 node_js:
-  - "7" # latest nodejs 7
-  - "7.0"
-  - "6" # latest nodejs 6
-  - "6.1"
-  - "6.0"
+  - '7'
+  - '7.0'
+  - '6'
+  - '6.1'
+  - '6.0'
 env:
-  - JWT_SECRET=faketestjwt TWITTER_CONSUMER_KEY=consumerkey TWITTER_CONSUMER_SECRET=consumersecret TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback FACEBOOK_APP_ID=appid FACEBOOK_APP_SECRET=appsecret FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback GOOGLE_CLIENT_ID=clientid GOOGLE_CLIENT_SECRET=clientsecret GOOGLE_CALLBACK_URL=http://localhost:3300/api/auth/google/callback GITHUB_CLIENT_ID=clientid GITHUB_CLIENT_SECRET=clientsecret GITHUB_CALLBACK_URL=http://localhost:3300/api/auth/github/callback LINKEDIN_CLIENT_ID=clientid LINKEDIN_CLIENT_SECRET=clientsecret LINKEDIN_CALLBACK_URL=http://localhost:3300/api/auth/linkedin/callback USER_EMAIL=fake@fake.it PASS_EMAIL=fakepasswordemail RECAPTCHA_PUBLIC=recaptchapublic RECAPTCHA_SECRET=recaptchasecret CODECLIMATE_REPO_TOKEN=71e1e63e00682fa5571f37bd59e0568781c5fc9b84f75f5130c5a37703fa6e87 NODE_ENV=test CI=yes
+  matrix:
+    - JWT_SECRET=faketestjwt TWITTER_CONSUMER_KEY=consumerkey TWITTER_CONSUMER_SECRET=consumersecret TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback FACEBOOK_APP_ID=appid FACEBOOK_APP_SECRET=appsecret FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback GOOGLE_CLIENT_ID=clientid GOOGLE_CLIENT_SECRET=clientsecret GOOGLE_CALLBACK_URL=http://localhost:3300/api/auth/google/callback GITHUB_CLIENT_ID=clientid GITHUB_CLIENT_SECRET=clientsecret GITHUB_CALLBACK_URL=http://localhost:3300/api/auth/github/callback LINKEDIN_CLIENT_ID=clientid LINKEDIN_CLIENT_SECRET=clientsecret LINKEDIN_CALLBACK_URL=http://localhost:3300/api/auth/linkedin/callback USER_EMAIL=fake@fake.it PASS_EMAIL=fakepasswordemail RECAPTCHA_PUBLIC=recaptchapublic RECAPTCHA_SECRET=recaptchasecret NODE_ENV=test CI=yes
+    - secure: j7lrWHKLrYsxxuUVwXlcKJn2hjbXEiobuHGsslbKXkWuHyw1RpEVKaut/ht4CFkinfUXokXdAc7cM93E6A/t0Co0ZWtZ5SC1WCtHYM+9OPXgAgCpo0O2WZTFtzkWSAVWvQVhPd4plveEwisWZBYvVEJUqAUMYm4ozgsr1N9yDp2ixewt0MCsYMDhfqFILdhPoIRdbnzoJSLBPp/kw4rwfC4BqDuAKlg3j4rq5750rTnV1kiimKc5ZlhYMpK/BF9D3p4j3HCiW72oLtt1E1eOc/RtNnKeTQ3Uc4Vg8ya6LdSbKCkOjoZZRmFh0yWB/0vevyCIDcS75ggw94+mETfk0SwW9Hd67aT7oeZdVVrhDqoukfVdebsKXHT13mX4QGzbLe/kwdnMtl5ruxZlUxpQt3CDU1y1XDfXlZI0x8/xPTV3LtfzXQUI02mwVoB6YY/GNP8kiyt/jvIu+0YPc13Tdya5jD5AVSdk0T/gkTyfaRfOYfc1Yge/MyuUS08TATK8LE7PDevPGz7lBKEfv+RmIu3t2trUZ9XH0nDgZH/2WDZvhLxyhBvBbULc2DL37xgdEKnJL48TO3djD2qE7YvBxW2ki1dU/9Y+2UWnEB+XjGQI2RRXboBRyJLrynj1Gx7PBlRRtPgPUl5X48tdlpJl7NsKAOwj12+ZqekQ53HaXNY=
 before_install:
   - bash travisci/before_install.sh
 sudo: required
@@ -15,7 +17,7 @@ script:
 services:
   - mongodb
   - redis-server
-cache: # enable caching
+cache:
   bundler: true
   directories:
-  - node_modules # NPM packages back end
+    - node_modules
