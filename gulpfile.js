@@ -1,6 +1,6 @@
 var gulp        = require('gulp');
 var jshint      = require('gulp-jshint');
-var mocha 			= require('gulp-mocha');
+var mocha 			= require('gulp-spawn-mocha');
 var istanbul 		= require('gulp-istanbul');
 var gutil       = require('gulp-util');
 var del         = require('del');
@@ -44,7 +44,11 @@ if(process.env.CI) {
 } else {
   testPaths = [
     'test-server-unit/util.spec.js',
-    'test-server-integration/**/*.spec.js',
+    // 'test-server-integration/**/*.spec.js',
+    'test-server-integration/projects.spec.js',
+    'test-server-integration/profile.spec.js',
+    // 'test-server-integration/contact.spec.js',
+    // 'test-server-integration/users.spec.js',
     'test-server-unit/3dparty-passport.spec.js',
     'test-server-unit/auth-experimental-collapse-db.spec.js',
     'test-server-unit/auth-util.spec.js',
@@ -88,14 +92,20 @@ function handleError(err) {
 gulp.task('test',
 	gulp.series('pre-test', function testInternal() {
   return gulp.src(testPaths)
-    .pipe(mocha())
+    .pipe(mocha({
+
+      istanbul: {
+        dir: './coverage'
+      }
+
+    }));
     // .pipe(mocha().on("error", handleError))
     // // Creating the reports after tests ran
-    .pipe(istanbul.writeReports({
-      dir: './coverage',
-      reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
-      reportOpts: { dir: './coverage' },
-    }));
+    // .pipe(istanbul.writeReports({
+    //   dir: './coverage',
+    //   reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
+    //   reportOpts: { dir: './coverage' },
+    // }));
     // Enforce a coverage of at least 90% otherwise throw an error
     // FIXME this throws an error. I don't known why. Probabily it's a gulp's bug
     // .pipe(istanbul.enforceThresholds({ thresholds: { global: 80,  each: 85 } }));
