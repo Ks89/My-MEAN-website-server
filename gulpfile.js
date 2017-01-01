@@ -88,14 +88,18 @@ function handleError(err) {
 gulp.task('test',
 	gulp.series('pre-test', function testInternal() {
   return gulp.src(testPaths)
-    .pipe(mocha())
+    .pipe(mocha({
+      timeout: 10000,
+      useColors: true
+    }))
     // .pipe(mocha().on("error", handleError))
     // // Creating the reports after tests ran
     .pipe(istanbul.writeReports({
       dir: './coverage',
       reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
       reportOpts: { dir: './coverage' },
-    }));
+    }))
+    .pipe(exit());
     // Enforce a coverage of at least 90% otherwise throw an error
     // FIXME this throws an error. I don't known why. Probabily it's a gulp's bug
     // .pipe(istanbul.enforceThresholds({ thresholds: { global: 80,  each: 85 } }));
