@@ -1,5 +1,5 @@
 var mongoose = require( 'mongoose' );
-var logger = require('../utils/logger.js');
+// var logger = require('../utils/logger.js');
 
 var gracefulShutdown;
 var dbURI = 'mongodb://localhost/KS';
@@ -16,22 +16,39 @@ if (process.env.NODE_ENV === 'production') {
 	console.log("testing mode enabled!");
 	dbURI = 'mongodb://localhost/test-db';
 }
-mongoose.connect(dbURI);
 
+mongoose.connection.on('connecting', () => {
+  console.log(`[Mongoose status] Mongoose is connecting to ${dbURI}`);
+});
 mongoose.connection.on('connected', () => {
-	console.log('Mongoose connected to ' + dbURI);
+  console.log(`[Mongoose status] Mongoose connected to ${dbURI}`);
 });
-mongoose.connection.on('error', (err) => {
-	console.log('Mongoose connection error: ' + err);
+mongoose.connection.on('error', err => {
+  console.error(`[Mongoose status] Mongoose connection error: ${err}`);
 });
-mongoose.connection.on('disconnected', () =>{
-	console.log('Mongoose disconnected');
+mongoose.connection.on('close', () => {
+  console.warn('[Mongoose status] Mongoose connection closed');
+});
+mongoose.connection.on('reconnected', () => {
+  console.warn('[Mongoose status] Mongoose reconnected');
+});
+mongoose.connection.on('disconnected', () => {
+  console.log('[Mongoose status] Mongoose disconnected');
+});
+
+mongoose.connect(dbURI, err => {
+	// found here http://mongoosejs.com/docs/api.html#index_Mongoose-connect
+	if(err) {
+    console.log('Mongoose connection - error: ' + err);
+	} else {
+    console.log('Mongoose connect called successfully');
+	}
 });
 
 gracefulShutdown = function (msg, callback) {
-	mongoose.connection.close(() => {
-		console.log('Mongoose disconnected through ' + msg);
-		callback();
+	mongoose.disconnect(() => {
+		console.log(`Mongoose disconnected through ${msg}`);
+    callback();
 	});
 };
 
@@ -53,8 +70,6 @@ process.on('SIGTERM', () => {
 		process.exit(0);
 	});
 });
-
-
 
 //at the end of this file
 require('./users');
