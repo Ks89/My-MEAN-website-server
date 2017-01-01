@@ -83,6 +83,8 @@ environment:
   RECAPTCHA_SECRET: recaptchasecret
   NODE_ENV: test
   CI: yes
+  CODECLIMATE_REPO_TOKEN:
+    secure: PHdS5VIIk4pnNl6p8s2hkBab/YyPXbNvr4zEgIVDx7qCy99cVugHwLa+ifTRhB4X2cTahOuKawYZeyFX0Mx2bo5NRYQx4RIV6u3JEm9iIXM=
 
 # this is how to allow failing jobs in the matrix
 matrix:
@@ -108,9 +110,6 @@ install:
   - ps: Write-Host 'Start install in PowerShell'
   # batch commands start from cmd:
   - cmd: echo Start install in cmd
-  # set codeclimate
-  - set CODECLIMATE_REPO_TOKEN=71e1e63e00682fa5571f37bd59e0568781c5fc9b84f75f5130c5a37703fa6e87
-  - set PATH=%CODECLIMATE_REPO_TOKEN%;%PATH%
   # install redis-server for windows
   - nuget install redis-64 -excludeversion
   - redis-64\tools\redis-server.exe --service-install
