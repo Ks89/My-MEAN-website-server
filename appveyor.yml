@@ -175,13 +175,6 @@ test_script:
   - ps: "npm --version # PowerShell" # Pass comment to PS for easier debugging
   # run tests
   - gulp test
-#  - mocha test-server-unit/util.spec.js
-#  - mocha test-server-integration/
-#  - mocha test-server-unit/3dparty-passport.spec.js
-#  - mocha test-server-unit/auth-experimental-collapse-db.spec.js
-#  - mocha test-server-unit/auth-util.spec.js
-#  - mocha test-server-unit/passport.spec.js
-#  - mocha test-server-unit/users.spec.js
 
 #---------------------------------#
 #      artifacts configuration    #
@@ -213,7 +206,7 @@ deploy_script:
 # on successful build
 on_success:
   - codeclimate-test-reporter < coverage/lcov.info
-  - ps: "get-content .\coverage\lcov.info | .\node_modules\coveralls\bin\coveralls.js"
+  - node .\node_modules\coveralls\bin\coveralls.js < .\coverage\lcov.info
 
 # on build failure
 #on_failure:
