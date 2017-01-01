@@ -18,7 +18,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "test": "gulp test",
-    "docs": "apidoc -i src/ -o docs/api"
+    "docs": "apidoc -i src/ -o docs/api",
+    "next-update": "next-update -k true --tldr"
   },
   "dependencies": {
     "async": "^2.1.4",
@@ -73,6 +74,7 @@
     "gulp-util": "^3.0.8",
     "jshint": "^2.9.4",
     "multer": "^1.2.1",
+    "next-update": "^1.5.1",
     "nock": "^9.0.2",
     "npm-check": "^5.4.0",
     "rewire": "^2.5.2",
