@@ -7,7 +7,7 @@ echo "Exporting env variables dependencies"
 #if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
 # in this project, all env variables are the same for both linux and osx
 echo "Exporting env variables - OS is $TRAVIS_OS_NAME"
-
+# still on .travis.yml, because here aren't working
 #export NODE_ENV=test;
 #export CI=yes;
 #export JWT_SECRET=faketestjwt;
