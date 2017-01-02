@@ -23,5 +23,5 @@ services:
   - redis-server
 cache:
   bundler: true
-  #directories:
-  #  - node_modules
+  directories:
+    - node_modules
