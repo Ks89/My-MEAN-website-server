@@ -12,7 +12,7 @@ module.exports.restAuthenticationMiddleware = function(req, res, next) {
 	// There are some tests that are using this bypass to cover all statements and
 	// branches.
 	// ATTENTION - USE THIS FEATURE ONLY FOR TESTING PURPOSES!!!!!!!
-	if(process.env.DISABLE_REST_AUTH_MIDDLEWARE === 'yes' && (process.env.NODE_ENV === 'test' || (process.env.CI && process.env.CI === 'yes'))) {
+	if(process.env.DISABLE_REST_AUTH_MIDDLEWARE === 'yes' && (process.env.NODE_ENV === 'test' || process.env.CI )) {
 		// authentication middleware DISABLED
 		console.warn('restAuthMiddleware disabled - because you are running this app with both ' +
 			'DISABLE_REST_AUTH_MIDDLEWARE === yes and (process.env.NODE_ENV === test or process.env.CI === yes)');

@@ -1,7 +1,7 @@
 console.log("Starting with NODE_ENV=" + process.env.NODE_ENV);
 console.log("process.env.CI is " + process.env.CI);
 
-if(!(process.env.CI && process.env.CI === 'yes')) {
+if(!process.env.CI) {
   console.log("Initializing dotenv (requires .env file)");
   require('dotenv').config(); //to read info from .env file
   //attention: i'm using "dotenv" 2.0 and for this reason I must call "config()".
@@ -15,7 +15,7 @@ let path = require('path');
 //  to understand this piece of code.
 let pathFrontEndFolder, pathFrontEndIndex;
 let pathFrontEndAdminIndex;
-if((process.env.CI && process.env.CI === 'yes') || process.env.NODE_ENV === 'test') {
+if(process.env.CI || process.env.NODE_ENV === 'test') {
   console.log("Executed in CI or TEST - providing fake '../My-MEAN-Website-client' and index.html");
   //provides fake directories and files to be able to run this files
   //also with mocha in both testing and ci environments.

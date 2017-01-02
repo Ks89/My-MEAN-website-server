@@ -83,5 +83,5 @@ module.exports = function (express) {
 };
 
 function isTestOrCi() {
-	return process.env.NODE_ENV === 'test' || (process.env.CI && process.env.CI === 'yes');
+	return process.env.NODE_ENV === 'test' || process.env.CI;
 }
