@@ -66,7 +66,7 @@ echo "Installing global dependencies"
 echo "Installing $TRAVIS_OS_NAME global dependencies"
 npm install -g mocha
 npm install -g nodemon
-npm install -g gulp@github:gulpjs/gulp#4.0
+#npm install -g gulp@github:gulpjs/gulp#4.0
 npm install -g istanbul
 npm install -g remap-istanbul
 npm install -g codeclimate-test-reporter
