@@ -7,10 +7,7 @@
   "main": "app.js",
   "homepage": "https://www.stefanocappa.it",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Ks89/My-MEAN-website-server"
-  },
+  "repository": "https://github.com/Ks89/My-MEAN-website-server",
   "engines": {
     "node": ">=6.0.0",
     "npm": ">=3.8.6"
