@@ -16,17 +16,17 @@ let path = require('path');
 let pathFrontEndFolder, pathFrontEndIndex;
 let pathFrontEndAdminIndex;
 if(process.env.CI || process.env.NODE_ENV === 'test') {
-  console.log("Executed in CI or TEST - providing fake '../My-MEAN-Website-client' and index.html");
+  console.log("Executed in CI or TEST - providing fake '../My-MEAN-website-client' and index.html");
   //provides fake directories and files to be able to run this files
   //also with mocha in both testing and ci environments.
-  //Otherwise, you are forced to run `npm run build` into ../My-MEAN-Website-client's folder
+  //Otherwise, you are forced to run `npm run build` into ../My-MEAN-website-client's folder
   pathFrontEndFolder = path.join(__dirname);
   pathFrontEndIndex = path.join(__dirname, 'app.js');
 } else {
-  console.log("Providing real '../My-MEAN-Website-client' and index.html");
-  pathFrontEndFolder = path.join(__dirname, '../', 'My-MEAN-Website-client', 'dist');
-  pathFrontEndIndex = path.join(__dirname, '../', 'My-MEAN-Website-client', 'dist', 'index.html');
-  pathFrontEndAdminIndex = path.join(__dirname, '../', 'My-MEAN-Website-client', 'dist', 'admin.html');
+  console.log("Providing real '../My-MEAN-website-client' and index.html");
+  pathFrontEndFolder = path.join(__dirname, '../', 'My-MEAN-website-client', 'dist');
+  pathFrontEndIndex = path.join(__dirname, '../', 'My-MEAN-website-client', 'dist', 'index.html');
+  pathFrontEndAdminIndex = path.join(__dirname, '../', 'My-MEAN-website-client', 'dist', 'admin.html');
 }
 // --------------------------------------------------------
 // --------------------------------------------------------
