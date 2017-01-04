@@ -6,36 +6,36 @@
 **This is the server side.** Client side is available [HERE](https://github.com/Ks89/My-MEAN-website-client)
 <br>
 ## Informations
-My MEAN website is a MEAN's web application that I'm creating as a personal website, but also for other uses.
+My MEAN website is a MEAN's web application that I'm creating as a personal website, but also for other users.
 It's composed by:
-- A: a front-end in Angular 2
-- N + E: a back-end in Node.js + Express js (and other useful libs like PassportJs)
 - M: a MongoDb's database
+- E: a back-end with Express js
+- A: a front-end in Angular 2
+- N: a back-end in Node.js
 - redis
-- webpack + gulp
+- webpack and gulp
 - and other stuff
 
 A possible extension of this project will be a configurable template to build a custom web app very quickly. This is my final goal, please be patient :)
 
 Attention! This project is still an alpha, so it's not production ready. Please be careful.
-If you are interested, star this project on GitHub.
+If you are interested, star this project on GitHub, share it and create pull requests.
 
 Testing:
 - back-end unit: almost done (only the necessary things)*. coverage >=90%
 - back-end integration: almost done*. coverage >=90%
 
 (*) I unit-tested only public functions and I tested all APIs (integration) except for OAUTH2/PassportJS.
-This is because, it's extremely difficult to test passportjs (for 3dparty services, not for the local auth) without to use  browsers (like Zombie or Phantom). In my opinion an integration-test for a back-end api must use only backend's code, not also a browser (browser is on client and not on server :) ).
-The problem is that to test PassportJS without a browser it's really diffult. I asked on StackOverflow [HERE](http://stackoverflow.com/questions/38169351/how-can-i-test-integration-testing-with-supertest-a-node-js-server-with-passpo), without receivend any answers.
+This is because, it's extremely difficult to test passportjs (for 3dparty services, not for the local auth) without to use browsers (like Zombie or Phantom). In my opinion an integration-test for a back-end api must use only backend's code, not also a browser (browser is on client and not on server :) ).
+The problem is that to test PassportJS without a browser it's really difficult. I asked on StackOverflow [HERE](http://stackoverflow.com/questions/38169351/how-can-i-test-integration-testing-with-supertest-a-node-js-server-with-passpo), without receive any answers.
 For this reason, I decided to unit-tests these APIs (not APIs theirself but their functions/logics).
-If you want to help me to write integration-test's case for PassportJS, check [this file](https://github.com/Ks89/My-MEAN-website/blob/master/test-server-integration/TODO-auth-3dparty.js)
+If you want to help me to write integration-test's case for PassportJS, check [this file](https://github.com/Ks89/My-MEAN-website-server/blob/master/test-server-integration/TODO-auth-3dparty.experimentalspec.js)
 
 ## Requirements
-- Node.js
-- MongoDB
-- redis
-- npm
-- some global npm dependencies: mocha, nodemon, gulp 4.0 alpha, remap-istanbul
+- macOS, Linux or Windows 10 with admin privileges
+- Node.js + npm
+- MongoDB and redis
+- some global npm dependencies
 - work in progress... (this is only an alpha, please be patient)
 
 ## News
@@ -47,14 +47,26 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 
 ## How to install (MacOS)
 - from the `setup` folder of this project, run `bash install-macos.sh`
+- import the db dump (.json) from `docs`'s folder using MongoChef or another software
 
 ## How to install (Linux)
 - from the `setup` folder of this project, run `bash install-linux.sh`
+- import the db dump (.json) from `docs`'s folder using MongoChef or another software
 
 ## How to install (Windows)
-- install Node.js, MongoDb, redis-server and so on
-- from the `setup` folder of this project, run `bash install-windows.sh`
-- TODO improve this tutorial :)
+*Tested only on Windows 10*
+
+- install both [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/new/) and [Google Chrome](https://www.google.com/chrome/browser/desktop/index.html)
+- install Node.js from the [official website](https://www.nodejs.org)
+- install MongoDb Community from the [official website](https://www.mongodb.com)
+- create a db called `KS` (obviously you have to start MongoDb to do that)
+- **import the db dump (.json) from `docs`'s folder using MongoChef** or another software [HERE](http://3t.io/mongochef/download/) (obviously you have to start MongoDb to do that)
+- install redis-server for Windows (file .msi) [HERE](https://github.com/MSOpenTech/redis/releases)
+- install Python 2.7.x from the [official website](https://www.python.org)
+- from the `setup` folder of this project, run with PowerShell as administator `bash install-windows.sh`
+
+If you'll have problems with `node-zopfli`, you have to install it properly following [this tutorial](https://github.com/nodejs/node-gyp#installation). There are two options, try with the first one `npm install --global --production windows-build-tools`, if it will fail, use option 2.
+Both options will require to download really big files from microsoft.com (manually or automatically). So, be careful.
 
 ## How to setup
 
@@ -93,20 +105,19 @@ RECAPTCHA_SECRET=YOUR GOOGLE RECAPTCHA 2 SECRET KEY
 1c. replace 'YOUR GOOGLE RECAPTCHA...' with Google Recaptcha2's keys
 1d. reaplce INSERT A JWT SECRET HERE with an alphanumerical string (I'm using a random string with a length = 72)
 
-2. install all necessary tools (Node.js, redis-server, mongo db)
-3. execute this command `npm install` into the root folder
-4. execute this command `redis-server
-5. execute this command `mongod` (on Mac OSX use `sudo mongod`)
-6. execute this command `gulp` into the root folder to start this application (back-end)
+2. execute this command `npm install` into the root folder  (if it will fail, run it again)
+3. start redis-server (both on Linux and Mac run `redis-server`, on Windows start C:\Program files\Redis\redis-server.exe)
+4. start MongoDb (on Linux run `mongod`, on Mac run `sudo mongod` and on Windows start C:\Program Files\MongoDB\Server\3.4\bin\mongod.exe)
+5. execute this command `npm start` into the root folder to start this application (back-end)
 
-All REST webservices will be available at http://localhost:3001
+All REST webservices will be available at http://localhost:3001 for instance http://localhost:3001/api/projects
 
 ## How to run tests (server-side)
-If you want to run server's tests execute this command `gulp test`.
+If you want to run server's tests execute this command `npm test`.
 
-## How to start
+## How to start (development mode)
 - cd 'main folder of this project'
-- `gulp`
+- `npm start`
 - all REST services will be available at http://localhost:3001
 
 ## Features
