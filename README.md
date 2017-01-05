@@ -120,6 +120,13 @@ If you want to run server's tests execute this command `npm test`.
 - `npm start`
 - all REST services will be available at http://localhost:3001
 
+## How to start (production mode)
+- cd 'main folder of this project'
+- `npm run prod:start`
+- all REST services will be available at http://localhost:3000
+- to stop use `npm run prod:stop`
+
+
 ## Features
 Work in progress... (this is only an alpha, please be patient)
 
