@@ -14,7 +14,8 @@
   },
   "scripts": {
     "start": "./node_modules/.bin/gulp --gulpfile gulpfile.babel.js",
-    "prod": "node ./bin/www",
+    "prod:start": "NODE_ENV=prod ./node_modules/.bin/forever start bin/www",
+    "prod:stop": "NODE_ENV=prod ./node_modules/.bin/forever start bin/www",
     "test": "./node_modules/.bin/gulp --gulpfile gulpfile.babel.js test",
     "docs": "./node_modules/.bin/apidoc -i src/ -o docs/api",
     "next-update": "./node_modules/.bin/next-update -k true --tldr",
@@ -59,6 +60,7 @@
     "chai": "^3.5.0",
     "coveralls": "^2.11.15",
     "del": "^2.2.1",
+    "forever": "^0.15.3",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-babel": "^6.1.2",
     "gulp-cached": "^1.1.1",
