@@ -25,6 +25,9 @@ const _HELMET_REFERRER_POLICY = process.env.HELMET_REFERRER_POLICY || 'no-referr
 const _HELMET_HPKP_SHA256S_1  = process.env.HELMET_HPKP_SHA256S_1  || 'AbCdEf123=';
 const _HELMET_HPKP_SHA256S_2  = process.env.HELMET_HPKP_SHA256S_2  || 'ZyXwVu456=';
 const _HELMET_HPKP_REPORT_URI = process.env.HELMET_HPKP_REPORT_URI || 'https://example.com/hpkp-report';
+const _REDIS_HOST             = process.env.REDIS_HOST             || 'localhost';
+const _REDIS_PORT             = process.env.REDIS_PORT             || 6379;
+const _REDIS_TTL              = process.env.REDIS_TTL              || 260;
 // ------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------
 
@@ -217,7 +220,7 @@ app.use(session({
     secret: _EXPRESS_SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    store: new RedisStore({ host: 'localhost', port: 6379, client: client, ttl :  260}),
+    store: new RedisStore({ host: _REDIS_HOST, port: _REDIS_PORT, client: client, ttl :  _REDIS_TTL}),
     // cookie: {
     //   httpOnly: false,
     //     secure: false, //to use true, you must use https. If you'll use true with http it won't work.
