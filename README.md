@@ -32,14 +32,15 @@ For this reason, I decided to unit-tests these APIs (not APIs theirself but thei
 If you want to help me to write integration-test's case for PassportJS, check [this file](https://github.com/Ks89/My-MEAN-website-server/blob/master/test-server-integration/TODO-auth-3dparty.experimentalspec.js)
 
 ## Requirements
-- macOS, Linux or Windows 10 with admin privileges
+- macOS, Linux or Windows 10 **with admin privileges**
 - Node.js + npm
 - MongoDB and redis
 - some global npm dependencies
 - work in progress... (this is only an alpha, please be patient)
 
 ## News
-- *12/30/2016* - **My MEAN website** Alpha 3 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-4)
+- *01/**/2017* - **My MEAN website** Alpha 5 public release COMING SOON
+- *12/30/2016* - **My MEAN website** Alpha 4 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-4)
 - *11/28/2016* - **My MEAN website** Alpha 3 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-3)
 - *10/27/2016* - **My MEAN website** Alpha 2 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-2.2)
 - *08/15/2016* - **My MEAN website** Alpha 1 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-1)
@@ -59,7 +60,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - install both [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/new/) and [Google Chrome](https://www.google.com/chrome/browser/desktop/index.html)
 - install Node.js from the [official website](https://www.nodejs.org)
 - install MongoDb Community from the [official website](https://www.mongodb.com)
-- create a db called `KS` (obviously you have to start MongoDb to do that)
+- create a db called `KS` (obviously you have to start MongoDb to do that). You can configure this value later, but for debug/local environment I suggest this name
 - **import the db dump (.json) from `docs`'s folder using MongoChef** or another software [HERE](http://3t.io/mongochef/download/) (obviously you have to start MongoDb to do that)
 - install redis-server for Windows (file .msi) [HERE](https://github.com/MSOpenTech/redis/releases)
 - install Python 2.7.x from the [official website](https://www.python.org)
@@ -70,55 +71,28 @@ Both options will require to download really big files from microsoft.com (manua
 
 ## How to setup
 
-1. create a file called ".env" into the root folder and add all these properties
-```
-JWT_SECRET=INSERT A JEW SECRET HERE
-
-TWITTER_CONSUMER_KEY=YOU KEY/ID
-TWITTER_CONSUMER_SECRET=YOU KEY/ID
-TWITTER_CALLBACK_URL=YOUR CALLBACK URL for [example](http://127.0.0.1:3300/api/auth/twitter/callback)
-
-FACEBOOK_APP_ID=YOU KEY/ID
-FACEBOOK_APP_SECRET=YOU KEY/ID
-FACEBOOK_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/facebook/callback)
-
-GOOGLE_CLIENT_ID=YOU KEY/ID
-GOOGLE_CLIENT_SECRET=YOU KEY/ID
-GOOGLE_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/google/callback)
-
-GITHUB_CLIENT_ID=YOU KEY/ID
-GITHUB_CLIENT_SECRET=YOU KEY/ID
-GITHUB_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/github/callback)
-
-LINKEDIN_CLIENT_ID=YOU KEY/ID
-LINKEDIN_CLIENT_SECRET=YOU KEY/ID
-LINKEDIN_CALLBACK_URL=YOUR CALLBACK URL for [example](http://localhost:3300/api/auth/linkedin/callback)
-
-USER_EMAIL=YOUR_EMAIL
-PASS_EMAIL=YOUR_PASSWORD
-
-RECAPTCHA_PUBLIC=YOUR GOOGLE RECAPTCHA 2 PUBLIC KEY
-RECAPTCHA_SECRET=YOUR GOOGLE RECAPTCHA 2 SECRET KEY
-```
-1a. replace 'YOU KEY/ID' with the keys obtained from facebook/github... oauth applications.
-1b. replace YOUR_EMAIL and YOUR_PASSWORD with the data of your e-mail account
-1c. replace 'YOUR GOOGLE RECAPTCHA...' with Google Recaptcha2's keys
-1d. reaplce INSERT A JWT SECRET HERE with an alphanumerical string (I'm using a random string with a length = 72)
-
-2. execute this command `npm install` into the root folder  (if it will fail, run it again)
-3. start redis-server (both on Linux and Mac run `redis-server`, on Windows start C:\Program files\Redis\redis-server.exe)
-4. start MongoDb (on Linux run `mongod`, on Mac run `sudo mongod` and on Windows start C:\Program Files\MongoDB\Server\3.4\bin\mongod.exe)
+1. You have to rename `.env_example`'s file into `.env` (debug/local config - mandatory) and create another copy called `.env_prod` (production config - to deploy)<br>
+1a. Configure `FRONT_END_PATH` with the relative position of the main folder of [THE CLIENT SIDE OF THIS PROJECT](https://github.com/Ks89/My-MEAN-website-client). For `.env_prod` you should use simply `public`<br>
+1b. Configure `REDIS_HOST`, `REDIS_PORT` and `REDIS_TTL`. If you are in a debug/local environment you should use the example values<br>
+1c. Configure `MONGODB_URI` with your db path. I suggest to use the example value without user/password and with a db called `KS`<br>
+1d. replace `YOU KEY/ID` with the keys obtained from facebook/github... oauth applications.<br>
+1e. replace `YOUR_EMAIL` and `YOUR_PASSWORD` with the data of your e-mail account<br>
+1f. replace `YOUR GOOGLE RECAPTCHA...` with Google Recaptcha2's keys<br>
+1g. reaplace `INSERT A JWT SECRET HERE` with an alphanumerical string (I'm using a random string with a length = 72)
+2. execute this command `npm install` into the root folder  (if it will fail, run it again :))
+3. start redis-server (both on Linux and Mac run `redis-server`, on Windows start `C:\Program files\Redis\redis-server.exe`)
+4. start MongoDb (on Linux run `mongod`, on Mac run `sudo mongod` and on Windows start `C:\Program Files\MongoDB\Server\3.4\bin\mongod.exe`)
 5. execute this command `npm start` into the root folder to start this application (back-end)
 
-All REST webservices will be available at http://localhost:3001 for instance http://localhost:3001/api/projects
-
 ## How to run tests (server-side)
-If you want to run server's tests execute this command `npm test`.
+- `npm test`.
 
 ## How to start (development mode)
 - cd 'main folder of this project'
 - `npm start`
 - all REST services will be available at http://localhost:3001
+
+All REST webservices will be available at http://localhost:3001 for instance try with http://localhost:3001/api/projects
 
 ## How to start (production mode)
 - cd 'main folder of this project'
@@ -126,6 +100,7 @@ If you want to run server's tests execute this command `npm test`.
 - all REST services will be available at http://localhost:3000
 - to stop use `npm run prod:stop`
 
+All REST webservices will be available at http://localhost:3000 for instance try with http://localhost:3000/api/projects
 
 ## Features
 Work in progress... (this is only an alpha, please be patient)
@@ -158,6 +133,7 @@ Note: multiple account connected (Facebook and Github)
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-multiple.png)
 
 ## Configuration
+From Alpha 5 I created many entries in .env, so you could start to configure this application.
 Work in progress... (this is only an alpha, please be patient)
 
 ## Thanks
