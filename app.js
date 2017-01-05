@@ -3,9 +3,30 @@ console.log("process.env.CI is " + process.env.CI);
 
 if(!process.env.CI) {
   console.log("Initializing dotenv (requires .env file)");
-  require('dotenv').config(); //to read info from .env file
-  //attention: i'm using "dotenv" 2.0 and for this reason I must call "config()".
+  if(process.env.NODE_ENV === 'prod') {
+    // production
+    require('dotenv').config({path: '.env_prod'}); //to read info from .env_prod file
+  } else {
+    // development
+    require('dotenv').config({path: '.env'}); //to read info from .env file
+  }
 }
+
+// ------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------
+// re-assign all process.env variables to be used in app.js and defined with dotenv to constants
+// In this way I can see all variables defined with donenv and used here
+// In CI I can't use dotenv => I provide default values for all these constants
+const _FRONT_END_PATH         = process.env.FRONT_END_PATH         || '../My-MEAN-website-client/dist';
+const _LARGE_PAYLOAD_MESSAGE  = process.env.LARGE_PAYLOAD_MESSAGE  || 'stop it!';
+const _EXPRESS_SESSION_SECRET = process.env.EXPRESS_SESSION_SECRET || 'keyboard cat';
+const _HELMET_HIDE_POWERED_BY = process.env.HELMET_HIDE_POWERED_BY || 'f__k u idiot';
+const _HELMET_REFERRER_POLICY = process.env.HELMET_REFERRER_POLICY || 'no-referrer';
+const _HELMET_HPKP_SHA256S_1  = process.env.HELMET_HPKP_SHA256S_1  || 'AbCdEf123=';
+const _HELMET_HPKP_SHA256S_2  = process.env.HELMET_HPKP_SHA256S_2  || 'ZyXwVu456=';
+const _HELMET_HPKP_REPORT_URI = process.env.HELMET_HPKP_REPORT_URI || 'https://example.com/hpkp-report';
+// ------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------
 
 let path = require('path');
 
@@ -23,10 +44,17 @@ if(process.env.CI || process.env.NODE_ENV === 'test') {
   pathFrontEndFolder = path.join(__dirname);
   pathFrontEndIndex = path.join(__dirname, 'app.js');
 } else {
-  console.log("Providing real '../My-MEAN-website-client' and index.html");
-  pathFrontEndFolder = path.join(__dirname, '../', 'My-MEAN-website-client', 'dist');
-  pathFrontEndIndex = path.join(__dirname, '../', 'My-MEAN-website-client', 'dist', 'index.html');
-  pathFrontEndAdminIndex = path.join(__dirname, '../', 'My-MEAN-website-client', 'dist', 'admin.html');
+  if(process.env.NODE_ENV === 'prod') {
+    console.log(`Providing both index.html and admin.html in a production environment`);
+    pathFrontEndFolder = path.join(__dirname, _FRONT_END_PATH);
+    pathFrontEndIndex = path.join(__dirname, _FRONT_END_PATH, 'index.html');
+    pathFrontEndAdminIndex = path.join(__dirname, _FRONT_END_PATH, 'admin.html');
+  } else {
+    console.log(`Providing real ${_FRONT_END_PATH}, index.html and admin.html`);
+    pathFrontEndFolder = path.join(__dirname, _FRONT_END_PATH);
+    pathFrontEndIndex = path.join(__dirname, _FRONT_END_PATH, 'index.html');
+    pathFrontEndAdminIndex = path.join(__dirname, _FRONT_END_PATH, 'admin.html');
+  }
 }
 // --------------------------------------------------------
 // --------------------------------------------------------
@@ -96,14 +124,14 @@ app.use(helmet());
 
 // --SEC-- - hidePoweredBy: X-Powered-By forced to a fake value to
 // hide the default 'express' value [helmet]
-app.use(helmet.hidePoweredBy({ setTo: 'f__k u idiot' }));
+app.use(helmet.hidePoweredBy({ setTo: _HELMET_HIDE_POWERED_BY }));
 
 // --SEC-- - noCache to disable client-side caching [helmet]
 // I don't want this for better performances (leave commented :))
 // app.use(helmet.noCache())
 
 // --SEC-- - referrer-policy to hide the Referer header [helmet]
-app.use(helmet.referrerPolicy({ policy: 'no-referrer' }));
+app.use(helmet.referrerPolicy({ policy: _HELMET_REFERRER_POLICY }));
 
 // --SEC-- - Public Key Pinning (hpkp): HTTPS certificates can be forged,
 //    allowing man-in-the middle attacks.
@@ -111,9 +139,9 @@ app.use(helmet.referrerPolicy({ policy: 'no-referrer' }));
 const ninetyDaysInSeconds = 7776000;
 app.use(helmet.hpkp({
   maxAge: ninetyDaysInSeconds,
-  sha256s: ['AbCdEf123=', 'ZyXwVu456='],
+  sha256s: [_HELMET_HPKP_SHA256S_1, _HELMET_HPKP_SHA256S_2],
   includeSubdomains: true,         // optional
-  reportUri: 'https://example.com/hpkp-report', // optional
+  reportUri: _HELMET_HPKP_REPORT_URI, // optional
   reportOnly: false,               // optional
   // Set the header based on a condition.
   setIf: (req, res)  => req.secure //optional ()
@@ -161,7 +189,7 @@ app.use(helmet.contentSecurityPolicy({
 // --SEC-- - large payload attacks:
 //   this line enables the middleware for all routes [NOT helmet]
 app.use(contentLength.validateMax({max: MAX_CONTENT_LENGTH_ACCEPTED,
-  status: 400, message: "stop it!"})); // max size accepted for the content-length
+  status: 400, message: _LARGE_PAYLOAD_MESSAGE})); // max size accepted for the content-length
 
 
 console.log("Initializing morgan (logger)");
@@ -186,10 +214,10 @@ app.use(hpp());
 console.log("Initializing Express session");
 // Express Session
 app.use(session({
-    secret: 'keyboard cat',
+    secret: _EXPRESS_SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    store: new RedisStore({ host: 'localhost', port: 6379, client: client,ttl :  260}),
+    store: new RedisStore({ host: 'localhost', port: 6379, client: client, ttl :  260}),
     // cookie: {
     //   httpOnly: false,
     //     secure: false, //to use true, you must use https. If you'll use true with http it won't work.
@@ -228,7 +256,7 @@ let routesApi = require('./src/routes/index')(express);
 app.use('/api', routesApi);
 // --------------------------------------------------------------------------------------
 
-console.log("Initializing static path for index.html");
+console.log("Initializing static path for both index.html and admin.html");
 
 app.use('/', function(req, res) {
   res.sendFile(pathFrontEndIndex);

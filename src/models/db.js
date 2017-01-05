@@ -1,20 +1,19 @@
-var mongoose = require( 'mongoose' );
-// var logger = require('../utils/logger.js');
+let mongoose = require( 'mongoose' );
 
-var gracefulShutdown;
-var dbURI = 'mongodb://localhost/KS';
+let gracefulShutdown;
+
+let dbURI = process.env.MONGODB_URI;
+console.log(`Mongodb uri = ${dbURI}`);
 
 // ------------------------
 // as explained here http://mongoosejs.com/docs/promises.html
 mongoose.Promise = require('bluebird');
 // ------------------------
 
-if (process.env.NODE_ENV === 'production') {
-	console.log("production mode enabled!");
-	dbURI = process.env.MONGOLAB_URI; //you can set this using heroku config:set MONGOLAB_URI=path
-} else if (process.env.NODE_ENV === 'test') {
+if (process.env.NODE_ENV === 'test') {
 	console.log("testing mode enabled!");
 	dbURI = 'mongodb://localhost/test-db';
+  console.log(`override Mongodb uri = ${dbURI}`);
 }
 
 mongoose.connection.on('connecting', () => {
@@ -39,7 +38,7 @@ mongoose.connection.on('disconnected', () => {
 mongoose.connect(dbURI, err => {
 	// found here http://mongoosejs.com/docs/api.html#index_Mongoose-connect
 	if(err) {
-    console.log('Mongoose connection - error: ' + err);
+    console.error('Mongoose connection - error: ' + err);
 	} else {
     console.log('Mongoose connect called successfully');
 	}
