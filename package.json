@@ -13,9 +13,9 @@
     "npm": ">=3.8.6"
   },
   "scripts": {
-    "start": "./node_modules/.bin/gulp",
+    "start": "./node_modules/.bin/gulp --gulpfile gulpfile.babel.js",
     "prod": "node ./bin/www",
-    "test": "./node_modules/.bin/gulp test",
+    "test": "./node_modules/.bin/gulp --gulpfile gulpfile.babel.js test",
     "docs": "./node_modules/.bin/apidoc -i src/ -o docs/api",
     "next-update": "./node_modules/.bin/next-update -k true --tldr",
     "coveralls": "./node_modules/.bin/coveralls < ./coverage/lcov.info"

@@ -106,13 +106,12 @@ gulp.task('test',
       reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
       reportOpts: { dir: './coverage' },
     }))
+    // to force gulp to exit (because my integration testing aren't closing connections / server)
     .pipe(exit());
+
     // Enforce a coverage of at least 90% otherwise throw an error
-    // FIXME this throws an error. I don't known why. Probabily it's a gulp's bug
+    // FIXME this throws an error. I don't known why. Probably it's a gulp's bug
     // .pipe(istanbul.enforceThresholds({ thresholds: { global: 80,  each: 85 } }));
-    // .once('end', function () {
-    //   process.exit();
-    // });
 }));
 
 // ***************************************************
@@ -129,7 +128,7 @@ gulp.task('nodemon', function nodemonInternal(cb) {
 		env: { 'NODE_ENV': process.env.NODE_ENV }
 	})
 	.on('start', function nodemonStartInternal() {
-		browserSync.reload;
+		browserSync.reload();
 		if(!started) {
 			cb();
 			started = true;
