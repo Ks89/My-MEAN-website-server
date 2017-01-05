@@ -1,3 +1,6 @@
+
+// deprecated thanks to gulpfile.babel.js
+
 var gulp        = require('gulp');
 var jshint      = require('gulp-jshint');
 var mocha 			= require('gulp-mocha');
@@ -8,9 +11,13 @@ var browserSync = require('browser-sync').create();
 var nodemon 		= require('gulp-nodemon');
 var sourcemaps  = require('gulp-sourcemaps');
 var through     = require('through2');
-var arguments 	= require('yargs').argv;
+var args 	= require('yargs').argv;
 var exit 				= require('gulp-exit');
-var isprod = (arguments.env === 'prod');
+var isprod = (args.env === 'prod');
+
+//call gulp -env value -frontendpath value
+console.log("args.env is: " + args.env);
+console.log("args.frontendpath is: " + args.frontendpath);
 
 var noop = function() {
 	return through.obj();
