@@ -1,0 +1,15 @@
+{
+  "name": "My-MEAN-website-backend",
+  "version": "1.0.0-alpha.5",
+  "description": "Official documentation",
+  "title": "My M.E.A.N. website",
+  "url" : "https://github.com/Ks89/My-MEAN-website-server",
+  "header": {
+    "title": "My M.E.A.N. website",
+    "filename": "apidoc.header.md"
+  },
+  "footer": {
+    "title": "by Stefano Cappa",
+    "filename": "apidoc.footer.md"
+  }
+}
