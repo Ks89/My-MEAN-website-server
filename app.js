@@ -3,7 +3,7 @@ console.log("process.env.CI is " + process.env.CI);
 
 if(!process.env.CI) {
   console.log("Initializing dotenv (requires .env file)");
-  if(process.env.NODE_ENV === 'prod') {
+  if(process.env.NODE_ENV === 'production') {
     // production
     require('dotenv').config({path: '.env_prod'}); //to read info from .env_prod file
   } else {
@@ -47,7 +47,7 @@ if(process.env.CI || process.env.NODE_ENV === 'test') {
   pathFrontEndFolder = path.join(__dirname);
   pathFrontEndIndex = path.join(__dirname, 'app.js');
 } else {
-  if(process.env.NODE_ENV === 'prod') {
+  if(process.env.NODE_ENV === 'production') {
     console.log(`Providing both index.html and admin.html in a production environment`);
     pathFrontEndFolder = path.join(__dirname, _FRONT_END_PATH);
     pathFrontEndIndex = path.join(__dirname, _FRONT_END_PATH, 'index.html');

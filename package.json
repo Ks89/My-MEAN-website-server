@@ -14,8 +14,8 @@
   },
   "scripts": {
     "start": "./node_modules/.bin/gulp --gulpfile gulpfile.babel.js",
-    "prod:start": "NODE_ENV=prod ./node_modules/.bin/forever start bin/www",
-    "prod:stop": "NODE_ENV=prod ./node_modules/.bin/forever stop bin/www",
+    "prod:start": "NODE_ENV=production ./node_modules/.bin/forever start bin/www",
+    "prod:stop": "NODE_ENV=production ./node_modules/.bin/forever stop bin/www",
     "test": "./node_modules/.bin/gulp --gulpfile gulpfile.babel.js test",
     "docs": "./node_modules/.bin/apidoc -i src/ -o docs/api",
     "next-update": "./node_modules/.bin/next-update -k true --tldr",

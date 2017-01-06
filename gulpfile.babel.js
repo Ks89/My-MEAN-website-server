@@ -14,7 +14,7 @@ import exit         from 'gulp-exit';
 
 const bs = browserSync.create();
 const args = yargs.argv;
-const isprod = (args.env === 'prod');
+const isprod = (args.env === 'production');
 
 //call gulp -env value -frontendpath value
 console.log("args.env is: " + args.env);

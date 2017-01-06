@@ -13,7 +13,7 @@ var sourcemaps  = require('gulp-sourcemaps');
 var through     = require('through2');
 var args 	= require('yargs').argv;
 var exit 				= require('gulp-exit');
-var isprod = (args.env === 'prod');
+var isprod = (args.env === 'production');
 
 //call gulp -env value -frontendpath value
 console.log("args.env is: " + args.env);
