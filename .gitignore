@@ -25,3 +25,5 @@ node_modules
 
 # docs api generated with apidocjs
 docs/api
+
+public/**/*.*
