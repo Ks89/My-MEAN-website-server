@@ -63,6 +63,7 @@ if(process.env.CI || process.env.NODE_ENV === 'test') {
 // --------------------------------------------------------
 
 let express = require('express');
+let vhost = require('vhost');
 let compression = require('compression');
 let favicon = require('serve-favicon');
 let morgan = require('morgan');
@@ -268,6 +269,15 @@ app.use('/', function(req, res) {
 app.use('/admin', function(req, res) {
   res.sendFile(pathFrontEndAdminIndex);
 });
+
+// app.use(vhost('mymeanwebsite.it', function (req, res) {
+//   res.sendFile(pathFrontEndIndex);
+// }));
+//
+// app.use(vhost('admin.mymeanwebsite.it', function (req, res) {
+//   res.sendFile(pathFrontEndAdminIndex);
+// }));
+
 
 // catch bad csrf token
 app.use(function (err, req, res, next) {
