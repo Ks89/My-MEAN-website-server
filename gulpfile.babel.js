@@ -5,14 +5,12 @@ import del          from 'del';
 import jshint       from 'gulp-jshint';
 import mocha        from 'gulp-mocha';
 import istanbul     from 'gulp-istanbul';
-import browserSync  from 'browser-sync';
 import nodemon      from 'gulp-nodemon';
 import sourcemaps   from 'gulp-sourcemaps';
 import through      from 'through2';
 import yargs        from 'yargs';
 import exit         from 'gulp-exit';
 
-const bs = browserSync.create();
 const args = yargs.argv;
 const isprod = (args.env === 'production');
 
@@ -97,49 +95,28 @@ function testInternal() {
 // ***************************************************
 // *              BUILD LOCAL ENVIRONMENT            *
 // ***************************************************
-// call with `./node_modules/.bin/gulp --gulpfile gulpfile.babel.js server`
-const server = gulp.series(nodemontask, bSyncInternal);
-export { server };
+// call with `./node_modules/.bin/gulp --gulpfile gulpfile.babel.js nodemontask`
+export function nodemontask() {
+  let stream = nodemon({
+    script: 'bin/www',
+    ext: 'js',
+    env: {'NODE_ENV': process.env.NODE_ENV},
+    ignore: ['test-server-integration', 'test-server-unit'],
+    tasks: ['hint'] });
+
+  stream
+    .on('restart', function () {
+      console.log('restarted!');
+    })
+    .on('crash', function() {
+      console.error('Application has crashed!\n')
+      stream.emit('restart', 10);  // restart the server in 10 seconds
+    });
+
+  return stream;
+}
 
 // call default task with `./node_modules/.bin/gulp --gulpfile gulpfile.babel.js`
-const buildDefault = gulp.series(hint, server, watcher);
+const buildDefault = gulp.series(hint, nodemontask);
 export default buildDefault;
 
-export function nodemontask(cb) {
-  var started = false;
-  return nodemon({
-    script: 'bin/www',
-    env: {'NODE_ENV': process.env.NODE_ENV}
-  })
-    .on('start', function nodemonStartInternal() {
-      bs.reload();
-      if (!started) {
-        cb();
-        started = true;
-      }
-    })
-    .on('error', function nodemonErrInternal(err) {
-      // Make sure failure causes gulp to exit
-      throw err;
-    });
-}
-
-function bSyncInternal() {
-  // for more browser-sync config options: http://www.browsersync.io/docs/options/
-  bs.init({
-    // informs browser-sync to proxy our expressjs app which would run at the following location
-    proxy: {
-      target: 'http://localhost:3000',
-      ws: true // enables websockets
-    },
-    // informs browser-sync to use the following port for the proxied app
-    // notice that the default port is 3000, which would clash with our expressjs
-    port: 3001,
-    // open the proxied app in chrome
-    browser: ["google chrome"]
-  });
-}
-
-function watcher() {
-  gulp.watch(filePaths, bs.reload);
-}
