@@ -90,7 +90,7 @@ Both options will require to download really big files from microsoft.com (manua
 ## How to start (development mode)
 - cd 'main folder of this project'
 - `npm start`
-- all REST webservices will be available at http://localhost:3001 for instance try with http://localhost:3001/api/projects
+- all REST webservices will be available at http://localhost:3000 for instance try with http://localhost:3000/api/projects
 
 ## How to start (production mode)
 *I decide to use forever to run this project in a production environment*
