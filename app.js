@@ -37,7 +37,7 @@ let path = require('path');
 // --------------------------------------------------------
 // See this issue here https://github.com/Ks89/My-MEAN-website/issues/30
 //  to understand this piece of code.
-let pathFrontEndFolder, pathFrontEndIndex;
+let pathFrontEndFolderApp, pathFrontEndFolderAdmin, pathFrontEndIndex;
 let pathFrontEndAdminIndex;
 if(process.env.CI || process.env.NODE_ENV === 'test') {
   console.log("Executed in CI or TEST - providing fake '../My-MEAN-website-client' and index.html");
@@ -54,9 +54,13 @@ if(process.env.CI || process.env.NODE_ENV === 'test') {
     pathFrontEndAdminIndex = path.join(__dirname, _FRONT_END_PATH, 'admin.html');
   } else {
     console.log(`Providing real ${_FRONT_END_PATH}, index.html and admin.html`);
-    pathFrontEndFolder = path.join(__dirname, _FRONT_END_PATH);
-    pathFrontEndIndex = path.join(__dirname, _FRONT_END_PATH, 'index.html');
-    pathFrontEndAdminIndex = path.join(__dirname, _FRONT_END_PATH, 'admin.html');
+    // pathFrontEndFolder = path.join(__dirname, _FRONT_END_PATH);
+    // pathFrontEndIndex = path.join(__dirname, _FRONT_END_PATH, 'index.html');
+    // pathFrontEndAdminIndex = path.join(__dirname, _FRONT_END_PATH, 'admin.html');
+    pathFrontEndFolderApp = path.join(__dirname, _FRONT_END_PATH, 'app');
+    pathFrontEndFolderAdmin = path.join(__dirname, _FRONT_END_PATH, 'admin');
+    pathFrontEndIndex = path.join(__dirname, _FRONT_END_PATH, 'app', 'index.html');
+    pathFrontEndAdminIndex = path.join(__dirname, _FRONT_END_PATH, 'admin', 'index.html');
   }
 }
 // --------------------------------------------------------
@@ -64,6 +68,8 @@ if(process.env.CI || process.env.NODE_ENV === 'test') {
 
 let express = require('express');
 let vhost = require('vhost');
+let serveStatic = require('serve-static');
+
 let compression = require('compression');
 let favicon = require('serve-favicon');
 let morgan = require('morgan');
@@ -202,9 +208,6 @@ console.log("Initializing morgan (logger)");
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(morgan("default", { "stream": logger.stream }));
 
-console.log("Initializing static resources");
-app.use(express.static(pathFrontEndFolder));
-
 console.log("Initializing bodyparser");
 
 app.use(bodyParser.json());
@@ -237,6 +240,15 @@ app.use(passport.session());
 // compress all requests using gzip
 app.use(compression());
 
+
+console.log("Initializing static resources");
+
+
+app.use(vhost('admin.mymeanwebsite.it', express.static(pathFrontEndFolderAdmin)));
+app.use(vhost('mymeanwebsite.it', express.static(pathFrontEndFolderApp)));
+
+
+
 console.log("Initializing REST apis and CSRF");
 
 // --------------------------------------- ROUTES ---------------------------------------
@@ -262,22 +274,13 @@ app.use('/api', routesApi);
 
 console.log("Initializing static path for both index.html and admin.html");
 
-app.use('/', function(req, res) {
-  res.sendFile(pathFrontEndIndex);
-});
-
-app.use('/admin', function(req, res) {
-  res.sendFile(pathFrontEndAdminIndex);
-});
-
-// app.use(vhost('mymeanwebsite.it', function (req, res) {
+// app.use('/', function(req, res) {
 //   res.sendFile(pathFrontEndIndex);
-// }));
+// });
 //
-// app.use(vhost('admin.mymeanwebsite.it', function (req, res) {
+// app.use('/admin', function(req, res) {
 //   res.sendFile(pathFrontEndAdminIndex);
-// }));
-
+// });
 
 // catch bad csrf token
 app.use(function (err, req, res, next) {
