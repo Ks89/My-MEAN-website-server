@@ -18,8 +18,9 @@
     "prod:stop": "NODE_ENV=production ./node_modules/.bin/forever stop bin/www",
     "test": "./node_modules/.bin/gulp --gulpfile gulpfile.babel.js test",
     "docs": "./node_modules/.bin/apidoc -i src/ -o docs/api",
-    "next-update": "./node_modules/.bin/next-update -k true --tldr",
-    "coveralls": "./node_modules/.bin/coveralls < ./coverage/lcov.info"
+    "coveralls": "./node_modules/.bin/coveralls < ./coverage/lcov.info",
+    "codeclimate": "./node_modules/.bin/codeclimate-test-reporter < coverage/lcov.info",
+    "next-update": "./node_modules/.bin/next-update -k true --tldr"
   },
   "dependencies": {
     "async": "^2.1.4",

@@ -20,6 +20,8 @@ script:
 services:
   - mongodb
   - redis-server
+after_success:
+  - bash travisci/after_success.sh
 cache:
   bundler: true
   directories:

@@ -13,10 +13,3 @@ do
   sleep 3 # wait 3 seconds
 done
 echo "gulp test on $TRAVIS_OS_NAME finished with n=$n"
-
-# send test coverage to codeclimate.com
-echo "npm run codeclimate on $TRAVIS_OS_NAME"
-npm run codeclimate
-# send test coverage to coveralls.io
-echo "npm run coveralls on $TRAVIS_OS_NAME"
-npm run coveralls
