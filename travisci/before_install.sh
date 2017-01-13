@@ -2,6 +2,13 @@
 
 echo "Before install - OS is $TRAVIS_OS_NAME"
 
+#echo "Updating homebrew and installing mongodb" 
+# if [[ $TRAVIS_OS_NAME = 'osx' ]]; then 
+#   brew update 
+#   brew outdated mongodb || brew upgrade mongodb
+# fi
+
+
 echo "Exporting env variables dependencies"
 # export env variables, thanks to https://github.com/travis-ci/travis-ci/issues/7099
 #if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
