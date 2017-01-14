@@ -64,4 +64,4 @@ echo "Exporting env variables - done"
 echo "Installing $TRAVIS_OS_NAME global dependencies"
 npm install -g mocha
 npm install -g nodemon
-npm install -g gulpgithub:gulpjs/gulp#4.0
+npm install -g gulp@github:gulpjs/gulp#4.0
