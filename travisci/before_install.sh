@@ -9,9 +9,8 @@ echo "Before install - OS is $TRAVIS_OS_NAME"
 # fi
 
 
+
 echo "Exporting env variables dependencies"
-# export env variables, thanks to https://github.com/travis-ci/travis-ci/issues/7099
-#if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
 # in this project, all env variables are the same for both linux and osx
 echo "Exporting env variables - OS is $TRAVIS_OS_NAME"
 export NODE_ENV=test
@@ -58,15 +57,9 @@ echo "USER_EMAIL = $USER_EMAIL"
 echo "PASS_EMAIL = $PASS_EMAIL"
 echo "RECAPTCHA_PUBLIC = $RECAPTCHA_PUBLIC"
 echo "RECAPTCHA_SECRET = $RECAPTCHA_SECRET"
-
 echo "Exporting env variables - done"
-#else
-   # echo "Exporting env variables - OS is $TRAVIS_OS_NAME"
-#fi
 
 
-echo "Installing global dependencies"
-# install global dependencies
 
 echo "Installing $TRAVIS_OS_NAME global dependencies"
 npm install -g mocha
