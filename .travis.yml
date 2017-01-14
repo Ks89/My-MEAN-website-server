@@ -21,7 +21,11 @@ before_script:
 script:
   - bash travisci/travis_script.sh
 after_success:
-  - source travisci/after_success.sh  # use source to run it in the same shell
+#  - source travisci/after_success.sh  # use source to run it in the same shell
+  - echo "npm run codeclimate on $TRAVIS_OS_NAME"
+  - npm run codeclimate
+  - echo "npm run coveralls on $TRAVIS_OS_NAME"
+  - npm run coveralls
 cache:
   bundler: true
   directories:
