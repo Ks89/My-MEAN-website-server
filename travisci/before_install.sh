@@ -14,30 +14,28 @@ echo "Exporting env variables dependencies"
 #if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
 # in this project, all env variables are the same for both linux and osx
 echo "Exporting env variables - OS is $TRAVIS_OS_NAME"
-# still on .travis.yml, because here aren't working
-#export NODE_ENV=test;
-#export CI=yes;
-#export JWT_SECRET=faketestjwt;
-#export TWITTER_CONSUMER_KEY=consumerkey;
-#export TWITTER_CONSUMER_SECRET=consumersecret;
-#export TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback;
-#export FACEBOOK_APP_ID=appid;
-#export FACEBOOK_APP_SECRET=appsecret;
-#export FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback;
-#export GOOGLE_CLIENT_ID=clientid;
-#export GOOGLE_CLIENT_SECRET=clientsecret;
-#export GOOGLE_CALLBACK_URL=http://localhost:3300/api/auth/google/callback;
-#export GITHUB_CLIENT_ID=clientid;
-#export GITHUB_CLIENT_SECRET=clientsecret;
-#export GITHUB_CALLBACK_URL=http://localhost:3300/api/auth/github/callback;
-#export LINKEDIN_CLIENT_ID=clientid;
-#export LINKEDIN_CLIENT_SECRET=clientsecret;
-#export LINKEDIN_CALLBACK_URL=http://localhost:3300/api/auth/linkedin/callback;
-#export USER_EMAIL=fake@fake.it;
-#export PASS_EMAIL=fakepasswordemail;
-#export RECAPTCHA_PUBLIC=recaptchapublic;
-#export RECAPTCHA_SECRET=recaptchasecret;
-
+sh -c "export NODE_ENV=test"
+sh -c "export CI=yes"
+sh -c "export JWT_SECRET=faketestjwt"
+sh -c "export TWITTER_CONSUMER_KEY=consumerkey"
+sh -c "export TWITTER_CONSUMER_SECRET=consumersecret"
+sh -c "export TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback"
+sh -c "export FACEBOOK_APP_ID=appid"
+sh -c "export FACEBOOK_APP_SECRET=appsecret"
+sh -c "export FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback"
+sh -c "export GOOGLE_CLIENT_ID=clientid"
+sh -c "export GOOGLE_CLIENT_SECRET=clientsecret"
+sh -c "export GOOGLE_CALLBACK_URL=http://localhost:3300/api/auth/google/callback"
+sh -c "export GITHUB_CLIENT_ID=clientid"
+sh -c "export GITHUB_CLIENT_SECRET=clientsecret"
+sh -c "export GITHUB_CALLBACK_URL=http://localhost:3300/api/auth/github/callback"
+sh -c "export LINKEDIN_CLIENT_ID=clientid"
+sh -c "export LINKEDIN_CLIENT_SECRET=clientsecret"
+sh -c "export LINKEDIN_CALLBACK_URL=http://localhost:3300/api/auth/linkedin/callback"
+sh -c "export USER_EMAIL=fake@fake.it"
+sh -c "export PASS_EMAIL=fakepasswordemail"
+sh -c "export RECAPTCHA_PUBLIC=recaptchapublic"
+sh -c "export RECAPTCHA_SECRET=recaptchasecret"
 echo "NODE_ENV = $NODE_ENV"
 echo "CI = $CI"
 echo "JWT_SECRET = $JWT_SECRET"
