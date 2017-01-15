@@ -6,6 +6,7 @@ echo "Updating homebrew and mongodb"
 if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
 	brew update
 	brew outdated mongodb || brew upgrade mongodb
+	sudo mongod &
 fi
 
 echo "Exporting env variables dependencies"
