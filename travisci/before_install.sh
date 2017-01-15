@@ -2,14 +2,18 @@
 
 echo "Before install - OS is $TRAVIS_OS_NAME"
 
-echo "Updating homebrew and mongodb"
+echo "Updating both homebrew, mongodb and redis-server"
 if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
+    echo "Updating homebrew"
 	brew update
-#	brew outdated mongodb || brew upgrade mongodb
+	echo "Installing and starting mongodb"
     brew install mongodb
-    #create a folder for mongodb to prevent an error on mac osx
+    # create a folder for mongodb to prevent an error on mac osx
     sudo mkdir -p /data/db
     brew services start mongodb
+    echo "Installing and starting redis-server"
+    brew install redis
+    brew services start redis
 fi
 
 echo "Exporting env variables dependencies"
