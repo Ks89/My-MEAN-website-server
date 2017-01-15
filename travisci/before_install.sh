@@ -2,12 +2,12 @@
 
 echo "Before install - OS is $TRAVIS_OS_NAME"
 
-echo "Updating homebrew and mongodb"
-if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
-	brew update
-	brew outdated mongodb || brew upgrade mongodb
-	sudo mongod &
-fi
+#echo "Updating homebrew and mongodb"
+#if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
+#	brew update
+#	brew outdated mongodb || brew upgrade mongodb
+#	sudo mongod &
+#fi
 
 echo "Exporting env variables dependencies"
 # in this project, all env variables are the same for both linux and osx
