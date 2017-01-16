@@ -4,9 +4,9 @@ node_js:
   - "6"
   - "6.0"
 os:
-  - linux # uses precise. I should update this to trusty
+  - linux
   - osx # uses 10.11. I should update this to 10.12 Sierra
-dist: trusty # to use Ubuntu 14.04
+dist: trusty # to use Ubuntu 14.04 (trusty)
 #osx_image: xcode8.2 # to use macOS Sierra
 sudo: required
 env:
