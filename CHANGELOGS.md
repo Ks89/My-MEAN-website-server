@@ -1,5 +1,30 @@
 # Changelog
 
+## Alpha 5
+
+### **Features**
+- #65 **gulpfile in es2015 with babel**
+- #66 **server initial production configuration**
+- #57 appveyor and travis are sending coverage report to codeclimate?
+- #59 add coveralls service
+- #67 All variables and urls should be defined with dotenv
+- #64 `My-MEAN-website-client` folder should be a configuration param
+- #69 Add apidoc.json for apidoc
+- #60 add osx environment to travisci (server-side)
+
+### **Chore**
+- #58 regenerate and hide codeclimate repo token
+- #63 improve windows and general documentation (install/setup)
+- #70 Remove `browsersync` from `gulpfile.babel.js`, because it's useless today
+
+### **Bugfixes**
+- #55 fix and enable gulp-jshint
+- #56 `gulp test` fails with integration testing due to mongoose open connections
+- #36 `gulp` command fails on Windows due to browserSync
+
+and other small changes everywhere... :)
+
+
 ## Alpha 4
 
 Alpha 4 is dedicated manly to the front-end side, but I made some changes also to server-side.

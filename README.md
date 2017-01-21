@@ -39,7 +39,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - work in progress... (this is only an alpha, please be patient)
 
 ## News
-- *01/**/2017* - **My MEAN website** Alpha 5 public release COMING SOON
+- *01/21/2017* - **My MEAN website** Alpha 5 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-5)
 - *12/30/2016* - **My MEAN website** Alpha 4 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-4)
 - *11/28/2016* - **My MEAN website** Alpha 3 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-3)
 - *10/27/2016* - **My MEAN website** Alpha 2 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-2.2)
