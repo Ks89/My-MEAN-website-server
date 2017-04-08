@@ -48,21 +48,24 @@ function updateUser (user, accessToken, profile, serviceName) {
       user[serviceName].name  = profile.name.givenName + ' ' + profile.name.familyName;
       user[serviceName].profileUrl = profile.profileUrl;
       user[serviceName].email = profile.emails[0].value; //get the first email
-      return user;
+      break;
     case 'github':
       user[serviceName].name  = profile.displayName;
       user[serviceName].username = profile.username;
       user[serviceName].profileUrl = profile.profileUrl;
-      user[serviceName].email = profile.emails[0].value; //get the first email
-      return user;
+      if(profile.emails && profile.emails[0] && profile.emails[0].value) {
+        //github users can hide profile's email
+        user[serviceName].email = profile.emails[0].value; //get the first email
+      }
+      break;
     case 'google':
       user[serviceName].name  = profile.displayName;
       user[serviceName].email = profile.emails[0].value; //get the first email
-      return user;
+      break;
     case 'linkedin':
       user[serviceName].name  = profile.name.givenName + ' ' + profile.name.familyName;
       user[serviceName].email = profile.emails[0].value; //get the first email
-      return user;
+      break;
     case 'twitter':
       user[serviceName].name  = profile.displayName ? profile.displayName : profile.username;
       user[serviceName].username  = profile.username;
@@ -72,7 +75,7 @@ function updateUser (user, accessToken, profile, serviceName) {
         //To be sure, I decided to check if email's field is available.
         user[serviceName].email = profile.emails[0].value; //get the first email
       }
-      return user;
+      break;
   }
   return user;
 }
@@ -91,7 +94,7 @@ function collapseDb(user, serviceName, req, done) {
 
 function authenticate(req, accessToken, refreshToken, profile, done, serviceName, userRef) {
   process.nextTick(() => {
-    var sessionLocalUserId = req.session.localUserId;
+    let sessionLocalUserId = req.session.localUserId;
 
     if(_.isArray(sessionLocalUserId) || _.isRegExp(sessionLocalUserId) || _.isFunction(sessionLocalUserId) ||
       _.isDate(sessionLocalUserId) || _.isBoolean(sessionLocalUserId) || _.isError(sessionLocalUserId) ||
@@ -118,7 +121,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
         }
         console.log("User found - saving");
 
-        var userUpdated;
+        let userUpdated;
         try {
           userUpdated = updateUser(user, accessToken, profile, serviceName);
         } catch(exception) {
@@ -162,7 +165,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
             if (!user[serviceName].token) {
               console.log("Id is ok, but not token, updating user...");
 
-              var userUpdated;
+              let userUpdated;
               try {
                 userUpdated = updateUser(user, accessToken, profile, serviceName);
               } catch(exception) {
@@ -185,7 +188,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
             //otherwise, if there is no user found with that id, create them
             console.log("User not found with that id, creating a new one...");
 
-            var newUser;
+            let newUser;
             try {
               newUser = updateUser(new userRef(), accessToken, profile, serviceName);
             } catch(exception) {
@@ -207,7 +210,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
         // req.user pull the user out of the session
         // and finally update the user with the currecnt users credentials
         console.log("User already exists and I'm previously logged in");
-        var user = updateUser(req.user, accessToken, profile, serviceName);
+        let user = updateUser(req.user, accessToken, profile, serviceName);
         user.save( (err, savedUser) => {
           if (err) {
             throw err;
