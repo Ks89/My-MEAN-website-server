@@ -1,0 +1,10 @@
+bin
+docs
+node_modules
+public
+setup
+spec
+test-server-integration
+test-server-unit
+travisci
+gulpfile.babel.js
