@@ -27,3 +27,5 @@ node_modules
 docs/api
 
 public/**/*.*
+
+.nyc_output

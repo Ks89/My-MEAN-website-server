@@ -66,7 +66,7 @@ echo "RECAPTCHA_SECRET = $RECAPTCHA_SECRET"
 
 
 
-echo "Installing $TRAVIS_OS_NAME global dependencies"
-npm install -g mocha
-npm install -g nodemon
-npm install -g gulp@github:gulpjs/gulp#4.0
+#echo "Installing $TRAVIS_OS_NAME global dependencies"
+#npm install -g mocha
+#npm install -g nodemon
+#npm install -g gulp@github:gulpjs/gulp#4.0
