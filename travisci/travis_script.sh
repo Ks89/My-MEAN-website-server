@@ -23,3 +23,6 @@ do
   sleep 3 # wait 3 seconds
 done
 echo "npm test on $TRAVIS_OS_NAME finished with n=$n"
+
+echo "checking test threshold"
+npm run nyc:threshold
