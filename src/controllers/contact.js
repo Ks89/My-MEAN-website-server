@@ -5,11 +5,13 @@ var request = require('request');
 var logger = require('../utils/logger.js');
 var Utils = require('../utils/util');
 var async = require('async');
-
+var mailTransport;
 
 if(process.env.NODE_ENV === 'test') {
+  console.log('Using mocked mailTransport');
 	mailTransport = nodemailer.createTransport(stubTransport());
 } else {
+  console.log('Using the real mailTransport');
 	mailTransport = nodemailer.createTransport({
 		host: 'mail.stefanocappa.it',
 		port: '25',
