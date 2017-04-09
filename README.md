@@ -13,7 +13,7 @@ It's composed by:
 - A: a front-end in Angular 2
 - N: a back-end in Node.js
 - redis
-- webpack and gulp
+- webpack
 - and other stuff
 
 A possible extension of this project will be a configurable template to build a custom web app very quickly. This is my final goal, please be patient :)

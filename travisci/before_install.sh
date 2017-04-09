@@ -64,9 +64,3 @@ echo "PASS_EMAIL = $PASS_EMAIL"
 echo "RECAPTCHA_PUBLIC = $RECAPTCHA_PUBLIC"
 echo "RECAPTCHA_SECRET = $RECAPTCHA_SECRET"
 
-
-
-#echo "Installing $TRAVIS_OS_NAME global dependencies"
-#npm install -g mocha
-#npm install -g nodemon
-#npm install -g gulp@github:gulpjs/gulp#4.0
