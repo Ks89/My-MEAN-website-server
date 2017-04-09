@@ -1,3 +1,5 @@
+"use strict";
+
 var _ = require('lodash');
 var serviceNames = require('../serviceNames');
 var thirdpartyConfig = require('./3dpartyconfig');
