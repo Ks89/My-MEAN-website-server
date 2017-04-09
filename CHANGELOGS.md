@@ -1,5 +1,21 @@
 # Changelog
 
+## Alpha 6
+
+### **Features**
+- #77 **replace gulp with simple npm scripts**
+
+### **Chore**
+- #73 refactor npm scripts
+- #76 improve jshint config
+
+### **Bugfixes**
+- #47 `gulp test` fails when istanbul coverage is higher than the specified threshold
+
+and other small changes everywhere... :)
+
+
+
 ## Alpha 5
 
 ### **Features**

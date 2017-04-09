@@ -39,6 +39,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - work in progress... (this is only an alpha, please be patient)
 
 ## News
+- *04/09/2017* - **My MEAN website** Alpha 6 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
 - *01/21/2017* - **My MEAN website** Alpha 5 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-5)
 - *12/30/2016* - **My MEAN website** Alpha 4 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-4)
 - *11/28/2016* - **My MEAN website** Alpha 3 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-3)
@@ -85,7 +86,7 @@ Both options will require to download really big files from microsoft.com (manua
 5. execute this command `npm start` into the root folder to start this application (back-end)
 
 ## How to run tests (server-side)
-- `npm test`.
+- `npm test`
 
 ## How to start (development mode)
 - cd 'main folder of this project'
