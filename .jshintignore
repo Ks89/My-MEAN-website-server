@@ -7,4 +7,3 @@ spec
 test-server-integration
 test-server-unit
 travisci
-gulpfile.babel.js
