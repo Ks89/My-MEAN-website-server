@@ -1,3 +1,5 @@
+// eslint-disable-line global-require
+
 console.log("Starting with NODE_ENV=" + process.env.NODE_ENV);
 console.log("process.env.CI is " + process.env.CI);
 
@@ -221,7 +223,7 @@ app.use(session({
     secret: _EXPRESS_SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    store: new RedisStore({ host: _REDIS_HOST, port: _REDIS_PORT, client: client, ttl :  _REDIS_TTL}),
+    store: new RedisStore({ host: _REDIS_HOST, port: _REDIS_PORT, client: client, ttl :  _REDIS_TTL})
     // cookie: {
     //   httpOnly: false,
     //     secure: false, //to use true, you must use https. If you'll use true with http it won't work.

@@ -1,3 +1,5 @@
+'use strict';
+
 var mongoose = require('mongoose');
 var Project = mongoose.model('Project');
 var logger = require('../utils/logger.js');

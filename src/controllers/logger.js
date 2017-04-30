@@ -1,3 +1,5 @@
+'use strict';
+
 var logger = require('../utils/logger.js');
 var Utils = require('../utils/util.js');
 

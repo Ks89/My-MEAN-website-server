@@ -1,3 +1,5 @@
+'use strict';
+
 var passport = require('passport');
 var authCommon = require('../common/auth-common.js');
 var logger = require('../../../utils/logger.js');

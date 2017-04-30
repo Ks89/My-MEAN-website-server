@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   facebook: {
     clientID: process.env.FACEBOOK_APP_ID,

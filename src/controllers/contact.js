@@ -1,3 +1,5 @@
+'use strict';
+
 var stubTransport = require('nodemailer-stub-transport');
 var nodemailer = require('nodemailer');
 var url = require('url');

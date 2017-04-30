@@ -1,3 +1,5 @@
+'use strict';
+
 let mongoose = require( 'mongoose' );
 
 let gracefulShutdown;
@@ -11,29 +13,17 @@ mongoose.Promise = require('bluebird');
 // ------------------------
 
 if (process.env.NODE_ENV === 'test') {
-	console.log("testing mode enabled!");
+	console.log('testing mode enabled!');
 	dbURI = 'mongodb://localhost/test-db';
   console.log(`override Mongodb uri = ${dbURI}`);
 }
 
-mongoose.connection.on('connecting', () => {
-  console.log(`[Mongoose status] Mongoose is connecting to ${dbURI}`);
-});
-mongoose.connection.on('connected', () => {
-  console.log(`[Mongoose status] Mongoose connected to ${dbURI}`);
-});
-mongoose.connection.on('error', err => {
-  console.error(`[Mongoose status] Mongoose connection error: ${err}`);
-});
-mongoose.connection.on('close', () => {
-  console.warn('[Mongoose status] Mongoose connection closed');
-});
-mongoose.connection.on('reconnected', () => {
-  console.warn('[Mongoose status] Mongoose reconnected');
-});
-mongoose.connection.on('disconnected', () => {
-  console.log('[Mongoose status] Mongoose disconnected');
-});
+mongoose.connection.on('connecting', () => console.log(`[Mongoose status] Mongoose is connecting to ${dbURI}`));
+mongoose.connection.on('connected', () => console.log(`[Mongoose status] Mongoose connected to ${dbURI}`));
+mongoose.connection.on('error', err => console.error(`[Mongoose status] Mongoose connection error: ${err}`));
+mongoose.connection.on('close', () => console.warn('[Mongoose status] Mongoose connection closed'));
+mongoose.connection.on('reconnected', () => console.warn('[Mongoose status] Mongoose reconnected'));
+mongoose.connection.on('disconnected', () => console.log('[Mongoose status] Mongoose disconnected'));
 
 mongoose.connect(dbURI, err => {
 	// found here http://mongoosejs.com/docs/api.html#index_Mongoose-connect

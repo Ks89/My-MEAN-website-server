@@ -1,9 +1,12 @@
+// eslint-disable-line global-require
+'use strict';
+
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
+var logger = require('../../utils/logger.js');
+
 //used into the main app.js
 module.exports = function (passportRef) {
-  var mongoose = require('mongoose');
-  var User = mongoose.model('User');
-  var logger = require('../../utils/logger.js');
-
   //set this to serialize and deserialize informations like the user
   passportRef.serializeUser((user, done) => {
     logger.silly("Serializing user " + user);

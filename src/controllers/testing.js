@@ -1,3 +1,5 @@
+'use strict';
+
 var Utils = require('../utils/util');
 var jwt = require('jsonwebtoken');
 
@@ -47,7 +49,7 @@ function getAuthSessionTokenFake(_id, user, floatDate) {
   let fakeJwtSigned = jwt.sign({
     _id: _id,
     user: user,
-    exp: parseFloat(floatDate),
+    exp: parseFloat(floatDate)
   }, process.env.JWT_SECRET);
   return JSON.stringify({ token: fakeJwtSigned });
 }

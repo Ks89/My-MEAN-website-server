@@ -20,6 +20,17 @@ engines:
       - javascript
   markdownlint:
     enabled: true
+    # ... CONFIG CONTENT ...
+    checks:
+      MD012: #Multiple consecutive blank lines
+        enabled: false
+      MD013: #line length
+        enabled: false
+      MD024:
+        enabled: false
+      MD025: #Multiple top level headers in the same document
+        enabled: false
+    # ... CONFIG CONTENT ...
   scss-lint:
     enabled: true
   shellcheck:

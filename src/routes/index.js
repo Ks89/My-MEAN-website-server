@@ -1,3 +1,5 @@
+'use strict';
+
 const ctrlProjects = require('../controllers/projects');
 const ctrlContact = require('../controllers/contact');
 const restAuthMiddleware = require('./rest-auth-middleware');

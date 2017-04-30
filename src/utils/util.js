@@ -1,3 +1,5 @@
+'use strict';
+
 var _ = require('lodash');
 var jwt = require('jsonwebtoken');
 var logger = require('./logger');

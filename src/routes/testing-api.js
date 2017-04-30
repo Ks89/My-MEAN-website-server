@@ -1,3 +1,6 @@
+'use strict';
+// eslint-disable-line global-require
+
 // ------------- imported from ./index.js ---------------
 
 module.exports = function (router) {

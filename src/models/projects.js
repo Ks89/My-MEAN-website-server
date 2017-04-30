@@ -1,6 +1,8 @@
-var mongoose = require('mongoose');
+'use strict';
 
-var authorSchema = new mongoose.Schema({
+let mongoose = require('mongoose');
+
+let authorSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -19,7 +21,7 @@ var authorSchema = new mongoose.Schema({
     }
 });
 
-var projectHomeViewSchema = new mongoose.Schema({
+let projectHomeViewSchema = new mongoose.Schema({
     carouselImagePath: String,
     carouselText: String,
     thumbImagePath: String,
@@ -28,13 +30,13 @@ var projectHomeViewSchema = new mongoose.Schema({
     bigThumbText: String
 });
 
-var projectGallerySchema = new mongoose.Schema({
+let projectGallerySchema = new mongoose.Schema({
     thumb: String,
     img: String,
     description: String
 });
 
-var projectSchema = new mongoose.Schema({
+let projectSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -64,7 +66,7 @@ var projectSchema = new mongoose.Schema({
   },
   lastUpdate: {
     type: Date,
-    "default": Date.now
+    'default': Date.now
   }
 });
 

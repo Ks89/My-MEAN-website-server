@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var _ = require('lodash');
 var serviceNames = require('../serviceNames');
@@ -88,8 +88,8 @@ function collapseDb(user, serviceName, req, done) {
   .then(result => {
     console.log("collapseDb promise: " + result);
     return done(null, result);
-  }, reason => {
-    console.log("ERROR collapseDb promise");
+  }, err => {
+    console.error(`ERROR collapseDb promise - ${err}`);
     return done(null, user);
   });
 }

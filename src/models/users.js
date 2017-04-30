@@ -1,12 +1,13 @@
-var mongoose = require( 'mongoose' );
-var bcrypt   = require('bcrypt-nodejs');
-var jwt = require('jsonwebtoken');
-var logger = require('../utils/logger.js');
-var _ = require('lodash');
+'use strict';
 
-//profileSchema with profile infos not related to authentication
+let mongoose = require( 'mongoose' );
+let bcrypt   = require('bcrypt-nodejs');
+let jwt = require('jsonwebtoken');
+let _ = require('lodash');
+
+//profileSchema with profile info not related to authentication
 //These are info used only into the view
-var profileSchema = new mongoose.Schema({
+let profileSchema = new mongoose.Schema({
   name: String,
   surname: String,
   nickname: String,
@@ -18,13 +19,13 @@ var profileSchema = new mongoose.Schema({
   }
 });
 
-//REMEMBER that if you want to add other properties, you shuld check
-//this fcuntion -> getFilteredUser in this file
-var userSchema = new mongoose.Schema({
+//REMEMBER that if you want to add other properties, you should check
+//this function -> getFilteredUser in this file
+let userSchema = new mongoose.Schema({
   local: {
     email: String,
     name: String,
-    hash: String, //hash contains the passqord with also the salt generated with bcrypt
+    hash: String, //hash contains the password with also the salt generated with bcrypt
     activateAccountToken: String,
     activateAccountExpires: Date,
     resetPasswordToken: String,
@@ -70,7 +71,7 @@ var userSchema = new mongoose.Schema({
 
 userSchema.methods.setPassword = function(password) {
   if(!_.isString(password)) {
-    throw "not a valid password format";
+    throw 'not a valid password format';
   }
 
   //set password hashed with the salt integrated
@@ -81,7 +82,7 @@ userSchema.methods.setPassword = function(password) {
 
 userSchema.methods.validPassword = function(password) {
   if(!_.isString(password)) {
-    throw "not a valid password format";
+    throw 'not a valid password format';
   }
   return bcrypt.compareSync(password, this.local.hash);
 };
@@ -102,12 +103,13 @@ function signJwt(isForCookie, thisObject) {
   console.log(thisObject);
   if(isForCookie === true) {
     //because I want to modify 'thisObject' without to change the mongoose object
+    //TODO check if I can use Object.assign
     user = getFilteredUserForCookie(JSON.parse(JSON.stringify(thisObject)));
   } else {
     user = getFilteredUser(thisObject);
   }
 
-  var expiry = new Date();
+  let expiry = new Date();
   expiry.setTime(expiry.getTime() + 600000); //valid for 10 minutes (10*60*1000)
 
   return jwt.sign({
@@ -115,7 +117,7 @@ function signJwt(isForCookie, thisObject) {
      //I don't want to expose private information here -> I filter
      //the user object into a similar object without some fields
     user: user,
-    exp: parseFloat(expiry.getTime()),
+    exp: parseFloat(expiry.getTime())
   }, process.env.JWT_SECRET);
 }
 
@@ -143,9 +145,9 @@ function filterUser(dbData, user) {
   //http://stackoverflow.com/questions/208105/how-do-i-remove-a-property-from-a-javascript-object?rq=1
   for(let prop in dbData) {
     if(dbData.hasOwnProperty(prop) && prop !== '_id') {
-      //console.log("2-obj." + prop + " = " + dbData[prop]);
+      //console.log('2-obj.' + prop + ' = ' + dbData[prop]);
       for(let innerProp in dbData[prop]) {
-        //console.log("3-obj." + innerProp + " = " + dbData[prop][innerProp]);
+        //console.log('3-obj.' + innerProp + ' = ' + dbData[prop][innerProp]);
         if(innerProp==='profileUrl' ||
             innerProp==='token' ||
             innerProp==='username' ||

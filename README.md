@@ -1,19 +1,17 @@
 [![Travis Build](https://travis-ci.org/Ks89/My-MEAN-website-server.svg?branch=master)](https://travis-ci.org/Ks89/My-MEAN-website-server)   [![AppVeyor Build](https://ci.appveyor.com/api/projects/status/x7r2v139hi84cvsj/branch/master?svg=true)](https://ci.appveyor.com/project/Ks89/my-mean-website-server/branch/master)   [![Code Climate](https://codeclimate.com/github/Ks89/My-MEAN-website-server/badges/gpa.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website-server)   [![CodeClimate Coverage](https://codeclimate.com/github/Ks89/My-MEAN-website-server/badges/coverage.svg)](https://codeclimate.com/github/Ks89/My-MEAN-website-server/coverage)   [![Coveralls Coverage](https://coveralls.io/repos/github/Ks89/My-MEAN-website-server/badge.svg?branch=master)](https://coveralls.io/github/Ks89/My-MEAN-website-server?branch=master)   [![Known Vulnerabilities](https://snyk.io/test/github/ks89/my-mean-website-server/badge.svg)](https://snyk.io/test/github/ks89/my-mean-website-server)
 
 
-<br>
-
 # My M.E.A.N. website server/back-end (Alpha)
 
-<br>
 
 **This is the server side.** Client side is available [HERE](https://github.com/Ks89/My-MEAN-website-client)
 
-<br>
 
 ## Informations
+
 My MEAN website is a MEAN's web application that I'm creating as a personal website, but also for other users.
 It's composed by:
+
 - M: a MongoDb's database
 - E: a back-end with Express js
 - A: a front-end in Angular 2
@@ -28,6 +26,7 @@ Attention! This project is still an alpha, so it's not production ready. Please 
 If you are interested, star this project on GitHub, share it and create pull requests.
 
 Testing:
+
 - back-end unit: almost done (only the necessary things)*. coverage >=90%
 - back-end integration: almost done*. coverage >=90%
 
@@ -38,6 +37,7 @@ For this reason, I decided to unit-tests these APIs (not APIs theirself but thei
 If you want to help me to write integration-test's case for PassportJS, check [this file](https://github.com/Ks89/My-MEAN-website-server/blob/master/test-server-integration/TODO-auth-3dparty.experimentalspec.js)
 
 ## Requirements
+
 - macOS, Linux or Windows 10 **with admin privileges**
 - Node.js + npm
 - MongoDB and redis
@@ -45,6 +45,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - work in progress... (this is only an alpha, please be patient)
 
 ## News
+
 - *04/09/2017* - **My MEAN website** Alpha 6 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
 - *01/21/2017* - **My MEAN website** Alpha 5 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-5)
 - *12/30/2016* - **My MEAN website** Alpha 4 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-4)
@@ -54,14 +55,17 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 
 
 ## How to install (MacOS)
+
 - from the `setup` folder of this project, run `bash install-macos.sh`
 - import the db dump (.json) from `docs`'s folder using MongoChef or another software
 
 ## How to install (Linux)
+
 - from the `setup` folder of this project, run `bash install-linux.sh`
 - import the db dump (.json) from `docs`'s folder using MongoChef or another software
 
 ## How to install (Windows)
+
 *Tested only on Windows 10*
 
 - install both [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/new/) and [Google Chrome](https://www.google.com/chrome/browser/desktop/index.html)
@@ -92,14 +96,17 @@ Both options will require to download really big files from microsoft.com (manua
 5. execute this command `npm start` into the root folder to start this application (back-end)
 
 ## How to run tests (server-side)
+
 - `npm test`
 
 ## How to start (development mode)
+
 - cd 'main folder of this project'
 - `npm start`
 - all REST webservices will be available at http://localhost:3000 for instance try with http://localhost:3000/api/projects
 
 ## How to start (production mode)
+
 *I decide to use forever to run this project in a production environment*
 - cd 'main folder of this project'
 - `npm run prod:start`
@@ -107,40 +114,52 @@ Both options will require to download really big files from microsoft.com (manua
 - if you want to stop it use `npm run prod:stop`
 
 ## Features
+
 Work in progress... (this is only an alpha, please be patient)
 
 ## Future extensions
+
 Work in progress... (this is only an alpha, please be patient)
 
 ## Images
 
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/home.png)
-<br/><br/>
+
+
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projects.png)
-<br/><br/>
+
+
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projectDetail.png)
-<br/><br/>
+
+
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/projectDetail-image.png)
-<br/><br/>
+
+
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/contact.png)
-<br/><br/>
+
+
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/contact-images.png)
-<br/><br/>
+
+
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/signin.png)
-<br/><br/>
+
+
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/register.png)
-<br/><br/>
+
+
 Note: updated local profile info
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-updated.png)
-<br/><br/>
+
 Note: multiple account connected (Facebook and Github)
 ![alt tag](http://www.stefanocappa.it/publicfiles/Github_repositories_images/MyMeanWebsite/profile-multiple.png)
 
 ## Configuration
+
 From Alpha 5 I created many entries in .env, so you could start to configure this application.
 Work in progress... (this is only an alpha, please be patient)
 
 ## Thanks
+
 A special thanks to the authors of this book, because very useful to understand how to develop a modern web application: [BOOK1](https://www.manning.com/books/getting-mean-with-mongo-express-angular-and-node)
 
 ## License
