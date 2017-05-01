@@ -1,6 +1,6 @@
 'use strict';
 
-var logger = require('../utils/logger.js');
+var logger = require('../utils/logger-winston.js');
 var Utils = require('../utils/util.js');
 
 /**

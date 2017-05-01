@@ -9,7 +9,7 @@ var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 var TwitterStrategy = require('passport-twitter').Strategy;
 
-var logger = require('../../../utils/logger');
+var logger = require('../../../utils/logger-winston');
 var Utils = require('../../../utils/util');
 var mongoose = require('mongoose');
 

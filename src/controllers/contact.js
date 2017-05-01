@@ -4,7 +4,7 @@ var stubTransport = require('nodemailer-stub-transport');
 var nodemailer = require('nodemailer');
 var url = require('url');
 var request = require('request');
-var logger = require('../utils/logger.js');
+var logger = require('../utils/logger-winston.js');
 var Utils = require('../utils/util');
 var async = require('async');
 var mailTransport;

@@ -72,9 +72,9 @@ let morgan = require('morgan');
 let session = require('express-session');
 let bodyParser = require('body-parser');
 //logger created with winston
-let logger = require("./src/utils/logger");
+let logger = require('./src/utils/logger-winston');
 
-let redis   = require("redis"); //it's really useful?
+let redis   = require('redis'); //it's really useful?
 let RedisStore = require('connect-redis')(session);
 let client  = redis.createClient(); //it's really useful?
 
@@ -150,7 +150,7 @@ app.use(helmet.hpkp({
   reportUri: _HELMET_HPKP_REPORT_URI, // optional
   reportOnly: false,               // optional
   // Set the header based on a condition.
-  setIf: (req, res)  => req.secure //optional ()
+  setIf: req  => req.secure //optional ()
 }));
 
 // --SEC-- - Content Security Policy (CSP): Trying to prevent Injecting anything
@@ -198,11 +198,11 @@ app.use(contentLength.validateMax({max: MAX_CONTENT_LENGTH_ACCEPTED,
   status: 400, message: _LARGE_PAYLOAD_MESSAGE})); // max size accepted for the content-length
 
 
-console.log("Initializing morgan (logger)");
+console.log(`Initializing morgan (logger of req, res and so on... It's different from winston logger)`);
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(morgan("default", { "stream": logger.stream }));
+app.use(morgan('combined', { 'stream': logger.stream }));
 
 console.log("Initializing static resources");
 app.use(express.static(pathFrontEndFolder));

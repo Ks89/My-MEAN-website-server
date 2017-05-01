@@ -1,10 +1,11 @@
 'use strict';
 var LocalStrategy = require('passport-local').Strategy;
-var logger = require('../../../utils/logger.js');
+var logger = require('../../../utils/logger-winston.js');
+let passport = require('passport');
 
 //used into the main app.js
-module.exports = function (userRef, passportRef) {
-  passportRef.use(new LocalStrategy({
+module.exports = function (userRef) {
+  passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField : 'password',
     passReqToCallback : true

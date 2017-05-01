@@ -10,21 +10,21 @@ function getFormatter(options) {
     (options.meta && Object.keys(options.meta).length ? '\n\t' + JSON.stringify(options.meta) : '' );
 }
 
-let logger = new winston.Logger({
+let logger = new (winston.Logger)({
   transports: [
-    new winston.transports.File({
+    new (winston.transports.File)({
       level: 'debug',
       filename: 'mywebsite.log',
       handleExceptions: true,
       json: false,
-        //maxsize: 5242880, //5MB
-        //maxFiles: 5,
-        colorize: false,
-        timestamp: () => Date.now(),
-        formatter: options => getFormatter(options)
-      }),
-    new winston.transports.Console({
-      level: 'warn',
+      //maxsize: 5242880, //5MB
+      //maxFiles: 5,
+      colorize: false,
+      timestamp: () => Date.now(),
+      formatter: options => getFormatter(options)
+    }),
+    new (winston.transports.Console)({
+      level: 'debug',
       handleExceptions: true,
       json: false,
       colorize: true,

@@ -103,7 +103,7 @@ function signJwt(isForCookie, thisObject) {
   console.log(thisObject);
   if(isForCookie === true) {
     //because I want to modify 'thisObject' without to change the mongoose object
-    //TODO check if I can use Object.assign
+    //FIXME find a better way to prevent json.parse and json.stringify
     user = getFilteredUserForCookie(JSON.parse(JSON.stringify(thisObject)));
   } else {
     user = getFilteredUser(thisObject);

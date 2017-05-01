@@ -3,7 +3,7 @@
 // ------------- imported from ./index.js ---------------
 
 const jwt = require('jsonwebtoken');
-const logger = require('../utils/logger');
+const logger = require('../utils/logger-winston');
 const Utils = require('../utils/util');
 
 module.exports.restAuthenticationMiddleware = function(req, res, next) {

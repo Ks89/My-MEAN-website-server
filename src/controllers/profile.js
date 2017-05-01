@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Utils = require('../utils/util.js');
-var logger = require('../utils/logger.js');
+var logger = require('../utils/logger-winston.js');
 var authCommon = require('./authentication/common/auth-common.js');
 
 /**
@@ -125,7 +125,7 @@ module.exports.update = function(req, res) {
       if (err) {
         Utils.sendJSONres(res, 404, 'Error while updating your profile. Please retry.');
       } else {
-        console.log("updating auth token with new profile infos");
+        console.log("updating auth token with new profile info");
         try {
           req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
           Utils.sendJSONres(res, 200, {message: 'Profile updated successfully!'});

@@ -2,9 +2,9 @@
 
 var passport = require('passport');
 var authCommon = require('../common/auth-common.js');
-var logger = require('../../../utils/logger.js');
+var logger = require('../../../utils/logger-winston.js');
 
-//------------- INFORMATIONS to developers -------------
+//------------- INFORMATION to developers -------------
 // GET /auth/****
 //   Use passport.authenticate() as route middleware to authenticate the
 //   request.  The first step in ***** authentication will involve redirecting

@@ -1,10 +1,10 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var logger = require('../utils/logger.js');
-
-var Utils = require('../utils/util.js');
+const _ = require('lodash');
+let Utils = require('../utils/util.js');
+let logger = require('../utils/logger-winston');
+let mongoose = require('mongoose');
+let User = mongoose.model('User');
 
 /**
 * @api {get} /api/users/:id get a user with the requested id.
@@ -16,7 +16,6 @@ var Utils = require('../utils/util.js');
 * @apiDescription Get a user by its <code>id</code>.
 *
 * @apiSuccess {String} _id User <code>id</code>.
-* @apiSuccess {Integer} __v Database __v field. TODO: hide this!
 * @apiSuccess {Object} [profile] User profile's Object.
 * @apiSuccess {String} profile._id Profile id.
 * @apiSuccess {String} profile.name Profile name.
@@ -24,7 +23,7 @@ var Utils = require('../utils/util.js');
 * @apiSuccess {String} profile.nickname Profile nickname.
 * @apiSuccess {String} profile.email Profile email.
 * @apiSuccess {Date} profile.updated Date of the latest update.
-* @apiSuccess {String} profile.visible Boolean to show/hide profile informations.
+* @apiSuccess {String} profile.visible Boolean to show/hide profile information.
 * @apiSuccess {Object} [google] User Google account Object.
 * @apiSuccess {String} google.id Google id obtained during oauth2 authentication.
 * @apiSuccess {String} google.name Google name obtained during oauth2 authentication.
@@ -78,19 +77,23 @@ var Utils = require('../utils/util.js');
 *   }
 */
 module.exports.usersReadOneById = function(req, res) {
-	console.log('Finding a User', req.params);
+  logger.debug('usersReadOneById - Finding a User', req.params);
 	if (req.params && req.params.id) {
 
 		User.findById(req.params.id, (err, user) => {
-			console.log("User.findOne...");
+			logger.debug('usersReadOneById - fetching user from db');
 			if (!user || err) {
-				Utils.sendJSONres(res, 404, "User not found");
+				Utils.sendJSONres(res, 404, 'User not found');
+        logger.error('usersReadOneById - User NOT found');
 			} else {
-      	console.log("User found (usersReadOneById): " + user);
-        Utils.sendJSONres(res, 200, user);
+				let clonedUser = _.cloneDeep(user);
+        clonedUser.__v = undefined;
+        logger.debug('usersReadOneById - User found', clonedUser);
+        Utils.sendJSONres(res, 200, clonedUser);
       }
 	  });
 	} else {
-		Utils.sendJSONres(res, 400, "No userid in request");
-	}
+		Utils.sendJSONres(res, 400, 'No userid in request');
+    logger.error('usersReadOneById - No userid in request');
+  }
 };

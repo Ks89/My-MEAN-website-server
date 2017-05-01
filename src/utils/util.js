@@ -1,8 +1,8 @@
 'use strict';
 
-var _ = require('lodash');
-var jwt = require('jsonwebtoken');
-var logger = require('./logger');
+const _ = require('lodash');
+let jwt = require('jsonwebtoken');
+let logger = require('./logger-winston');
 
 class Utils {
 

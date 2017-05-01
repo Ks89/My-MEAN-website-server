@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var logger = require('../../../utils/logger');
+var logger = require('../../../utils/logger-winston');
 var jwt = require('jsonwebtoken');
 var Utils = require('../../../utils/util');
 var AuthUtils = require('../../../utils/auth-util');

@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var Project = mongoose.model('Project');
-var logger = require('../utils/logger.js');
+var logger = require('../utils/logger-winston.js');
 
 var Utils = require('../utils/util.js');
 
@@ -42,7 +42,7 @@ var Utils = require('../utils/util.js');
 * @apiSuccess {String[]} pl.p.releases Array of Html strings that represents the project's releases.
 * @apiSuccess {String[]} pl.p.changelog Array of Html strings that represents the project changelog, version by version.
 * @apiSuccess {String[]} pl.p.tags Array of Html strings that represents the project's tags.
-* @apiSuccess {Object[]} pl.p.authors Alrray of author objects, with personal informations.
+* @apiSuccess {Object[]} pl.p.authors Alrray of author objects, with personal information.
 * @apiSuccess {String} pl.p.authors.name Author's name.
 * @apiSuccess {String} pl.p.authors.surname Author's surname.
 * @apiSuccess {String} pl.p.authors.url Author's website/github profile.
@@ -110,7 +110,7 @@ module.exports.projectsList = function(req, res) {
 * @apiSuccess {String[]} pl.p.releases Array of Html strings that represents the project's releases.
 * @apiSuccess {String[]} pl.p.changelog Array of Html strings that represents the project changelog, version by version.
 * @apiSuccess {String[]} pl.p.tags Array of Html strings that represents the project's tags.
-* @apiSuccess {Object[]} pl.p.authors Alrray of author objects, with personal informations.
+* @apiSuccess {Object[]} pl.p.authors Alrray of author objects, with personal information.
 * @apiSuccess {String} pl.p.authors.name Author's name.
 * @apiSuccess {String} pl.p.authors.surname Author's surname.
 * @apiSuccess {String} pl.p.authors.url Author's website/github profile.
@@ -180,7 +180,7 @@ module.exports.projectsListHomepage = function(req, res) {
 * @apiSuccess {String[]} p.releases Array of Html strings that represents the project's releases.
 * @apiSuccess {String[]} p.changelog Array of Html strings that represents the project changelog, version by version.
 * @apiSuccess {String[]} p.tags Array of Html strings that represents the project's tags.
-* @apiSuccess {Object[]} p.authors Alrray of author objects, with personal informations.
+* @apiSuccess {Object[]} p.authors Alrray of author objects, with personal information.
 * @apiSuccess {String} p.authors.name Author's name.
 * @apiSuccess {String} p.authors.surname Author's surname.
 * @apiSuccess {String} p.authors.url Author's website/github profile.
