@@ -106,7 +106,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
     }
 
     //check if the user is already logged in using the LOCAL authentication
-    if(!_.isNull(sessionLocalUserId) && !_.isUndefined(sessionLocalUserId) &&
+    if(!_.isNil(sessionLocalUserId) &&
         ( _.isString(sessionLocalUserId) ||
           sessionLocalUserId instanceof mongoose.Types.ObjectId) ) {
 
