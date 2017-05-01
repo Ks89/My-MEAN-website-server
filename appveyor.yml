@@ -123,7 +123,9 @@ install:
   - set PATH=%APPDATA%\npm;%PATH%
   - npm install
   - npm install -g codeclimate-test-reporter
-
+  # Install pm2
+  - npm install pm2 -g
+  - pm2 update
 
 #---------------------------------#
 #       build configuration       #
