@@ -1,6 +1,11 @@
 engines:
   eslint:
     enabled: true
+    # ... CONFIG CONTENT ...
+    checks:
+      global-require: #Unexpected require()
+        enabled: false
+    # ... CONFIG CONTENT ...
   fixme:
     enabled: true
     config:
@@ -29,6 +34,8 @@ engines:
       MD024:
         enabled: false
       MD025: #Multiple top level headers in the same document
+        enabled: false
+      MD003: #Header style
         enabled: false
     # ... CONFIG CONTENT ...
   scss-lint:
