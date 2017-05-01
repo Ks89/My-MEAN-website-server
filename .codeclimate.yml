@@ -27,6 +27,8 @@ engines:
     enabled: true
     # ... CONFIG CONTENT ...
     checks:
+      MD003: #Header style
+        enabled: false
       MD012: #Multiple consecutive blank lines
         enabled: false
       MD013: #line length
@@ -35,7 +37,9 @@ engines:
         enabled: false
       MD025: #Multiple top level headers in the same document
         enabled: false
-      MD003: #Header style
+      MD022: #Headers should be surrounded by blank lines
+        enabled: false
+      MD026: #Trailing punctuation in header
         enabled: false
     # ... CONFIG CONTENT ...
   scss-lint:

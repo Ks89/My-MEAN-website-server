@@ -1,1 +1,1 @@
-For news, upcoming features and so on, refers to https://github.com/Ks89/My-MEAN-website-server/milestones
+For news, upcoming features and so on, refers to [THIS PAGE](https://github.com/Ks89/My-MEAN-website-server/milestones)
