@@ -176,8 +176,8 @@ describe('profile', () => {
 			];
 
 			const testAggregator = [
-				{test: missingServiceNameParams, resultMsg: 'ServiceName is required'},
-				{test: missingLocalParams, resultMsg: 'LocalUserEmail is required if you pass serviceName = local'},
+				{test: missingServiceNameParams, resultMsg: 'serviceName is required'},
+				{test: missingLocalParams, resultMsg: 'localUserEmail is required if you pass serviceName = local'},
 				{test: missing3dAuthParams, resultMsg: 'id is required if you pass serviceName != local'},
 				{test: missingProfileParams, resultMsg: 'All profile params are mandatory'}
 			];

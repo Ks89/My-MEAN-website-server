@@ -1,10 +1,9 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var Utils = require('../utils/util.js');
-var logger = require('../utils/logger-winston.js');
-var authCommon = require('./authentication/common/auth-common.js');
+let Utils = require('../utils/util.js');
+let logger = require('../utils/logger-winston');
+let User = require('mongoose').model('User');
+let authCommon = require('./authentication/common/auth-common.js');
 
 /**
 * @api {post} /api/profile Update the user's profile.
@@ -69,17 +68,20 @@ var authCommon = require('./authentication/common/auth-common.js');
 *   }
 */
 module.exports.update = function(req, res) {
-	console.log("Called profile upated");
+  logger.debug('REST profile update - updating profile', req.body);
   if(!req.body.serviceName) {
-    Utils.sendJSONres(res, 400, "ServiceName is required");
+    logger.error('REST profile update - serviceName is required');
+    Utils.sendJSONres(res, 400, 'serviceName is required');
     return;
   }
   if(req.body.serviceName === 'local' && !req.body.localUserEmail) {
-    Utils.sendJSONres(res, 400, "LocalUserEmail is required if you pass serviceName = local");
+    logger.error('REST profile update - localUserEmail is required if you pass serviceName = local');
+    Utils.sendJSONres(res, 400, 'localUserEmail is required if you pass serviceName = local');
     return;
   }
   if(req.body.serviceName !== 'local' && !req.body.id) {
-    Utils.sendJSONres(res, 400, "id is required if you pass serviceName != local");
+    logger.error('REST profile update - id is required if you pass serviceName != local');
+    Utils.sendJSONres(res, 400, 'id is required if you pass serviceName != local');
     return;
   }
 
@@ -87,7 +89,8 @@ module.exports.update = function(req, res) {
 		(req.body.surname === null || req.body.surname === undefined) ||
 		(req.body.nickname === null || req.body.nickname === undefined) ||
 		(req.body.email === null || req.body.email === undefined)) {
-    Utils.sendJSONres(res, 400, "All profile params are mandatory");
+    logger.error('REST profile update - All profile params are mandatory');
+    Utils.sendJSONres(res, 400, 'All profile params are mandatory');
     return;
   }
 
@@ -96,14 +99,13 @@ module.exports.update = function(req, res) {
   if(req.body.serviceName !== 'local') {
     //third party authentication
     query[req.body.serviceName + '.id'] = req.body.id;
-    console.log(query);
   } else {
     //local authentication
     query[req.body.serviceName + '.email'] = req.body.localUserEmail;
-    console.log(query);
   }
+  logger.debug('REST profile update - query', query);
 
-  var profileObj = {
+  const profileObj = {
       name : req.body.name,
       surname : req.body.surname,
       nickname : req.body.nickname,
@@ -114,23 +116,26 @@ module.exports.update = function(req, res) {
 
   User.findOne(query, (err, user) => {
     if (!user || err) {
+      logger.error('REST profile update - Unknown db error (either user or err variables)', err);
       Utils.sendJSONres(res, 401, 'Cannot update your profile. Please try to logout and login again.');
       return;
     }
 
-    console.log("user profile to update: " + user);
+    logger.debug(`REST profile update - User's profile to update is`, user);
 
     user.profile = profileObj; //update profile
     user.save((err, savedUser) => {
       if (err) {
+        logger.error('REST profile update - Error while saving on db', err);
         Utils.sendJSONres(res, 404, 'Error while updating your profile. Please retry.');
       } else {
-        console.log("updating auth token with new profile info");
+        logger.error('REST profile update - updating auth token with new profile info');
         try {
           req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
+          logger.debug('REST profile update - updated', savedUser);
           Utils.sendJSONres(res, 200, {message: 'Profile updated successfully!'});
-        } catch(e) {
-          logger.error(e);
+        } catch(err) {
+          logger.error('REST profile update - Impossible to generateSessionJwtToken', err);
           Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
         }
       }

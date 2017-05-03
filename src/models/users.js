@@ -1,9 +1,9 @@
 'use strict';
 
-let mongoose = require( 'mongoose' );
-let bcrypt   = require('bcrypt-nodejs');
+const _ = require('lodash');
+let mongoose = require('mongoose');
+let bcrypt = require('bcrypt-nodejs');
 let jwt = require('jsonwebtoken');
-let _ = require('lodash');
 
 //profileSchema with profile info not related to authentication
 //These are info used only into the view
@@ -32,45 +32,45 @@ let userSchema = new mongoose.Schema({
     resetPasswordExpires: Date
   },
   //other type os users based on the login's type
-  facebook : {
-    id : String,
-    token : String,
-    email : String,
-    name : String,
+  facebook: {
+    id: String,
+    token: String,
+    email: String,
+    name: String,
     profileUrl: String
   },
-  twitter : {
-    id : String,
-    token : String,
-    name : String,
-    email : String,
-    username : String
+  twitter: {
+    id: String,
+    token: String,
+    name: String,
+    email: String,
+    username: String
   },
-  linkedin : {
-    id : String,
-    token : String,
-    email : String,
-    name : String
+  linkedin: {
+    id: String,
+    token: String,
+    email: String,
+    name: String
   },
-  google : {
-    id : String,
-    token : String,
-    email : String,
-    name : String
+  google: {
+    id: String,
+    token: String,
+    email: String,
+    name: String
   },
-  github : {
-    id : String,
-    token : String,
-    email : String,
-    name : String,
+  github: {
+    id: String,
+    token: String,
+    email: String,
+    name: String,
     username: String,
     profileUrl: String
   },
   profile: profileSchema
 });
 
-userSchema.methods.setPassword = function(password) {
-  if(!_.isString(password)) {
+userSchema.methods.setPassword = function (password) {
+  if (!_.isString(password)) {
     throw 'not a valid password format';
   }
 
@@ -80,28 +80,28 @@ userSchema.methods.setPassword = function(password) {
   this.local.hash = bcrypt.hashSync(password, bcrypt.genSaltSync(32), null);
 };
 
-userSchema.methods.validPassword = function(password) {
-  if(!_.isString(password)) {
+userSchema.methods.validPassword = function (password) {
+  if (!_.isString(password)) {
     throw 'not a valid password format';
   }
   return bcrypt.compareSync(password, this.local.hash);
 };
 
 //method to generete JWT
-userSchema.methods.generateJwt = function() {
+userSchema.methods.generateJwt = function () {
   return signJwt(false, this); // isForCookie = false (used elsewhere)
 };
 
 //method to generete JWT used to create a jwt cookie
 //this is necessary to prevent
-userSchema.methods.generateSessionJwtToken = function() {
+userSchema.methods.generateSessionJwtToken = function () {
   return signJwt(true, this); // isForCookie = true
 };
 
 function signJwt(isForCookie, thisObject) {
   let user;
-  console.log(thisObject);
-  if(isForCookie === true) {
+  //console.log(thisObject);
+  if (isForCookie === true) {
     //because I want to modify 'thisObject' without to change the mongoose object
     //FIXME find a better way to prevent json.parse and json.stringify
     user = getFilteredUserForCookie(JSON.parse(JSON.stringify(thisObject)));
@@ -114,8 +114,8 @@ function signJwt(isForCookie, thisObject) {
 
   return jwt.sign({
     _id: thisObject._id,
-     //I don't want to expose private information here -> I filter
-     //the user object into a similar object without some fields
+    //I don't want to expose private information here -> I filter
+    //the user object into a similar object without some fields
     user: user,
     exp: parseFloat(expiry.getTime())
   }, process.env.JWT_SECRET);
@@ -143,22 +143,22 @@ function filterUser(dbData, user) {
   //I decided to use ...=undefined, instead of delete ... to achieve
   //better performances, as explained here:
   //http://stackoverflow.com/questions/208105/how-do-i-remove-a-property-from-a-javascript-object?rq=1
-  for(let prop in dbData) {
-    if(dbData.hasOwnProperty(prop) && prop !== '_id') {
+  for (let prop in dbData) {
+    if (dbData.hasOwnProperty(prop) && prop !== '_id') {
       //console.log('2-obj.' + prop + ' = ' + dbData[prop]);
-      for(let innerProp in dbData[prop]) {
+      for (let innerProp in dbData[prop]) {
         //console.log('3-obj.' + innerProp + ' = ' + dbData[prop][innerProp]);
-        if(innerProp==='profileUrl' ||
-            innerProp==='token' ||
-            innerProp==='username' ||
-            innerProp==='activateAccountToken' ||
-            innerProp==='activateAccountExpires' ||
-            innerProp==='resetPasswordToken' ||
-            innerProp==='resetPasswordExpires' ||
-            innerProp==='_id' || //to remove '_id', '__v' and 'updated' into user.profile
-            innerProp==='__v' ||
-            innerProp==='updated' ||
-            innerProp==='hash') {
+        if (innerProp === 'profileUrl' ||
+          innerProp === 'token' ||
+          innerProp === 'username' ||
+          innerProp === 'activateAccountToken' ||
+          innerProp === 'activateAccountExpires' ||
+          innerProp === 'resetPasswordToken' ||
+          innerProp === 'resetPasswordExpires' ||
+          innerProp === '_id' || //to remove '_id', '__v' and 'updated' into user.profile
+          innerProp === '__v' ||
+          innerProp === 'updated' ||
+          innerProp === 'hash') {
           user[prop][innerProp] = undefined;
         }
       }
