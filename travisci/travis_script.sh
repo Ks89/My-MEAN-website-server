@@ -4,7 +4,7 @@ echo "Travis script on $TRAVIS_OS_NAME"
 
 echo "Installing pm2 on $TRAVIS_OS_NAME"
 npm install pm2 -g
-pm2 update
+#pm2 update
 
 
 # run npm docs

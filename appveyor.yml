@@ -125,7 +125,7 @@ install:
   - npm install -g codeclimate-test-reporter
   # Install pm2
   - npm install pm2 -g
-  - pm2 update
+  #- pm2 update
 
 #---------------------------------#
 #       build configuration       #
