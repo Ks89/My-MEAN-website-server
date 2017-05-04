@@ -1,8 +1,8 @@
 'use strict';
 
-var passport = require('passport');
-var authCommon = require('../common/auth-common.js');
-var logger = require('../../../utils/logger-winston.js');
+let logger = require('../../../utils/logger-winston.js');
+let passport = require('passport');
+let authCommon = require('../common/auth-common.js');
 
 //------------- INFORMATION to developers -------------
 // GET /auth/****
@@ -17,9 +17,9 @@ var logger = require('../../../utils/logger-winston.js');
 //   which, in this example, will redirect the user to destination page.
 //------------------------------------------------------
 
-var redirectFailure = { failureRedirect: '/login' };
+const redirectFailure = { failureRedirect: '/login' };
 
-var connectRedirect = {
+const connectRedirect = {
 	successRedirect : '/post3dauth',
 	failureRedirect : '/'
 };
@@ -106,7 +106,7 @@ module.exports.connectLinkedin = passport.authorize('linkedin', { scope: ['r_ema
 module.exports.connectLinkedinCallback = passport.authorize('linkedin', connectRedirect);
 
 
-//GET that represents callbacks. These functions are used to manage the object "user" returned in req.user
+//GET that represents callbacks. These functions are used to manage the object 'user' returned in req.user
 //All of these have this form: /auth/****serviceName****/callback
 module.exports.callbackRedirectFacebook = function(req, res) {
 	redirectToProfile(req.user, res, req);
@@ -125,7 +125,7 @@ module.exports.callbackRedirectLinkedin = function(req, res) {
 };
 
 function redirectToProfile(user, res, req) {
-	console.log("callbackRedirect called");
+  logger.debug('REST auth-3dparty redirectToProfile - callbackRedirect called');
 	try {
 		req.session.authToken = authCommon.generateSessionJwtToken(user);
 	} catch(e) {

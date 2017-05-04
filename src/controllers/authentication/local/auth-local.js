@@ -101,8 +101,7 @@ function createRandomToken(done) {
 module.exports.register = (req, res) => {
   console.log('called register server side');
   if(!req.body.name || !req.body.email || !req.body.password) {
-    Utils.sendJSONres(res, 400, "All fields required");
-    return;
+    return Utils.sendJSONres(res, 400, "All fields required");
   }
 
   async.waterfall([
@@ -114,14 +113,12 @@ module.exports.register = (req, res) => {
       User.findOne({ 'local.email': req.body.email }, (err, user) => {
         if (err) {
           console.log('Internal error');
-          Utils.sendJSONres(res, 500, "Unknown error while registering...");
-          return;
+          return Utils.sendJSONres(res, 500, "Unknown error while registering...");
         }
 
         if (user) {
           console.log('User already exists');
-          Utils.sendJSONres(res, 400, "User already exists. Try to login.");
-          return;
+          return Utils.sendJSONres(res, 400, "User already exists. Try to login.");
         }
 
         var newUser = new User();
@@ -198,15 +195,13 @@ module.exports.register = (req, res) => {
 */
 module.exports.login = (req, res) => {
   if(!req.body.email || !req.body.password) {
-    Utils.sendJSONres(res, 400, "All fields required");
-    return;
+    return Utils.sendJSONres(res, 400, "All fields required");
   }
 
   passport.authenticate('local', (err, user, info) => {
     console.log("called login...");
     if (!user || err) {
-      Utils.sendJSONres(res, 401, "Incorrect username or password. Or this account is not activated, check your mailbox.");
-      return;
+      return Utils.sendJSONres(res, 401, "Incorrect username or password. Or this account is not activated, check your mailbox.");
     }
 
     console.log("user exists");
@@ -220,15 +215,15 @@ module.exports.login = (req, res) => {
 
       try {
         req.session.authToken = authCommon.generateSessionJwtToken(user);
-        Utils.sendJSONres(res, 200, { token: token });
+        return Utils.sendJSONres(res, 200, { token: token });
       } catch (e) {
         logger.error(e);
-        Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
+        return Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
       }
 
     } else {
       console.log("user NOT enabled");
-      Utils.sendJSONres(res, 401, "Incorrect username or password. Or this account is not activated, check your mailbox.");
+      return Utils.sendJSONres(res, 401, "Incorrect username or password. Or this account is not activated, check your mailbox.");
     }
   })(req, res);
 };
@@ -295,8 +290,7 @@ module.exports.unlinkLocal = (req, res) => {
 */
 module.exports.reset = (req, res) => {
   if(!req.body.email) {
-    Utils.sendJSONres(res, 400, "Email fields is required.");
-    return;
+    return Utils.sendJSONres(res, 400, "Email fields is required.");
   }
 
   async.waterfall([
@@ -305,8 +299,7 @@ module.exports.reset = (req, res) => {
       const link = 'http://' + req.headers.host + '/reset?emailToken=' + token;
       User.findOne({ 'local.email': req.body.email }, (err, user) => {
         if (!user || err) {
-          Utils.sendJSONres(res, 404, 'No account with that email address exists.');
-          return;
+          return Utils.sendJSONres(res, 404, 'No account with that email address exists.');
         }
 
         user.local.resetPasswordToken = token;
@@ -373,8 +366,7 @@ module.exports.reset = (req, res) => {
 */
 module.exports.resetPasswordFromEmail = (req, res) => {
   if(!req.body.newPassword || !req.body.emailToken) {
-    Utils.sendJSONres(res, 400, "Password and emailToken fields are required.");
-    return;
+    return Utils.sendJSONres(res, 400, "Password and emailToken fields are required.");
   }
 
   async.waterfall([
@@ -382,8 +374,7 @@ module.exports.resetPasswordFromEmail = (req, res) => {
       User.findOne({ 'local.resetPasswordToken': req.body.emailToken ,
       'local.resetPasswordExpires': { $gt: Date.now() }}, (err, user) => {
         if (!user || err) {
-          Utils.sendJSONres(res, 404, 'No account with that token exists.');
-          return;
+          return Utils.sendJSONres(res, 404, 'No account with that token exists.');
         }
         console.log('Reset password called for user: ' + user);
 
@@ -451,8 +442,7 @@ module.exports.resetPasswordFromEmail = (req, res) => {
 */
 module.exports.activateAccount = (req, res) => {
   if(!req.body.emailToken || !req.body.userName) {
-    Utils.sendJSONres(res, 400, "EmailToken and userName fields are required.");
-    return;
+    return Utils.sendJSONres(res, 400, "EmailToken and userName fields are required.");
   }
 
   const decodedUserName = decodeURI(req.body.userName);
@@ -463,16 +453,14 @@ module.exports.activateAccount = (req, res) => {
       User.findOne({ 'local.activateAccountToken': req.body.emailToken , 'local.name' : decodedUserName},
       /*,'local.activateAccountExpires': { $gt: Date.now() }},*/ (err, user) => {
       if (!user || err) {
-        Utils.sendJSONres(res, 404, 'No account with that token exists.');
-        return;
+        return Utils.sendJSONres(res, 404, 'No account with that token exists.');
       }
 
       console.log("user.activateAccountExpires: " + user.local.activateAccountExpires);
       console.log("Date.now(): " + new Date(Date.now()));
 
       if(user.local.activateAccountExpires < new Date(Date.now())) {
-        Utils.sendJSONres(res, 404, 'Link exprired! Your account is removed. Please, create another account, also with the same email address.');
-        return;
+        return Utils.sendJSONres(res, 404, 'Link exprired! Your account is removed. Please, create another account, also with the same email address.');
       }
 
       console.log('Activate account with user: ' + user);

@@ -12,7 +12,7 @@ module.exports = {
     consumerKey: process.env.TWITTER_CONSUMER_KEY,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
     callbackURL: process.env.TWITTER_CALLBACK_URL,
-    userProfileURL: "https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true",
+    userProfileURL: 'https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true',
     passReqToCallback : true
   },
   google: {

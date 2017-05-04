@@ -1,7 +1,6 @@
-var _ = require('lodash');
-var jwt = require('jsonwebtoken');
-var Utils = require('./util');
-var whitelistServices = require('../controllers/authentication/serviceNames');
+const _ = require('lodash');
+let Utils = require('./util');
+let whitelistServices = require('../controllers/authentication/serviceNames');
 
 class AuthUtils {
 
@@ -20,7 +19,7 @@ class AuthUtils {
       return false;
     }
 
-    let result = false;
+    let result;
     let checkProp;
     //I remove serviceName from whitelistServices
     const noProfileServices = _.without(whitelistServices, 'profile');

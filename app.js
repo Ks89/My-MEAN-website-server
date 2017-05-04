@@ -202,7 +202,10 @@ console.log(`Initializing morgan (logger of req, res and so on... It's different
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(morgan('combined', { 'stream': logger.stream }));
+if(!process.env.CI && process.env.NODE_ENV !== 'test') {
+  // Disable morgan while testing to prevent very big log with useless information
+  app.use(morgan('combined', {'stream': logger.stream}));
+}
 
 console.log("Initializing static resources");
 app.use(express.static(pathFrontEndFolder));

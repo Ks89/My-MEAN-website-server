@@ -1,8 +1,6 @@
-// eslint-disable-line global-require
 'use strict';
 
-let mongoose = require('mongoose');
-let User = mongoose.model('User');
+let User = require('mongoose').model('User');
 let logger = require('../../utils/logger-winston.js');
 
 //used into the main app.js

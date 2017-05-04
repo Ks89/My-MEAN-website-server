@@ -59,16 +59,15 @@ module.exports.projectsList = function (req, res) {
   Project.find({}, (err, results) => {
     if (!results || err) {
       logger.error('REST projects projectsList - not found', err);
-      Utils.sendJSONres(res, 404, 'Project list not found');
-      return;
+      return Utils.sendJSONres(res, 404, 'Project list not found');
     }
     if (results.length === 0) {
       logger.debug('REST projects projectsList - list empty');
       res.status(204).end(); // no content (attention, don't use res.json() in this case)
     } else {
       logger.debug('REST projects projectsList - found', results);
-      Utils.sendJSONres(res, 200, results);
-      return;
+      logger.silly(results);
+      return Utils.sendJSONres(res, 200, results);
     }
   });
 };
@@ -130,16 +129,15 @@ module.exports.projectsListHomepage = function (req, res) {
     .lean().exec((err, results) => {
     if (!results || err) {
       logger.error('REST projects projectsListHomepage - not found', err);
-      Utils.sendJSONres(res, 404, 'Project list homepage not found');
-      return;
+      return Utils.sendJSONres(res, 404, 'Project list homepage not found');
     }
     if (results.length === 0) {
       logger.debug('REST projects projectsListHomepage - list empty');
       res.status(204).end(); // no content (attention, don't use res.json() in this case)
     } else {
-      logger.debug('REST projects projectsListHomepage - found', results);
-      Utils.sendJSONres(res, 200, results);
-      return;
+      logger.debug('REST projects projectsListHomepage - found');
+      logger.silly(results);
+      return Utils.sendJSONres(res, 200, results);
     }
   });
 };
@@ -204,8 +202,7 @@ module.exports.projectsReadOne = function (req, res) {
   logger.debug('REST projects projectsReadOne - finding one project', req.params);
   if (!req.params.projectid) {
     logger.error('REST projects projectsReadOne - :projectid not found');
-    Utils.sendJSONres(res, 400, 'No projectid in request');
-    return;
+    return Utils.sendJSONres(res, 400, 'No projectid in request');
   }
 
   Project
@@ -213,10 +210,11 @@ module.exports.projectsReadOne = function (req, res) {
     .exec((err, project) => {
       if (!project || err) {
         logger.error('REST projects projectsReadOne - not found', err);
-        Utils.sendJSONres(res, 404, 'Project not found');
+        return Utils.sendJSONres(res, 404, 'Project not found');
       } else {
-        logger.debug('REST projects projectsReadOne - found', project);
-        Utils.sendJSONres(res, 200, project);
+        logger.debug('REST projects projectsReadOne - found');
+        logger.silly(project);
+        return Utils.sendJSONres(res, 200, project);
       }
     });
 };

@@ -1,5 +1,4 @@
 'use strict';
-// eslint-disable-line global-require
 
 // ------------- imported from ./index.js ---------------
 
