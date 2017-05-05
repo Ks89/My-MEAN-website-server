@@ -9,8 +9,8 @@
   "private": true,
   "repository": "https://github.com/Ks89/My-MEAN-website-server",
   "engines": {
-    "node": ">=6.0.0",
-    "npm": ">=3.8.6"
+    "node": ">=7.10.0",
+    "npm": ">=4.2.0"
   },
   "scripts": {
     "start": "nodemon",
