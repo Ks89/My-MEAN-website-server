@@ -76,7 +76,7 @@ module.exports.collapseDb = (loggedUser, serviceName, req) => {
 			});
 
 			if(!duplicatedUser || !duplicatedUser[0]) {
-        logger.error('auth-experimental-collapse-db collapse-db - No duplicated user found');
+        logger.debug('auth-experimental-collapse-db collapse-db - No duplicated user found');
 				reject('No duplicated user found while collapsing');
 				return;
 			}

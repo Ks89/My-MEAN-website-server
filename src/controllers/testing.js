@@ -52,7 +52,7 @@ function getAuthSessionTokenFake(_id, user, floatDate) {
     _id: _id,
     user: user,
     exp: parseFloat(floatDate)
-  }, config.JWT_SECRET);
+  }, process.env.JWT_SECRET);
   return JSON.stringify({token: fakeJwtSigned});
 }
 

@@ -19,7 +19,7 @@ module.exports = {
   NODE_ENV                      : process.env.NODE_ENV,
   CI                            : process.env.CI,
   PORT                          : process.env.PORT,
-  JWT_SECRET                    : process.env.JWT_SECRET,
+  // JWT_SECRET                    : process.env.JWT_SECRET,
   USER_EMAIL                    : process.env.USER_EMAIL,
   PASS_EMAIL                    : process.env.PASS_EMAIL,
   RECAPTCHA_SECRET              : process.env.RECAPTCHA_SECRET,

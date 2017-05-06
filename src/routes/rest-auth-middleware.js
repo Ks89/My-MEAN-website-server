@@ -35,7 +35,7 @@ module.exports.restAuthenticationMiddleware = function (req, res, next) {
       return Utils.sendJSONres(res, 404, 'Token not found');
     }
 
-    jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
         logger.error('REST restAuthenticationMiddleware - jwt.verify error', err);
         return Utils.sendJSONres(res, 401, 'Jwt not valid or corrupted');

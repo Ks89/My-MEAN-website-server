@@ -130,7 +130,7 @@ function redirectToProfile(user, res, req) {
 		req.session.authToken = authCommon.generateSessionJwtToken(user);
 	} catch(e) {
 		logger.error(e);
-		res.redirect('/home');
+		res.redirect('/');
 	}
 	res.redirect('/post3dauth');
 }

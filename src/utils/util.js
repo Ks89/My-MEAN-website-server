@@ -118,7 +118,7 @@ class Utils {
 
     return new Promise((resolve, reject) => {
       // verify a token symmetric
-      jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if(err) {
           logger.error('util isJwtValid - jwt.verify error', err);
           reject({status: 401, message: 'Jwt not valid or corrupted'});

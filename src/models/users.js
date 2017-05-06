@@ -119,7 +119,7 @@ function signJwt(isForCookie, thisObject) {
     //the user object into a similar object without some fields
     user: user,
     exp: parseFloat(expiry.getTime())
-  }, config.JWT_SECRET);
+  }, process.env.JWT_SECRET);
 }
 
 function getFilteredUserForCookie(user) {
