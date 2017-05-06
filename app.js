@@ -1,8 +1,9 @@
-// eslint-disable-line global-require
+'use strict';
 const config = require('./src/config');
+let logger = require('./src/utils/logger-winston.js');
 
-console.log('Starting with NODE_ENV=' + config.NODE_ENV);
-console.log('config.CI is ' + config.CI);
+logger.warn('Starting with NODE_ENV=' + config.NODE_ENV);
+logger.warn('config.CI is ' + config.CI);
 
 if (!config.isCI()) {
   console.log('Initializing dotenv (requires .env file)');
@@ -32,12 +33,12 @@ if (config.isCI() || config.isTest()) {
   pathFrontEndIndex = path.join(__dirname, 'app.js');
 } else {
   if (config.isProd()) {
-    console.log(`Providing both index.html and admin.html in a production environment`);
+    logger.warn('Providing both index.html and admin.html in a production environment');
     pathFrontEndFolder = path.join(__dirname, config.FRONT_END_PATH);
     pathFrontEndIndex = path.join(__dirname, config.FRONT_END_PATH, 'index.html');
     pathFrontEndAdminIndex = path.join(__dirname, config.FRONT_END_PATH, 'admin.html');
   } else {
-    console.log(`Providing real ${config.FRONT_END_PATH}, index.html and admin.html`);
+    logger.warn('Providing real ${config.FRONT_END_PATH}, index.html and admin.html');
     pathFrontEndFolder = path.join(__dirname, config.FRONT_END_PATH);
     pathFrontEndIndex = path.join(__dirname, config.FRONT_END_PATH, 'index.html');
     pathFrontEndAdminIndex = path.join(__dirname, config.FRONT_END_PATH, 'admin.html');
@@ -47,14 +48,11 @@ if (config.isCI() || config.isTest()) {
 // --------------------------------------------------------
 
 let express = require('express');
-let vhost = require('vhost');
+// let vhost = require('vhost');
 let compression = require('compression');
-let favicon = require('serve-favicon');
 let morgan = require('morgan');
 let session = require('express-session');
 let bodyParser = require('body-parser');
-//logger created with winston
-let logger = require('./src/utils/logger-winston');
 
 let redis = require('redis'); //it's really useful?
 let RedisStore = require('connect-redis')(session);
@@ -81,15 +79,15 @@ let helmet = require('helmet');
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
 
-console.log('Initializing mongodb');
+logger.warn('Initializing mongodb');
 //require for mongo
 require('./src/models/db');
 require('./src/controllers/authentication/passport')(passport);
 
-console.log("Initializing expressjs");
+logger.warn('Initializing expressjs');
 let app = express();
 
-console.log("Initializing helmet");
+logger.warn('Initializing helmet');
 // --SEC-- - [helmet] enable helmet
 // this automatically add 9 of 11 security features
 /*
@@ -140,26 +138,26 @@ app.use(helmet.hpkp({
 //    unintended tracking, malicious frames, and more. [helmet]
 app.use(helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: ["'self'", 'localhost:3000', 'localhost:3001', 'www.google.com', 'www.youtube.com'],
-    scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'maxcdn.bootstrapcdn.com',
+    defaultSrc: [`'self'`, 'localhost:3000', 'localhost:3001', 'www.google.com', 'www.youtube.com'],
+    scriptSrc: [`'self'`, `'unsafe-inline'`, `'unsafe-eval'`, 'maxcdn.bootstrapcdn.com',
       'ajax.googleapis.com', 'cdnjs.cloudflare.com',
       'code.jquery.com', 'www.google.com',
       'www.gstatic.com'],
-    styleSrc: ["'self'", 'ajax.googleapis.com', 'maxcdn.bootstrapcdn.com', 'cdnjs.cloudflare.com', "'unsafe-inline'"],
-    fontSrc: ["'self'", 'maxcdn.bootstrapcdn.com'],
-    imgSrc: ["'self'", 'localhost:3000', 'localhost:3001',
+    styleSrc: [`'self'`, 'ajax.googleapis.com', 'maxcdn.bootstrapcdn.com', 'cdnjs.cloudflare.com', `'unsafe-inline'`],
+    fontSrc: [`'self'`, 'maxcdn.bootstrapcdn.com'],
+    imgSrc: [`'self'`, 'localhost:3000', 'localhost:3001',
       'placehold.it', 'placeholdit.imgix.net', 'camo.githubusercontent.com',
       's3.amazonaws.com', 'cdnjs.cloudflare.com'],
     sandbox: ['allow-forms', 'allow-scripts', 'allow-same-origin', 'allow-popups'],
-    frameSrc: ["'self'", 'www.google.com', 'www.youtube.com'], //frame-src is deprecated
-    childSrc: ["'self'", 'www.google.com', 'www.youtube.com'],
+    frameSrc: [`'self'`, 'www.google.com', 'www.youtube.com'], //frame-src is deprecated
+    childSrc: [`'self'`, 'www.google.com', 'www.youtube.com'],
     connectSrc: [
-      "'self'", "cdnjs.cloudflare.com", "ajax.googleapis.com",
-      "ws://localhost:3000", "ws://localhost:3001", "ws://localhost:3100",
-      "ws://localhost:3300"
+      `'self'`, 'cdnjs.cloudflare.com', 'ajax.googleapis.com',
+      'ws://localhost:3000', 'ws://localhost:3001', 'ws://localhost:3100',
+      'ws://localhost:3300'
     ],
     reportUri: '/report-violation',
-    objectSrc: ["'none'"]
+    objectSrc: [`'none'`]
   },
   // Set to true if you only want browsers to report errors, not block them
   reportOnly: false,
@@ -181,30 +179,26 @@ app.use(contentLength.validateMax({
   status: 400, message: config.LARGE_PAYLOAD_MESSAGE
 })); // max size accepted for the content-length
 
-
-console.log(`Initializing morgan (logger of req, res and so on... It's different from winston logger)`);
-
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+logger.warn(`Initializing morgan (logger of req, res and so on... It's different from winston logger)`);
 if (!config.isCI() && !config.isTest()) {
   // Disable morgan while testing to prevent very big log with useless information
   app.use(morgan('combined', {'stream': logger.stream}));
 }
 
-console.log("Initializing static resources");
+logger.warn('Initializing static resources');
 app.use(express.static(pathFrontEndFolder));
 
-console.log("Initializing bodyparser");
+logger.warn('Initializing bodyparser');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-console.log("Initializing hpp");
+logger.warn('Initializing hpp');
 // --SEC-- - http params pollution: activate http parameters pollution
 // use this ALWAYS AFTER app.use(bodyParser.urlencoded()) [NOT helmet]
 app.use(hpp());
 
-console.log("Initializing Express session");
+logger.warn('Initializing Express session');
 // Express Session
 app.use(session({
   secret: config.EXPRESS_SESSION_SECRET,
@@ -218,7 +212,7 @@ app.use(session({
   // }
 }));
 
-console.log("Initializing passportjs");
+logger.warn('Initializing passportjs');
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -226,7 +220,7 @@ app.use(passport.session());
 // compress all requests using gzip
 app.use(compression());
 
-console.log("Initializing REST apis and CSRF");
+logger.warn('Initializing REST apis and CSRF');
 
 // --------------------------------------- ROUTES ---------------------------------------
 // dedicated routes for angular logging with stacktracejs
@@ -249,7 +243,7 @@ let routesApi = require('./src/routes/index')(express);
 app.use('/api', routesApi);
 // --------------------------------------------------------------------------------------
 
-console.log("Initializing static path for both index.html and admin.html");
+logger.warn('Initializing static path for both index.html and admin.html');
 
 app.use('/', function (req, res) {
   res.sendFile(pathFrontEndIndex);
@@ -275,7 +269,7 @@ app.use(function (err, req, res, next) {
   }
   // handle CSRF token errors here
   res.status(403);
-  res.json({"message": 'session has expired or form tampered with'});
+  res.json({ message: 'session has expired or form tampered with'});
 });
 
 
@@ -288,17 +282,17 @@ app.use(function (req, res, next) {
 
 // error handlers
 // Catch unauthorised errors
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
   if (err.name === 'UnauthorizedError') {
     res.status(401);
-    res.json({"message": err.name + ": " + err.message});
+    res.json({ message: `${err.name}: ${err.message}`});
   }
 });
 
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function (err, req, res, next) {
+  app.use(function (err, req, res) {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
@@ -309,7 +303,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
