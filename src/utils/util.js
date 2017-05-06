@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const config = require('../config');
 let jwt = require('jsonwebtoken');
 let logger = require('./logger-winston');
 
@@ -108,7 +107,7 @@ class Utils {
   }
 
   static isJwtValid(token) {
-    var self = this;
+    let self = this;
 
     if(!token || !_.isString(token) ||
         _.isObject(token) || _.isArray(token) ||
@@ -124,22 +123,22 @@ class Utils {
           reject({status: 401, message: 'Jwt not valid or corrupted'});
         }
 
-        if(decoded) {
-          try {
-            if(self.isJwtValidDate(decoded)) {
-              logger.debug('util isJwtValid - Jwt is valid', decoded);
-              resolve(decoded);
-            } else {
-              logger.error('util isJwtValid - Token Session expired (date)');
-              reject({status: 401, message: 'Token Session expired (date).'});
-            }
-          } catch(err2) {
-            logger.error('util isJwtValid - isJwtValidDate thrown an error', err2);
-            reject({status: 500, message: 'Impossible to check if jwt is valid'});
-          }
-        } else {
+        if(!decoded) {
           logger.error('util isJwtValid - Impossible to decode token');
           reject({status: 401, message: 'Impossible to decode token.'});
+        }
+
+        try {
+          if(!self.isJwtValidDate(decoded)) {
+            logger.error('util isJwtValid - Token Session expired (date)');
+            reject({status: 401, message: 'Token Session expired (date).'});
+          }
+
+          logger.debug('util isJwtValid - Jwt is valid', decoded);
+          resolve(decoded);
+        } catch(err2) {
+          logger.error('util isJwtValid - isJwtValidDate thrown an error', err2);
+          reject({status: 500, message: 'Impossible to check if jwt is valid'});
         }
       });
     });

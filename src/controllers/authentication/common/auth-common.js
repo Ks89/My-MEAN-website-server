@@ -41,7 +41,7 @@ let decodeToken = async function (req, res) {
   const token = req.params.token;
   logger.debug(`REST auth-common decodeToken - token is ${token}`);
 
-  // FIXME experimental impl with async await
+  // experimental impl with async await
   try {
     let result = await Utils.isJwtValid(token);
     logger.error('REST auth-common decodeToken - No token found', result);
@@ -172,6 +172,14 @@ let unlinkServiceByName = function (req, serviceName, res) {
 
   async.waterfall([
     done => {
+      // try {
+      //   let result = await Utils.isJwtValid(token);
+      //   logger.debug('REST auth-common unlinkServiceByName - IsJwtValid result', result);
+      //   done(null, result);
+      // } catch (err) {
+      //   logger.error('REST auth-common unlinkServiceByName - IsJwtValid error', err);
+      //   Utils.sendJSONres(res, err.status, err.message);
+      // }
       Utils.isJwtValid(token)
         .then(result => {
           logger.debug('REST auth-common unlinkServiceByName - IsJwtValid result', result);
@@ -221,10 +229,10 @@ let unlinkServiceByName = function (req, serviceName, res) {
     }], (err, user) => {
     if (err) {
       logger.error('REST auth-common unlinkServiceByName - Unknown error', err);
-      Utils.sendJSONres(res, 500, 'Unknown error');
+      return Utils.sendJSONres(res, 500, 'Unknown error');
     } else {
       logger.debug('REST auth-common unlinkServiceByName - User unlinked correctly!');
-      Utils.sendJSONres(res, 200, 'User unlinked correctly!');
+      return Utils.sendJSONres(res, 200, 'User unlinked correctly!');
     }
   });
 };
