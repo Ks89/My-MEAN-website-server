@@ -60,8 +60,8 @@ module.exports.restAuthenticationMiddleware = function (req, res, next) {
         logger.debug('REST restAuthenticationMiddleware - systemDate valid');
         return next();
 
-      } catch (err) {
-        logger.error('REST restAuthenticationMiddleware - exception thrown by isJwtValidDate', err);
+      } catch (err2) {
+        logger.error('REST restAuthenticationMiddleware - exception thrown by isJwtValidDate', err2);
         return Utils.sendJSONres(res, 500, 'Impossible to check if jwt is valid');
       }
     });

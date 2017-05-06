@@ -133,8 +133,8 @@ class Utils {
               logger.error('util isJwtValid - Token Session expired (date)');
               reject({status: 401, message: 'Token Session expired (date).'});
             }
-          } catch(err) {
-            logger.error('util isJwtValid - isJwtValidDate thrown an error', err);
+          } catch(err2) {
+            logger.error('util isJwtValid - isJwtValidDate thrown an error', err2);
             reject({status: 500, message: 'Impossible to check if jwt is valid'});
           }
         } else {

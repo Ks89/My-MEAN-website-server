@@ -225,8 +225,8 @@ module.exports.login = (req, res) => {
         req.session.authToken = authCommon.generateSessionJwtToken(user);
         logger.debug('REST auth-local login - Session token', req.session.authToken);
         return Utils.sendJSONres(res, 200, {token: token});
-      } catch (err) {
-        logger.error('REST auth-local register - db error while searching user', err);
+      } catch (err2) {
+        logger.error('REST auth-local register - db error while searching user', err2);
         return Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
       }
 

@@ -101,9 +101,9 @@ module.exports.collapseDb = (loggedUser, serviceName, req) => {
       logger.debug('auth-experimental-collapse-db collapse-db - modified user', user);
 
 			if(duplicatedUser && updated) {
-				user.save((err, savedUser) => {
-					if (!savedUser || err) {
-            logger.error('auth-experimental-collapse-db collapse-db - error while saving collapsed users', err);
+				user.save((err2, savedUser) => {
+					if (!savedUser || err2) {
+            logger.error('auth-experimental-collapse-db collapse-db - error while saving collapsed users', err2);
 						reject('Error while saving collapsed users');
 					}
 
@@ -112,8 +112,8 @@ module.exports.collapseDb = (loggedUser, serviceName, req) => {
 
 					try {
 						req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
-					} catch(err) {
-            logger.error('auth-experimental-collapse-db collapse-db - error while calling generateSessionJwtToken', err);
+					} catch(err3) {
+            logger.error('auth-experimental-collapse-db collapse-db - error while calling generateSessionJwtToken', err3);
 						reject('Impossible to generateSessionJwtToken due to an internal server error');
 						return;
 					}

@@ -1,9 +1,15 @@
 'use strict';
 
 module.exports = {
-  setCI                         : () => process.env.CI = 'yes',
-  setProd                       : () => process.env.NODE_ENV = 'production',
-  setTest                       : () => process.env.NODE_ENV = 'test',
+  setCI                         : () => {
+    process.env.CI = 'yes';
+  },
+  setProd                       : () => {
+    process.env.NODE_ENV = 'production';
+  },
+  setTest                       : () => {
+    process.env.NODE_ENV = 'test';
+  },
 
   isCI                          : () => !!process.env.CI,
   isProd                        : () => process.env.NODE_ENV === 'production',

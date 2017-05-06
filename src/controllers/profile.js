@@ -134,8 +134,8 @@ module.exports.update = function(req, res) {
           req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
           logger.debug('REST profile update - updated', savedUser);
           Utils.sendJSONres(res, 200, {message: 'Profile updated successfully!'});
-        } catch(err) {
-          logger.error('REST profile update - Impossible to generateSessionJwtToken', err);
+        } catch(err2) {
+          logger.error('REST profile update - Impossible to generateSessionJwtToken', err2);
           Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
         }
       }
