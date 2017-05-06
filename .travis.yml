@@ -1,7 +1,7 @@
 language: node_js
 node_js:
   - "7"
-  - "7.9.0"
+  - "7.6.0"
 os:
   - linux
   - osx # uses 10.11. I should update this to 10.12 Sierra
