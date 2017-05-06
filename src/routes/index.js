@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('../config');
 const ctrlProjects = require('../controllers/projects');
 const ctrlContact = require('../controllers/contact');
 const restAuthMiddleware = require('./rest-auth-middleware');
@@ -85,5 +86,5 @@ module.exports = function (express) {
 };
 
 function isTestOrCi() {
-	return process.env.NODE_ENV === 'test' || process.env.CI;
+	return config.isTest() || config.isCI();
 }

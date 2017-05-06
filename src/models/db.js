@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('../config');
 let mongoose = require('mongoose');
 let logger = require('../utils/logger-winston');
 
@@ -11,7 +12,7 @@ logger.debug(`db - Mongodb uri = ${dbURI}`);
 mongoose.Promise = require('bluebird');
 // ------------------------
 
-if (process.env.NODE_ENV === 'test') {
+if (config.isTest()) {
   //No logger for testing
   console.log('db - TEST ENV! testing mode enabled!');
   dbURI = 'mongodb://localhost/test-db';

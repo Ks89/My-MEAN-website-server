@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('../config');
 let winston = require('winston');
 winston.emitErrs = true;
 
@@ -13,7 +14,7 @@ function getFormatter(options) {
 let logger = new (winston.Logger)({
   transports: [
     new (winston.transports.File)({
-      level: 'debug',
+      level: config.isProd() ? 'error' : 'debug',
       filename: 'mywebsite.log',
       handleExceptions: true,
       json: false,

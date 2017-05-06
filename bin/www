@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
+const config = require('../src/config');
 let app = require('../app');
 let debug = require('debug')('KS:server');
 let http = require('http');
@@ -8,7 +9,7 @@ let http = require('http');
 /**
  * Get port from environment and store in Express.
  */
-let port = normalizePort(process.env.PORT || '3000');
+let port = normalizePort(config.PORT || '3000');
 app.set('port', port);
 
 /**

@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('../config');
 let Utils = require('../utils/util');
 let jwt = require('jsonwebtoken');
 // this is only available for testing, so logger is useless
@@ -51,7 +52,7 @@ function getAuthSessionTokenFake(_id, user, floatDate) {
     _id: _id,
     user: user,
     exp: parseFloat(floatDate)
-  }, process.env.JWT_SECRET);
+  }, config.JWT_SECRET);
   return JSON.stringify({token: fakeJwtSigned});
 }
 

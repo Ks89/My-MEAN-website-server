@@ -146,10 +146,9 @@ let generateSessionJwtToken = function (user) {
 
   //call a user's model method to generete a jwt signed token
   const token3dauth = user.generateSessionJwtToken();
-  const authToken = JSON.stringify({
+  return JSON.stringify({
     token: token3dauth
   });
-  return authToken;
 };
 
 let unlinkServiceByName = function (req, serviceName, res) {

@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const config = require('../../../config');
 let mongoose = require('mongoose');
 let Utils = require('../../../utils/util');
 let logger = require('../../../utils/logger-winston');
@@ -231,7 +232,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
 
 
 function buildStrategy(serviceName, userRef) {
-  logger.debug(`REST 3dparty-passport authenticate - service ${serviceName} env: ${process.env.NODE_ENV}`);
+  logger.debug(`REST 3dparty-passport authenticate - service ${serviceName} env: ${config.NODE_ENV}`);
   switch (serviceName) {
     case 'facebook':
       return new FacebookStrategy(thirdpartyConfig[serviceName],

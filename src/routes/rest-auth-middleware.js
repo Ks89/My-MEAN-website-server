@@ -1,7 +1,7 @@
 'use strict';
 
 // ------------- imported from ./index.js ---------------
-
+const config = require('../config');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger-winston');
 const Utils = require('../utils/util');
@@ -14,11 +14,11 @@ module.exports.restAuthenticationMiddleware = function (req, res, next) {
   // There are some tests that are using this bypass to cover all statements and
   // branches.
   // ATTENTION - USE THIS FEATURE ONLY FOR TESTING PURPOSES!!!!!!!
-  if (process.env.DISABLE_REST_AUTH_MIDDLEWARE === 'yes' && (process.env.NODE_ENV === 'test' || process.env.CI )) {
+  if (config.isDisableRestAuthMiddleware() && (config.isTest() || config.isCI() )) {
     // authentication middleware DISABLED
     // logger not required here
     console.warn('REST restAuthMiddleware disabled - because you are running this app with both ' +
-      'DISABLE_REST_AUTH_MIDDLEWARE === yes and (process.env.NODE_ENV === test or process.env.CI === yes)');
+      'DISABLE_REST_AUTH_MIDDLEWARE === yes and (config.NODE_ENV === test or config.CI === yes)');
     return next();
   }
 
@@ -35,7 +35,7 @@ module.exports.restAuthenticationMiddleware = function (req, res, next) {
       return Utils.sendJSONres(res, 404, 'Token not found');
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
       if (err) {
         logger.error('REST restAuthenticationMiddleware - jwt.verify error', err);
         return Utils.sendJSONres(res, 401, 'Jwt not valid or corrupted');

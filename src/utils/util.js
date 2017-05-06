@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const config = require('../config');
 let jwt = require('jsonwebtoken');
 let logger = require('./logger-winston');
 
@@ -13,7 +14,7 @@ class Utils {
 
     //check status param
     if(_isNotValidNumber(status) || status < 100 || status >= 600) {
-      throw "Status must be a valid http status code  number";
+      throw 'Status must be a valid http status code  number';
     }
 
     //check content param
@@ -21,7 +22,7 @@ class Utils {
     if(_isNotStringArrayObject(content) ||
       _isNotAcceptableValue(content) || _.isDate(content) || _.isBoolean(content) ||
       _.isNumber(content)) {
-      throw "Content must be either String, or Array, or Object (no Error, RegExp, and so on )";
+      throw 'Content must be either String, or Array, or Object (no Error, RegExp, and so on )';
     }
 
     res.status(status);
@@ -42,9 +43,9 @@ class Utils {
   }
 
   static getTextFormattedDate(date) {
-    console.log("getTextFormattedDate " + date);
+    logger.debug('getTextFormattedDate ' + date);
     if(!_.isDate(date)) {
-      throw "Not a valid date";
+      throw 'Not a valid date';
     }
     const day = date.getDay();
     const month = date.getMonth();
@@ -53,7 +54,7 @@ class Utils {
     const min = date.getMinutes();
     const sec = date.getSeconds();
 
-    return day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
+    return day + '/' + month + '/' + year + ' ' + hour + ':' + min + ':' + sec;
   }
 
     //Function that returns true if the param
@@ -73,35 +74,35 @@ class Utils {
   }
 
   static isJwtValidDate(decodedJwtToken) {
-    console.log("isJwtValidDate");
-    console.log(decodedJwtToken);
+    // console.log('isJwtValidDate');
+    // console.log(decodedJwtToken);
 
     //isObject: JavaScript arrays and functions
     //          are objects, while (normal) strings and numbers are not.
     if(!decodedJwtToken ||
         !_.isObject(decodedJwtToken) || _.isArray(decodedJwtToken) ||
         _isNotAcceptableValue(decodedJwtToken) || _.isBoolean(decodedJwtToken)) {
-      throw "Not a valid decodedJwtToken";
+      throw 'Not a valid decodedJwtToken';
     }
 
     if(!decodedJwtToken.hasOwnProperty('exp')) {
-      throw "Expire date not found";
+      throw 'Expire date not found';
     }
 
     //decodedJwtToken.exp is a Float that represents the exp date
     //it must be a float, and not a Date
     //NB: parseFloat returns NaN if it can't parse a value
     if(_.isDate(decodedJwtToken.exp) || _.isNaN(parseFloat(decodedJwtToken.exp))) {
-      throw "Not a float expiration date";
+      throw 'Not a float expiration date';
     }
 
     let convertedDate = new Date();
     convertedDate.setTime(decodedJwtToken.exp);
-    // console.log("date jwt: " + convertedDate.getTime() +
-    //  ", formatted: " + this.getTextFormattedDate(convertedDate));
+    // console.log('date jwt: ' + convertedDate.getTime() +
+    //  ', formatted: ' + this.getTextFormattedDate(convertedDate));
     // const systemDate = new Date();
-    // console.log("systemDate: " + systemDate.getTime() +
-    //   ", formatted: " + this.getTextFormattedDate(systemDate));
+    // console.log('systemDate: ' + systemDate.getTime() +
+    //   ', formatted: ' + this.getTextFormattedDate(systemDate));
     // convertedDate > systemDate
     return convertedDate.getTime() > (new Date()).getTime();
   }
@@ -112,36 +113,33 @@ class Utils {
     if(!token || !_.isString(token) ||
         _.isObject(token) || _.isArray(token) ||
         _isNotAcceptableValue(token)) {
-      throw "Not a valid token";
+      throw 'Not a valid token';
     }
 
     return new Promise((resolve, reject) => {
       // verify a token symmetric
-      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
         if(err) {
-          console.log("jwt.verify error");
-          reject({status: 401, message: "Jwt not valid or corrupted"});
+          logger.error('util isJwtValid - jwt.verify error', err);
+          reject({status: 401, message: 'Jwt not valid or corrupted'});
         }
 
         if(decoded) {
-          console.log("decoded valid");
           try {
             if(self.isJwtValidDate(decoded)) {
-              console.log("systemDate valid");
-              console.log("stringifying...");
-              console.log(JSON.stringify(decoded));
+              logger.debug('util isJwtValid - Jwt is valid', decoded);
               resolve(decoded);
             } else {
-              console.log('Token Session expired (date).');
-              reject({status: 401, message: "Token Session expired (date)."});
+              logger.error('util isJwtValid - Token Session expired (date)');
+              reject({status: 401, message: 'Token Session expired (date).'});
             }
-          } catch(e) {
-            logger.error(e);
-            reject({status: 500, message: "Impossible to check if jwt is valid"});
+          } catch(err) {
+            logger.error('util isJwtValid - isJwtValidDate thrown an error', err);
+            reject({status: 500, message: 'Impossible to check if jwt is valid'});
           }
         } else {
-          console.log('Impossible to decode token.');
-          reject({status: 401, message: "Impossible to decode token."});
+          logger.error('util isJwtValid - Impossible to decode token');
+          reject({status: 401, message: 'Impossible to decode token.'});
         }
       });
     });

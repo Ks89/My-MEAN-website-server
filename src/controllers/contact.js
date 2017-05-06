@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('../config');
 let Utils = require('../utils/util.js');
 let logger = require('../utils/logger-winston');
 
@@ -11,7 +12,7 @@ let mailTransport;
 
 const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
-if (process.env.NODE_ENV === 'test') {
+if (config.isTest()) {
   console.log('REST contact init - TEST ENV! Using mocked mailTransport'); // no logger needed
   mailTransport = nodemailer.createTransport(stubTransport());
 } else {
@@ -21,8 +22,8 @@ if (process.env.NODE_ENV === 'test') {
     port: '25',
     debug: true, //this!!!
     auth: {
-      user: process.env.USER_EMAIL, //secret data
-      pass: process.env.PASS_EMAIL //secret data
+      user: config.USER_EMAIL, //secret data
+      pass: config.PASS_EMAIL //secret data
     }
   });
 }
@@ -80,7 +81,7 @@ module.exports.sendEmailWithRecaptcha = function (req, res) {
   //as described in google documentation.
   // DON'T LOG THIS!!!!!
   const data = {
-    secret: process.env.RECAPTCHA_SECRET,
+    secret: config.RECAPTCHA_SECRET,
     response: req.body.response
     //here I can add also the IP, but it's not mandatory
   };
@@ -120,9 +121,9 @@ module.exports.sendEmailWithRecaptcha = function (req, res) {
       }
     },
     (formEmail, done) => {
-      logger.debug(`REST contact sendEmailWithRecaptcha - Sending an email from ${process.env.USER_EMAIL} to ${formEmail.email}`);
+      logger.debug(`REST contact sendEmailWithRecaptcha - Sending an email from ${config.USER_EMAIL} to ${formEmail.email}`);
       const message = {
-        from: process.env.USER_EMAIL,
+        from: config.USER_EMAIL,
         to: formEmail.email,
         subject: formEmail.object,
         html: formEmail.messageText,

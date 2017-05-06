@@ -1,62 +1,58 @@
 'use strict';
 
 const _ = require('lodash');
-let mongoose = require('mongoose');
-let User = mongoose.model('User');
-let logger = require('../../../utils/logger-winston.js');
-let authCommon = require('./auth-common.js');
 let Utils = require('../../../utils/util.js');
+let logger = require('../../../utils/logger-winston.js');
+let User = require('mongoose').model('User');
+let authCommon = require('./auth-common.js');
 let serviceNames = require('../serviceNames');
 
 module.exports.collapseDb = (loggedUser, serviceName, req) => {
 	return new Promise((resolve, reject) => {
 		if(Utils.isNotSimpleCustomObject(loggedUser)) {
-			console.error('impossible to collapseDb because loggedUser is not an object');
+			logger.error('auth-experimental-collapse-db collapse-db - impossible to collapseDb because loggedUser is not an object');
 			reject('impossible to collapseDb because loggedUser is not an object');
 			return;
 		}
 
 		if(!_.isString(serviceName)) {
-			console.error('impossible to collapseDb because serviceName must be a string');
+			logger.error('auth-experimental-collapse-db collapse-db - impossible to collapseDb because serviceName must be a string');
 			reject('impossible to collapseDb because serviceName must be a string');
 			return;
 		}
 
 		if(serviceNames.indexOf(serviceName) === -1) {
-			console.error('impossible to collapseDb because serviceName is not recognized');
+			logger.error('auth-experimental-collapse-db collapse-db - impossible to collapseDb because serviceName is not recognized');
 			reject('impossible to collapseDb because serviceName is not recognized');
 			return;
 		}
 
-		console.log('--------------------------******----');
-		console.log('INPUT loggedUser');
-		console.log(loggedUser);
-		console.log('serviceName: ' + serviceName);
+		logger.debug(`auth-experimental-collapse-db collapse-db - starting to collapse with serviceName=${serviceName}`, loggedUser);
 
 		let inputId;
 		let query = {};
-		var keyProperty = serviceName === 'local' ? 'email' : 'id';
+		const keyProperty = serviceName === 'local' ? 'email' : 'id';
 
 		if(loggedUser[serviceName] && !_.isNil(loggedUser[serviceName][keyProperty])) {
 			inputId = loggedUser[serviceName][keyProperty];
-			console.log('inputId ' + inputId);
 			const key =  serviceName + '.' + keyProperty;
 			query[key] = inputId;
 		}
 
-		if(_.isNil(inputId)) {
-			console.error('inputId is not valid (null OR undefined)');
+    logger.debug(`auth-experimental-collapse-db collapse-db - query built`, query);
+
+    if(_.isNil(inputId)) {
+      logger.error('auth-experimental-collapse-db collapse-db - inputId is not valid (null OR undefined)');
 			reject('input id not valid while collapsing');
 		}
 
 		User.find(query, (err, users) => {
 			if(!users || err) {
-				console.error('--------------------------******---- Error - users not found!!!');
+        logger.error(`auth-experimental-collapse-db collapse-db - db error cannot find user`, err);
 				reject('User  not found while collapsing');
 			}
 
-			console.log('--------------------------******---- users found');
-			console.log(users);
+      logger.debug(`auth-experimental-collapse-db collapse-db - users found`, users);
 
 			//retrive the logged user from the db using his _id (id of mongodb's object)
 			let user = users.find(el => {
@@ -66,7 +62,7 @@ module.exports.collapseDb = (loggedUser, serviceName, req) => {
 			});
 
 			if(!user) {
-				console.error('--------------------------******---- Error - user not found!!!');
+				logger.error('auth-experimental-collapse-db collapse-db - user not found');
 				reject('User not found while collapsing db');
 				return;
 			}
@@ -80,25 +76,21 @@ module.exports.collapseDb = (loggedUser, serviceName, req) => {
 			});
 
 			if(!duplicatedUser || !duplicatedUser[0]) {
-				console.error('No duplicated user found');
+        logger.error('auth-experimental-collapse-db collapse-db - No duplicated user found');
 				reject('No duplicated user found while collapsing');
 				return;
 			}
 
 			duplicatedUser = duplicatedUser[0];
 
-			console.log(`--------------------------******----preparing to collapse duplicated db's users`);
-			console.log(user);
-			console.log('--------------------------******----');
-			console.log(duplicatedUser);
-			console.log('--------------------------******----');
+      logger.debug('auth-experimental-collapse-db collapse-db - preparing to collapse duplicated db users', user, duplicatedUser);
 
 			let updated = false;
 
 			//ATTENTION: at the moment I decided to manage profile info as services.
 			//TODO modify this creating a better logic instead of using profile as a service
 			for(let s of serviceNames) {
-				console.log('cycle s: ' + s + ', serviceName: ' + serviceName);
+        // console.log('cycle s: ' + s + ', serviceName: ' + serviceName);
 				if(s !== serviceName && (!user[s] || !user[s].id) &&
 					duplicatedUser[s] && (duplicatedUser[s].id || duplicatedUser[s].email)) {
 					user[s] = duplicatedUser[s];
@@ -106,44 +98,43 @@ module.exports.collapseDb = (loggedUser, serviceName, req) => {
 				}
 			}
 
-			console.log('--------------------------******---- modified user');
-			console.log(user);
-			console.log('--------------------------******---- saving this modified user');
+      logger.debug('auth-experimental-collapse-db collapse-db - modified user', user);
 
 			if(duplicatedUser && updated) {
 				user.save((err, savedUser) => {
 					if (!savedUser || err) {
-						console.error('Error while saving collapsed users');
+            logger.error('auth-experimental-collapse-db collapse-db - error while saving collapsed users', err);
 						reject('Error while saving collapsed users');
 					}
 
-					console.log('Saved modified user: ' + savedUser);
-					console.log('updating auth token with user info');
+          logger.debug('auth-experimental-collapse-db collapse-db - user saved', savedUser);
+          logger.debug('auth-experimental-collapse-db collapse-db - updating auth token with user info');
+
 					try {
 						req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
-					} catch(e) {
-						logger.error(e);
+					} catch(err) {
+            logger.error('auth-experimental-collapse-db collapse-db - error while calling generateSessionJwtToken', err);
 						reject('Impossible to generateSessionJwtToken due to an internal server error');
 						return;
 					}
-					console.log('req.session.authToken finished collapse with: ' + req.session.authToken);
 
-					console.log('savedUser is: ');
-					console.log(savedUser);
+          logger.debug('auth-experimental-collapse-db collapse-db - req.session.authToken collapse finished', req.session.authToken);
+          logger.debug('auth-experimental-collapse-db collapse-db - user saved', savedUser);
 
-					console.log('--------------------------******---- removing duplicated user [OK]');
-					User.findByIdAndRemove(duplicatedUser._id, err => {
+          logger.debug('auth-experimental-collapse-db collapse-db - removing duplicated user');
+
+          User.findByIdAndRemove(duplicatedUser._id, err => {
 						if (err) {
-							reject('Impossible to remove duplicated user while collapsing');
+              logger.error('auth-experimental-collapse-db collapse-db - impossible to find and remove duplicated user', err);
+              reject('Impossible to remove duplicated user while collapsing');
 						}
 						// we have deleted the user
-						console.log('--------------------------******---- duplicated User deleted! [OK]');
-						console.log('savedUser: ' + savedUser);
+            logger.debug('auth-experimental-collapse-db collapse-db - duplicated User deleted', savedUser);
 						resolve(savedUser);
 					});
 				});
 			} else {
-				console.log(`I can't do anything because there isn't a duplicated users! [OK]`);
+        logger.debug(`auth-experimental-collapse-db collapse-db - I can't do anything because there isn't a duplicated users!`);
 				reject(`I can't do anything because there isn't a duplicated users! [OK]`);
 			}
 		});
