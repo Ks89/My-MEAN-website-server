@@ -19,32 +19,6 @@ module.exports = {
   RECAPTCHA_SECRET              : process.env.RECAPTCHA_SECRET,
   MONGODB_URI                   : process.env.MONGODB_URI,
 
-  // facebook: {
-  //   clientID                    : process.env.FACEBOOK_APP_ID,
-  //   clientSecret                : process.env.FACEBOOK_APP_SECRET,
-  //   callbackURL                 : process.env.FACEBOOK_CALLBACK_URL,
-  // },
-  // twitter: {
-  //   consumerKey                 : process.env.TWITTER_CONSUMER_KEY,
-  //   consumerSecret              : process.env.TWITTER_CONSUMER_SECRET,
-  //   callbackURL                 : process.env.TWITTER_CALLBACK_URL,
-  // },
-  // google: {
-  //   clientID                    : process.env.GOOGLE_CLIENT_ID,
-  //   clientSecret                : process.env.GOOGLE_CLIENT_SECRET,
-  //   callbackURL                 : process.env.GOOGLE_CALLBACK_URL,
-  // },
-  // github: {
-  //   clientID                    : process.env.GITHUB_CLIENT_ID,
-  //   clientSecret                : process.env.GITHUB_CLIENT_SECRET,
-  //   callbackURL                 : process.env.GITHUB_CALLBACK_URL,
-  // },
-  // linkedin: {
-  //   clientID                    : process.env.LINKEDIN_CLIENT_ID,
-  //   clientSecret                : process.env.LINKEDIN_CLIENT_SECRET,
-  //   callbackURL                 : process.env.LINKEDIN_CALLBACK_URL,
-  // },
-
   // re-assign all process.env variables to be used in this app and defined with dotenv to constants
   // In this way I can see all variables defined with donenv and used in this app
   // In CI I can't use dotenv => I provide default values for all these constants
