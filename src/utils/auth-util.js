@@ -41,9 +41,7 @@ class AuthUtils {
   }
 
   static removeServiceFromUserDb(serviceName, user) {
-    if (!user || _.isString(user) ||
-      !_.isObject(user) || _.isArray(user) || _.isBoolean(user) ||
-      _.isDate(user) || Utils.isNotAcceptableValue(user)) {
+    if (this.isUserValid(user)) {
       throw 'User must be a valid object';
     }
 
