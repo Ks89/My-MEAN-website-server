@@ -177,7 +177,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
               userUpdated.save((err, userSaved) => {
                 if (err) {
                   logger.error('REST 3dparty-passport authenticate - db error while saving userUpdated', err);
-                  throw err;
+                  done(err);
                 }
                 logger.debug('REST 3dparty-passport authenticate - User updated and saved');
                 return done(null, userSaved);

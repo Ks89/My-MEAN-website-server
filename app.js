@@ -34,15 +34,13 @@ if (config.isCI() || config.isTest()) {
 } else {
   if (config.isProd()) {
     logger.warn('Providing both index.html and admin.html in a production environment');
-    pathFrontEndFolder = path.join(__dirname, config.FRONT_END_PATH);
-    pathFrontEndIndex = path.join(__dirname, config.FRONT_END_PATH, 'index.html');
-    pathFrontEndAdminIndex = path.join(__dirname, config.FRONT_END_PATH, 'admin.html');
+    // you can add custom configuration here for production mode
   } else {
     logger.warn('Providing real ${config.FRONT_END_PATH}, index.html and admin.html');
-    pathFrontEndFolder = path.join(__dirname, config.FRONT_END_PATH);
-    pathFrontEndIndex = path.join(__dirname, config.FRONT_END_PATH, 'index.html');
-    pathFrontEndAdminIndex = path.join(__dirname, config.FRONT_END_PATH, 'admin.html');
   }
+  pathFrontEndFolder = path.join(__dirname, config.FRONT_END_PATH);
+  pathFrontEndIndex = path.join(__dirname, config.FRONT_END_PATH, 'index.html');
+  pathFrontEndAdminIndex = path.join(__dirname, config.FRONT_END_PATH, 'admin.html');
 }
 // --------------------------------------------------------
 // --------------------------------------------------------

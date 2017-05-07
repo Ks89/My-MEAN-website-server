@@ -68,8 +68,7 @@ class Utils {
   }
 
   static isNotSimpleCustomObjectOrDate(obj) {
-    return !_.isObject(obj) || _.isArray(obj) ||
-        _isNotAcceptableValue(obj) || _.isBoolean(obj) || _.isDate(obj);
+    return this.isNotSimpleCustomObject(obj) || _.isDate(obj);
   }
 
   static isJwtValidDate(decodedJwtToken) {
