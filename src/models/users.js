@@ -139,7 +139,13 @@ function getFilteredUser(user) {
   return cloned;
 }
 
+
+
 function filterUser(dbData, user) {
+  let blacklistProperties = [
+    'profileUrl', 'token', 'username', 'activateAccountToken', 'activateAccountExpires',
+    'resetPasswordToken', 'resetPasswordExpires', '_id', '__v', 'updated', 'hash'
+  ];
   //because this is an utility function used everywhere,
   //I decided to use ...=undefined, instead of delete ... to achieve
   //better performances, as explained here:
@@ -149,17 +155,7 @@ function filterUser(dbData, user) {
       //console.log('2-obj.' + prop + ' = ' + dbData[prop]);
       for (let innerProp in dbData[prop]) {
         //console.log('3-obj.' + innerProp + ' = ' + dbData[prop][innerProp]);
-        if (innerProp === 'profileUrl' ||
-          innerProp === 'token' ||
-          innerProp === 'username' ||
-          innerProp === 'activateAccountToken' ||
-          innerProp === 'activateAccountExpires' ||
-          innerProp === 'resetPasswordToken' ||
-          innerProp === 'resetPasswordExpires' ||
-          innerProp === '_id' || //to remove '_id', '__v' and 'updated' into user.profile
-          innerProp === '__v' ||
-          innerProp === 'updated' ||
-          innerProp === 'hash') {
+        if (blacklistProperties.includes(innerProp)) {
           user[prop][innerProp] = undefined;
         }
       }

@@ -99,28 +99,23 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
   process.nextTick(() => {
     let sessionLocalUserId = req.session.localUserId;
 
-    if (_.isArray(sessionLocalUserId) || _.isRegExp(sessionLocalUserId) || _.isFunction(sessionLocalUserId) ||
-      _.isDate(sessionLocalUserId) || _.isBoolean(sessionLocalUserId) || _.isError(sessionLocalUserId) ||
-      _.isNaN(sessionLocalUserId) || _.isNumber(sessionLocalUserId)) {
+    // _.isArray(sessionLocalUserId) || _.isRegExp(sessionLocalUserId) || _.isFunction(sessionLocalUserId) ||
+    // _.isDate(sessionLocalUserId) || _.isBoolean(sessionLocalUserId) || _.isError(sessionLocalUserId) ||
+    // _.isNaN(sessionLocalUserId) || _.isNumber(sessionLocalUserId)
+    if (!_.isString(sessionLocalUserId) && !_.isNil(sessionLocalUserId) && !(sessionLocalUserId instanceof mongoose.Types.ObjectId)) {
       logger.error('REST 3dparty-passport authenticate - sessionLocalUserId must be either a string, null, undefined or an ObjectId', sessionLocalUserId);
       return done('sessionLocalUserId must be either a string, null, undefined or an ObjectId');
     }
 
     //check if the user is already logged in using the LOCAL authentication
-    if (!_.isNil(sessionLocalUserId) &&
-      ( _.isString(sessionLocalUserId) ||
-      sessionLocalUserId instanceof mongoose.Types.ObjectId)) {
+    if (_.isString(sessionLocalUserId) || sessionLocalUserId instanceof mongoose.Types.ObjectId) {
 
       logger.debug('REST 3dparty-passport authenticate - sessionLocalUserId found, managing 3dauth + local');
       //the user is already logged in
       userRef.findOne({'_id': sessionLocalUserId}, (err, user) => {
-        if (err) {
+        if (!user || err) {
           logger.error('REST 3dparty-passport authenticate - db error, cannot find logged user', err);
           return done('Impossible to find a user with the specified sessionLocalUserId');
-        }
-        if (!user) {
-          logger.error('REST 3dparty-passport authenticate - Impossible to find an user with sessionLocalUserId');
-          return done('Impossible to find an user with sessionLocalUserId');
         }
         logger.debug('REST 3dparty-passport authenticate - user found, saving');
 
@@ -152,7 +147,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
         const query = {};
         query[serviceNameId] = profile.id;
 
-        logger.debug('REST 3dparty-passport authenticate - findOne by query', JSON.stringify(query));
+        logger.debug('REST 3dparty-passport authenticate - findOne by query', query);
 
         userRef.findOne(query, (err, user) => {
           if (err) {

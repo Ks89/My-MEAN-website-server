@@ -364,7 +364,7 @@ describe('3dparty-passport', () => {
 
           //callback function used below
           var callbackResponse = function (err, response) {
-            expect(err).to.be.equals('Impossible to find an user with sessionLocalUserId');
+            expect(err).to.be.equals('Impossible to find a user with the specified sessionLocalUserId');
             done();
           };
 
@@ -430,7 +430,7 @@ describe('3dparty-passport', () => {
 
             //callback function used below
             var callbackResponse = function (err, response) {
-              expect(err).to.be.equals('Impossible to find an user with sessionLocalUserId');
+              expect(err).to.be.equals('Impossible to find a user with the specified sessionLocalUserId');
               done();
             };
 

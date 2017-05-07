@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 let Utils = require('../utils/util.js');
 let logger = require('../utils/logger-winston');
 let User = require('mongoose').model('User');
@@ -85,16 +86,15 @@ module.exports.update = function(req, res) {
     return;
   }
 
-  if((req.body.name === null || req.body.name === undefined) ||
-		(req.body.surname === null || req.body.surname === undefined) ||
-		(req.body.nickname === null || req.body.nickname === undefined) ||
-		(req.body.email === null || req.body.email === undefined)) {
+  if(_.isNil(req.body.name) || _.isNil(req.body.surname) ||
+    _.isNil(req.body.nickname) || _.isNil(req.body.email)) {
+
     logger.error('REST profile update - All profile params are mandatory');
     Utils.sendJSONres(res, 400, 'All profile params are mandatory');
     return;
   }
 
-  var query = {};
+  let query = {};
 
   if(req.body.serviceName !== 'local') {
     //third party authentication
@@ -127,17 +127,17 @@ module.exports.update = function(req, res) {
     user.save((err, savedUser) => {
       if (err) {
         logger.error('REST profile update - Error while saving on db', err);
-        Utils.sendJSONres(res, 404, 'Error while updating your profile. Please retry.');
-      } else {
-        logger.error('REST profile update - updating auth token with new profile info');
-        try {
-          req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
-          logger.debug('REST profile update - updated', savedUser);
-          Utils.sendJSONres(res, 200, {message: 'Profile updated successfully!'});
-        } catch(err2) {
-          logger.error('REST profile update - Impossible to generateSessionJwtToken', err2);
-          Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
-        }
+        return Utils.sendJSONres(res, 404, 'Error while updating your profile. Please retry.');
+      }
+
+      logger.debug('REST profile update - updating auth token with new profile info');
+      try {
+        req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
+        logger.debug('REST profile update - updated', savedUser);
+        Utils.sendJSONres(res, 200, {message: 'Profile updated successfully!'});
+      } catch(err2) {
+        logger.error('REST profile update - Impossible to generateSessionJwtToken', err2);
+        Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
       }
     });
   });
