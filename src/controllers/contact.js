@@ -2,31 +2,14 @@
 
 const config = require('../config');
 let Utils = require('../utils/util.js');
+let MailUtils = require('../utils/mail-util');
 let logger = require('../utils/logger-winston');
 
-let stubTransport = require('nodemailer-stub-transport');
-let nodemailer = require('nodemailer');
 let request = require('request');
 let async = require('async');
-let mailTransport;
+let mailTransport = MailUtils.getMailTransport();
 
 const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api/siteverify';
-
-if (config.isTest()) {
-  console.log('REST contact init - TEST ENV! Using mocked mailTransport'); // no logger needed
-  mailTransport = nodemailer.createTransport(stubTransport());
-} else {
-  logger.debug('REST contact init - Using the real mailTransport');
-  mailTransport = nodemailer.createTransport({
-    host: 'mail.stefanocappa.it',
-    port: '25',
-    debug: true, //this!!!
-    auth: {
-      user: config.USER_EMAIL, //secret data
-      pass: config.PASS_EMAIL //secret data
-    }
-  });
-}
 
 /**
  * @api {post} /api/email Send an email to the administrator.

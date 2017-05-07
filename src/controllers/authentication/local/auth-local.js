@@ -2,6 +2,7 @@
 
 const config = require('../../../config');
 let Utils = require('../../../utils/util.js');
+let MailUtils = require('../../../utils/mail-util');
 let logger = require('../../../utils/logger-winston.js');
 let User = require('mongoose').model('User');
 
@@ -10,25 +11,7 @@ let authCommon = require('../common/auth-common.js');
 let async = require('async');
 let crypto = require('crypto');
 
-let stubTransport = require('nodemailer-stub-transport');
-let nodemailer = require('nodemailer');
-let mailTransport;
-
-if (config.isTest()) {
-  console.log('Using mocked mailTransport');
-  mailTransport = nodemailer.createTransport(stubTransport());
-} else {
-  logger.debug('REST auth-local init - Using the real mailTransport');
-  mailTransport = nodemailer.createTransport({
-    host: 'mail.stefanocappa.it',
-    port: '25',
-    debug: true, //this!!!
-    auth: {
-      user: config.USER_EMAIL, //secret data
-      pass: config.PASS_EMAIL //secret data
-    }
-  });
-}
+let mailTransport = MailUtils.getMailTransport();
 
 function emailMsg(to, subject, htmlMessage) {
   return {

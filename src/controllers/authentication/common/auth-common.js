@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 let async = require('async');
 let Utils = require('../../../utils/util');
 let logger = require('../../../utils/logger-winston');
@@ -135,11 +134,11 @@ let sessionToken = function (req, res) {
   return Utils.sendJSONres(res, 200, req.session.authToken);
 };
 
+
 let generateSessionJwtToken = function (user) {
   logger.debug(`REST auth-common generateSessionJwtToken - called with user`, user);
 
-  if (!user || _.isString(user) || !_.isObject(user) || _.isArray(user) ||
-    _.isBoolean(user) || _.isDate(user) || Utils.isNotAcceptableValue(user)) {
+  if (AuthUtils.isUserValid(user)) {
     logger.error('REST auth-common generateSessionJwtToken - User must be a valid object - throwing an error...', user);
     throw 'User must be a valid object';
   }
