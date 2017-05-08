@@ -28,7 +28,7 @@ jobs:
           PASS_EMAIL: fakepasswordemail
           RECAPTCHA_PUBLIC: recaptchapublic
           RECAPTCHA_SECRET: recaptchasecret
-      - image: redis@latest
+      - image: redis:2.8.19
     steps:
       - checkout
       - run: echo "Starting..."
