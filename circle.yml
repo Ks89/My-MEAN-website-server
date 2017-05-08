@@ -41,7 +41,7 @@ dependencies:
     - npm install pm2 -g
 
   override:
-    - npm install --dev
+    - npm install
 
 ## Customize test commands
 test:
