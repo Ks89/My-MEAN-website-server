@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: /home/ubuntu/my-mean-website-server
+    working_directory: ~/my-mean-website-server
     docker:
       - image: circleci/mongo:latest
       - image: circleci/node:7.9.0
@@ -31,11 +31,14 @@ jobs:
       - image: redis:2.8.19
     steps:
       - checkout
+      - run: mkdir -p ~/my-mean-website-server/artifacts
       - run: echo "Starting..."
-      - run: npm install
-      - run: npm install pm2 -g
-      - run: npm run docs
-      - run: npm test
-      - run: npm run nyc:threshold
+      - run: command: npm install
+      - run: command: npm install pm2 -g
+      - run: command: npm run docs
+      - run: command: npm test
+      - run: command: npm run nyc:threshold
+      - store_artifacts:
+          path: ~/my-mean-website-server/artifacts
 #      - run: npm run codeclimate
 #      - run: npm run coveralls
