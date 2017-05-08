@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-#    working_directory: /home/ubuntu/my-mean-website-server
+    working_directory: /home/ubuntu/my-mean-website-server
     docker:
       - image: circleci/mongo:latest
       - image: circleci/node:7.9.0
@@ -32,11 +32,11 @@ jobs:
     steps:
       - checkout
       - run: echo "Starting..."
-      - type: shell
-          shell: sh
-          pwd: /
-          command: npm install
-#      - run: npm install
+#      - type: shell
+#          shell: sh
+#          pwd: /
+#          command: npm install
+      - run: npm install
 #      - run: npm install pm2 -g
 #      - run: npm run docs
 #      - run: npm test
