@@ -31,12 +31,12 @@ jobs:
       - image: redis:2.8.19
     steps:
       - checkout
-      - run: echo "Starting..."
+      - run: command: echo "Starting..."
 #      - type: shell
 #          shell: sh
 #          pwd: /
 #          command: npm install
-      - command: npm install
+      - run: command: npm install
 #      - run: npm install pm2 -g
 #      - run: npm run docs
 #      - run: npm test
