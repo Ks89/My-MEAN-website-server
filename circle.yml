@@ -47,10 +47,10 @@ dependencies:
 test:
   override:
     - echo "npm test on circle ci"
-    - npm test
-    - npm run nyc:threshold
+    - "sh circleci/circleci_script.sh"
   post:
     - echo "npm docs on circle ci"
     - npm run docs
-#    - npm run codeclimate
-#    - npm run coveralls
+    - echo "npm run codeclimate and coveralls on circle ci"
+    - npm run codeclimate
+    - npm run coveralls
