@@ -32,11 +32,11 @@ jobs:
     steps:
       - checkout
       - run: echo "Starting..."
-#      - type: shell
-#          shell: sh
-#          pwd: /
-#          command: npm install
-      - run: npm install
+      - type: shell
+          shell: sh
+          pwd: /
+          command: npm install
+#      - run: npm install
 #      - run: npm install pm2 -g
 #      - run: npm run docs
 #      - run: npm test
