@@ -45,7 +45,7 @@ dependencies:
 
 ## Customize test commands
 test:
-#  override:
+  override:
 #    - phpunit test/unit-tests # use PHPunit for testing
   post:
     - echo "npm docs on circle ci"
