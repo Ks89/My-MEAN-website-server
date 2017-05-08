@@ -4,7 +4,7 @@ jobs:
     working_directory: /home/ubuntu/my-mean-website-server
     docker:
       - image: circleci/mongo:latest
-      - image: node:7.9.0
+      - image: circleci/node:7.9.0
         environment:
           NODE_ENV: test
           CI: yes
