@@ -16,5 +16,9 @@ do
 done
 echo "npm test on CircleCI finished with n=$n"
 
-echo "checking test threshold"
+echo "checking test threshold on CircleCI"
 npm run nyc:threshold
+
+echo "npm run codeclimate and coveralls on CircleCI"
+npm run codeclimate
+npm run coveralls
