@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/my-mean-website-server
+    working_directory: /home/ubuntu/my-mean-website-server
     docker:
       - image: circleci/mongo:latest
       - image: circleci/node:7.9.0
@@ -31,7 +31,7 @@ jobs:
       - image: redis:2.8.19
     steps:
       - checkout
-#      - run: mkdir -p ~/my-mean-website-server/artifacts
+#      - run: mkdir -p /home/ubuntu/my-mean-website-server/artifacts
       - run: echo "Starting..."
       - type: shell
           shell: sh
@@ -43,6 +43,6 @@ jobs:
 #      - run: command: npm test
 #      - run: command: npm run nyc:threshold
 #      - store_artifacts:
-#          path: ~/my-mean-website-server/artifacts
+#          path: /home/ubuntu/my-mean-website-server/artifacts
 #      - run: npm run codeclimate
 #      - run: npm run coveralls
