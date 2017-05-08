@@ -46,12 +46,11 @@ dependencies:
 ## Customize test commands
 test:
   override:
-#    - phpunit test/unit-tests # use PHPunit for testing
-  post:
-    - echo "npm docs on circle ci"
-    - npm run docs
     - echo "npm test on circle ci"
     - npm test
     - npm run nyc:threshold
+  post:
+    - echo "npm docs on circle ci"
+    - npm run docs
 #    - npm run codeclimate
 #    - npm run coveralls
