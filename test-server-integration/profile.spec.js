@@ -238,17 +238,17 @@ describe('profile', () => {
 			//of wrong params
 			for(let i = 0; i<wrongParamProfileUpdate.length; i++) {
 				console.log(wrongParamProfileUpdate[i]);
-				it('should get 401 UNAUTHORIZED, because you must pass correct the email/id', done => {
+				it('should get 404 NOT FOUND, because you must pass correct the email/id', done => {
 					getPartialPostRequest(URL_PROFILE)
 					.set('XSRF-TOKEN', csrftoken)
 					.send(wrongParamProfileUpdate[i])
-					.expect(401)
+					.expect(404)
 					.end((err, res) => {
 						if (err) {
 							return done(err);
 						} else {
 							console.log(res.body);
-							expect(res.body.message).to.be.equals('Cannot update your profile. Please try to logout and login again.');
+							expect(res.body.message).to.be.equals('Error while updating your profile. Please retry.');
 							done();
 						}
 					});

@@ -77,22 +77,19 @@ let User = require('mongoose').model('User');
  */
 module.exports.usersReadOneById = function (req, res) {
   logger.debug('REST users usersReadOneById - Finding a User', req.params);
-  if (req.params && req.params.id) {
-
-    User.findById(req.params.id, (err, user) => {
-      logger.debug('REST users usersReadOneById - fetching user from db');
-      if (!user || err) {
-        Utils.sendJSONres(res, 404, 'User not found');
-        logger.error('REST users usersReadOneById - User NOT found');
-      } else {
-        let clonedUser = _.cloneDeep(user);
-        clonedUser.__v = undefined;
-        logger.debug('REST users usersReadOneById - User found', clonedUser);
-        Utils.sendJSONres(res, 200, clonedUser);
-      }
-    });
-  } else {
-    Utils.sendJSONres(res, 400, 'No userid in request');
+  if (!req.params || !req.params.id) {
     logger.error('REST users usersReadOneById - No userid in request');
+    return Utils.sendJSONres(res, 400, 'No userid in request');
   }
+
+  logger.debug('REST users usersReadOneById - fetching user from db');
+  User.findById(req.params.id).then(user => {
+    let clonedUser = _.cloneDeep(user);
+    clonedUser.__v = undefined;
+    logger.debug('REST users usersReadOneById - User found', clonedUser);
+    return Utils.sendJSONres(res, 200, clonedUser);
+  }).catch(err => {
+    logger.error('REST users usersReadOneById - User NOT found', err);
+    return Utils.sendJSONres(res, 404, 'User not found');
+  });
 };

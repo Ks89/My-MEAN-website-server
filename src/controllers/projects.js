@@ -56,11 +56,8 @@ let Project = require('mongoose').model('Project');
  */
 module.exports.projectsList = function (req, res) {
   logger.debug('REST projects projectsList - finding projects');
-  Project.find({}, (err, results) => {
-    if (!results || err) {
-      logger.error('REST projects projectsList - not found', err);
-      return Utils.sendJSONres(res, 404, 'Project list not found');
-    }
+
+  Project.find({}).then(results => {
     if (results.length === 0) {
       logger.debug('REST projects projectsList - list empty');
       res.status(204).end(); // no content (attention, don't use res.json() in this case)
@@ -69,6 +66,9 @@ module.exports.projectsList = function (req, res) {
       logger.silly(results);
       return Utils.sendJSONres(res, 200, results);
     }
+  }).catch(err => {
+    logger.error('REST projects projectsList - not found', err);
+    return Utils.sendJSONres(res, 404, 'Project list not found');
   });
 };
 
@@ -124,13 +124,9 @@ module.exports.projectsList = function (req, res) {
  */
 module.exports.projectsListHomepage = function (req, res) {
   logger.debug('REST projects projectsListHomepage - finding projects for homepage');
-  Project
-    .find({'projectHomeView.carouselImagePath': {$exists: true}})
-    .lean().exec((err, results) => {
-    if (!results || err) {
-      logger.error('REST projects projectsListHomepage - not found', err);
-      return Utils.sendJSONres(res, 404, 'Project list homepage not found');
-    }
+
+
+  Project.find({'projectHomeView.carouselImagePath': {$exists: true}}).lean().exec().then(results => {
     if (results.length === 0) {
       logger.debug('REST projects projectsListHomepage - list empty');
       res.status(204).end(); // no content (attention, don't use res.json() in this case)
@@ -139,6 +135,9 @@ module.exports.projectsListHomepage = function (req, res) {
       logger.silly(results);
       return Utils.sendJSONres(res, 200, results);
     }
+  }).catch(err => {
+    logger.error('REST projects projectsListHomepage - not found', err);
+    return Utils.sendJSONres(res, 404, 'Project list homepage not found');
   });
 };
 
@@ -205,16 +204,12 @@ module.exports.projectsReadOne = function (req, res) {
     return Utils.sendJSONres(res, 400, 'No projectid in request');
   }
 
-  Project
-    .findById(req.params.projectid)
-    .exec((err, project) => {
-      if (!project || err) {
-        logger.error('REST projects projectsReadOne - not found', err);
-        return Utils.sendJSONres(res, 404, 'Project not found');
-      } else {
-        logger.debug('REST projects projectsReadOne - found');
-        logger.silly(project);
-        return Utils.sendJSONres(res, 200, project);
-      }
-    });
+  Project.findById(req.params.projectid).exec().then(project => {
+    logger.debug('REST projects projectsReadOne - found');
+    logger.silly(project);
+    return Utils.sendJSONres(res, 200, project);
+  }).catch(err => {
+    logger.error('REST projects projectsReadOne - not found', err);
+    return Utils.sendJSONres(res, 404, 'Project not found');
+  });
 };

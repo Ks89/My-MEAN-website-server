@@ -33,10 +33,10 @@ describe('auth-local', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
+				csrftoken = (res.headers['set-cookie']).filter(value => {
 					return value.includes('XSRF-TOKEN');
 				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
+				connectionSid = (res.headers['set-cookie']).filter(value => {
 					return value.includes('connect.sid');
 				})[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';

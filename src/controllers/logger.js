@@ -112,7 +112,7 @@ module.exports.exception = (req, res) => {
     info: 'Exception logged on server',
     body: req.body
   };
-  Utils.sendJSONres(res, 200, response);
+  return Utils.sendJSONres(res, 200, response);
 };
 
 function log(req, res, type) {
@@ -131,5 +131,5 @@ function log(req, res, type) {
     info: `${type} logged on server`,
     body: req.body
   };
-  Utils.sendJSONres(res, 200, response);
+  return Utils.sendJSONres(res, 200, response);
 }
