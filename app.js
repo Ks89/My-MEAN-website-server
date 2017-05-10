@@ -60,6 +60,9 @@ let client = redis.createClient(); //it's really useful?
 // ----------------------------security packages-----------------------------
 // --------------------------------------------------------------------------
 // All security features are prefixed with `--SEC--`
+// --SEC-- - github helmetjs/expect-ct [NOT helmet]
+//    The Expect-CT HTTP header tells browsers to expect Certificate Transparency
+let expectCt = require('expect-ct');
 // --SEC-- - github analog-nico/hpp [NOT helmet]
 //    [http params pollution] security package to prevent http params pollution
 let hpp = require('hpp');
@@ -176,6 +179,14 @@ app.use(contentLength.validateMax({
   max: MAX_CONTENT_LENGTH_ACCEPTED,
   status: 400, message: config.LARGE_PAYLOAD_MESSAGE
 })); // max size accepted for the content-length
+
+// --SEC-- - expect-ct
+//  https://scotthelme.co.uk/a-new-security-header-expect-ct/
+app.use(expectCt({
+  enforce: true,
+  maxAge: 30,
+  reportUri: config.HELMET_EXPECT_CT_REPORT_URI
+}));
 
 logger.warn(`Initializing morgan (logger of req, res and so on... It's different from winston logger)`);
 if (!config.isCI() && !config.isTest()) {

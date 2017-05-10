@@ -28,15 +28,16 @@ module.exports = {
   // re-assign all process.env variables to be used in this app and defined with dotenv to constants
   // In this way I can see all variables defined with donenv and used in this app
   // In CI I can't use dotenv => I provide default values for all these constants
-  FRONT_END_PATH                : process.env.FRONT_END_PATH         || '../My-MEAN-website-client/dist',
-  LARGE_PAYLOAD_MESSAGE         : process.env.LARGE_PAYLOAD_MESSAGE  || 'stop it!',
-  EXPRESS_SESSION_SECRET        : process.env.EXPRESS_SESSION_SECRET || 'keyboard cat',
-  HELMET_HIDE_POWERED_BY        : process.env.HELMET_HIDE_POWERED_BY || 'f__k u idiot',
-  HELMET_REFERRER_POLICY        : process.env.HELMET_REFERRER_POLICY || 'no-referrer',
-  HELMET_HPKP_SHA256S_1         : process.env.HELMET_HPKP_SHA256S_1  || 'AbCdEf123=',
-  HELMET_HPKP_SHA256S_2         : process.env.HELMET_HPKP_SHA256S_2  || 'ZyXwVu456=',
-  HELMET_HPKP_REPORT_URI        : process.env.HELMET_HPKP_REPORT_URI || 'https://example.com/hpkp-report',
-  REDIS_HOST                    : process.env.REDIS_HOST             || 'localhost',
-  REDIS_PORT                    : process.env.REDIS_PORT             || 6379,
-  REDIS_TTL                     : process.env.REDIS_TTL              || 260
+  FRONT_END_PATH                : process.env.FRONT_END_PATH                || '../My-MEAN-website-client/dist',
+  LARGE_PAYLOAD_MESSAGE         : process.env.LARGE_PAYLOAD_MESSAGE         || 'stop it!',
+  EXPRESS_SESSION_SECRET        : process.env.EXPRESS_SESSION_SECRET        || 'keyboard cat',
+  HELMET_HIDE_POWERED_BY        : process.env.HELMET_HIDE_POWERED_BY        || 'f__k u idiot',
+  HELMET_REFERRER_POLICY        : process.env.HELMET_REFERRER_POLICY        || 'no-referrer',
+  HELMET_HPKP_SHA256S_1         : process.env.HELMET_HPKP_SHA256S_1         || 'AbCdEf123=',
+  HELMET_HPKP_SHA256S_2         : process.env.HELMET_HPKP_SHA256S_2         || 'ZyXwVu456=',
+  HELMET_HPKP_REPORT_URI        : process.env.HELMET_HPKP_REPORT_URI        || 'https://example.com/hpkp-report',
+  HELMET_EXPECT_CT_REPORT_URI   : process.env.HELMET_EXPECT_CT_REPORT_URI   || 'https://example.com/expect-ct-report',
+  REDIS_HOST                    : process.env.REDIS_HOST                    || 'localhost',
+  REDIS_PORT                    : process.env.REDIS_PORT                    || 6379,
+  REDIS_TTL                     : process.env.REDIS_TTL                     || 260
 };
