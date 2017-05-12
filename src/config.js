@@ -20,9 +20,9 @@ module.exports = {
   CI                            : process.env.CI,
   PORT                          : process.env.PORT,
   // JWT_SECRET                    : process.env.JWT_SECRET,
-  USER_EMAIL                    : process.env.USER_EMAIL,
-  PASS_EMAIL                    : process.env.PASS_EMAIL,
-  RECAPTCHA_SECRET              : process.env.RECAPTCHA_SECRET,
+  // USER_EMAIL                    : process.env.USER_EMAIL,
+  // PASS_EMAIL                    : process.env.PASS_EMAIL,
+  // RECAPTCHA_SECRET              : process.env.RECAPTCHA_SECRET,
   MONGODB_URI                   : process.env.MONGODB_URI,
 
   // re-assign all process.env variables to be used in this app and defined with dotenv to constants

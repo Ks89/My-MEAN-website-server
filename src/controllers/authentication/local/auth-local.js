@@ -15,12 +15,41 @@ let mailTransport = MailUtils.getMailTransport();
 
 function emailMsg(to, subject, htmlMessage) {
   return {
-    from: config.USER_EMAIL,
+    from: process.env.USER_EMAIL,
     to: to,
     subject: subject,
     html: htmlMessage,
     generateTextFromHtml: true
   };
+}
+
+// ----------------------------------------------------------
+// ----------------------------------------------------------
+// ----------------------------------------------------------
+// TODO replace duplicated functions switching to async/await
+//function passed to send an email
+function sendEmailAsyncAwait(user, message) {
+  return new Promise((resolve, reject) => {
+    mailTransport.sendMail(message, err => {
+      if(err) {
+        reject(err);
+      }
+      resolve(user);
+    });
+  });
+}
+
+//function to create a random token
+function createRandomTokenAsyncAwait() {
+  return new Promise((resolve, reject) => {
+    crypto.randomBytes(64, (err, buf) => {
+      if (err) {
+        reject(err);
+      }
+      const token = buf.toString('hex');
+      resolve(token);
+    });
+  });
 }
 
 //function passed to async.waterfall's arrays to send an email
@@ -41,6 +70,9 @@ function createRandomToken(done) {
     done(err, token);
   });
 }
+// ----------------------------------------------------------
+// ----------------------------------------------------------
+// ----------------------------------------------------------
 
 /**
  * @api {post} /api/register Register a new local user.
@@ -281,7 +313,7 @@ module.exports.unlinkLocal = (req, res) => {
 *     "message":"An e-mail has been sent to fake@fake.it with further instructions."
 *   }
  */
-module.exports.reset = (req, res, next) => {
+module.exports.reset = async (req, res) => {
   logger.debug('REST auth-local reset - reset called');
 
   if (!req.body.email) {
@@ -289,41 +321,26 @@ module.exports.reset = (req, res, next) => {
     return Utils.sendJSONres(res, 400, 'Email fields is required.');
   }
 
-  async.waterfall([
-    createRandomToken,
-    (token, done) => {
-      const link = 'http://' + req.headers.host + '/reset?emailToken=' + token;
-      User.findOne({'local.email': req.body.email}, (err, user) => {
+  try {
+    let token = await createRandomTokenAsyncAwait();
+    let link = `http://${req.headers.host}/reset?emailToken=${token}`;
+    let user = await User.findOne({'local.email': req.body.email});
+    user.local.resetPasswordToken = token;
+    user.local.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
-        if (!user || err) {
-          logger.error('REST auth-local reset - db error, user not found', err);
-          return Utils.sendJSONres(res, 404, 'No account with that email address exists.');
-        }
-
-        user.local.resetPasswordToken = token;
-        user.local.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-
-        user.save((err, savedUser) => {
-          //create email data
-          const msgText = 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-            link + '\n\n' +
-            'If you did not request this, please ignore this email and your password will remain unchanged.\n';
-          const message = emailMsg(req.body.email, 'Password reset for stefanocappa.it', msgText);
-          done(err, savedUser, message);
-        });
-      });
-    },
-    sendEmail //function defined below
-  ], (err, user) => {
-    if (err) {
-      logger.error('REST auth-local reset - Error during reset', err);
-      return next(err);
-    } else {
-      logger.debug('REST auth-local reset - finished', user);
-      Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${user.local.email} with further instructions.`});
-    }
-  });
+    let savedUser = await user.save();
+    const msgText = 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+      'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+      link + '\n\n' +
+      'If you did not request this, please ignore this email and your password will remain unchanged.\n';
+    const message = emailMsg(req.body.email, 'Password reset for stefanocappa.it', msgText);
+    let sentUser = await sendEmailAsyncAwait(savedUser, message);
+    logger.debug('REST auth-local reset - finished', sentUser);
+    return Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${sentUser.local.email} with further instructions.`});
+  } catch(err) {
+    logger.error('REST auth-local reset - db error, user not found', err);
+    return Utils.sendJSONres(res, 404, 'No account with that email address exists.');
+  }
 };
 
 /**
