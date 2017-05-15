@@ -327,7 +327,7 @@ module.exports.reset = async (req, res) => {
       link + '\n\n' +
       'If you did not request this, please ignore this email and your password will remain unchanged.\n';
     const message = emailMsg(req.body.email, 'Password reset for stefanocappa.it', msgText);
-    let error = await  mailTransport.sendMail(message);
+    let error = await mailTransport.sendMail(message);
     logger.debug('REST auth-local reset - finished', savedUser);
     return Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${savedUser.local.email} with further instructions.`});
   } catch(err) {
@@ -379,42 +379,33 @@ module.exports.resetPasswordFromEmail = (req, res, next) => {
     return Utils.sendJSONres(res, 400, 'Password and emailToken fields are required.');
   }
 
-  async.waterfall([
-    done => {
-      User.findOne({
-        'local.resetPasswordToken': req.body.emailToken,
-        'local.resetPasswordExpires': {$gt: Date.now()}
-      }, (err, user) => {
-        if (!user || err) {
-          logger.error('REST auth-local resetPasswordFromEmail - db error, user not found', err);
-          return Utils.sendJSONres(res, 404, 'No account with that token exists.');
-        }
-        logger.debug('REST auth-local resetPasswordFromEmail - reset password called for user', user);
-
-        user.setPassword(req.body.newPassword);
-        user.local.resetPasswordToken = undefined;
-        user.local.resetPasswordExpires = undefined;
-
-        user.save((err, savedUser) => {
-
-          //create email data
-          const msgText = 'This is a confirmation that the password for your account ' +
-            user.local.email + ' has just been changed.\n';
-          const message = emailMsg(savedUser.local.email, 'Password for stefanocappa.it updated', msgText);
-
-          done(err, savedUser, message);
-        });
-      });
-    },
-    sendEmail //function defined below
-  ], (err, user) => {
-    if (err) {
-      logger.error('REST auth-local resetPasswordFromEmail - Error during resetPasswordFromEmail', err);
-      return next(err);
-    } else {
-      logger.debug('REST auth-local resetPasswordFromEmail - finished', user);
-      Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${user.local.email} with further instructions.`});
+  let localEmail;
+  User.findOne({
+    'local.resetPasswordToken': req.body.emailToken,
+    'local.resetPasswordExpires': {$gt: Date.now()}
+  }).then(user => {
+    if (!user) {
+      logger.error('REST auth-local resetPasswordFromEmail - db error, user not found', err);
+      return Utils.sendJSONres(res, 404, 'No account with that token exists.');
     }
+    logger.debug('REST auth-local resetPasswordFromEmail - reset password called for user', user);
+
+    user.setPassword(req.body.newPassword);
+    user.local.resetPasswordToken = undefined;
+    user.local.resetPasswordExpires = undefined;
+    return user.save();
+  }).then(savedUser => {
+    localEmail = savedUser.local.email;
+    //create email data
+    const msgText = `This is a confirmation that the password for your account ${savedUser.local.email} has just been changed.\n`;
+    const message = emailMsg(savedUser.local.email, 'Password for stefanocappa.it updated', msgText);
+    return mailTransport.sendMail(message);
+  }).then(() => {
+      logger.debug('REST auth-local resetPasswordFromEmail - finished');
+      Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${localEmail} with further instructions.`});
+  }).catch(err => {
+    logger.error('REST auth-local resetPasswordFromEmail - db error, user not found', err);
+    return Utils.sendJSONres(res, 404, 'No account with that token exists.');
   });
 };
 
