@@ -237,7 +237,6 @@ module.exports.login = (req, res) => {
         logger.error('REST auth-local register - db error while searching user', err2);
         return Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
       }
-
     } else {
       logger.error('REST auth-local register - User account not activated');
       return Utils.sendJSONres(res, 401, 'Incorrect username or password. Or this account is not activated, check your mailbox.');
@@ -401,8 +400,8 @@ module.exports.resetPasswordFromEmail = (req, res, next) => {
     const message = emailMsg(savedUser.local.email, 'Password for stefanocappa.it updated', msgText);
     return mailTransport.sendMail(message);
   }).then(() => {
-      logger.debug('REST auth-local resetPasswordFromEmail - finished');
-      Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${localEmail} with further instructions.`});
+    logger.debug('REST auth-local resetPasswordFromEmail - finished');
+    Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${localEmail} with further instructions.`});
   }).catch(err => {
     logger.error('REST auth-local resetPasswordFromEmail - db error, user not found', err);
     return Utils.sendJSONres(res, 404, 'No account with that token exists.');
@@ -456,47 +455,37 @@ module.exports.activateAccount = (req, res, next) => {
   const decodedUserName = decodeURI(req.body.userName);
   logger.debug('REST auth-local activateAccount - decoded userName', decodedUserName);
 
-  async.waterfall([
-    done => {
-      User.findOne({'local.activateAccountToken': req.body.emailToken, 'local.name': decodedUserName},
-        /*,'local.activateAccountExpires': { $gt: Date.now() }},*/ (err, user) => {
-          if (!user || err) {
-            logger.error('REST auth-local activateAccount - db error, user not found', err);
-            return Utils.sendJSONres(res, 404, 'No account with that token exists.');
-          }
-
-          logger.debug('REST auth-local activateAccount - user.activateAccountExpires', user.local.activateAccountExpires);
-
-          if (user.local.activateAccountExpires < new Date(Date.now())) {
-            logger.error('REST auth-local activateAccount - Activation link expired', user.local.activateAccountExpires, new Date(Date.now()));
-            return Utils.sendJSONres(res, 404, 'Link exprired! Your account is removed. Please, create another account, also with the same email address.');
-          }
-
-          logger.debug('REST auth-local activateAccount - activate account with user', user);
-
-          user.local.activateAccountToken = undefined;
-          user.local.activateAccountExpires = undefined;
-
-          user.save((err, savedUser) => {
-            logger.debug('REST auth-local activateAccount - activate account with savedUser', savedUser);
-
-            //create email data
-            const msgText = 'This is a confirmation that your account ' + user.local.name +
-              'with email ' + user.local.email + ' has just been activated.\n';
-            const message = emailMsg(savedUser.local.email, 'Account activated for stefanocappa.it', msgText);
-
-            done(err, savedUser, message);
-          });
-        });
-    },
-    sendEmail //function defined below
-  ], (err, user) => {
-    if (err) {
-      logger.error('REST auth-local activateAccount - Missing params', req.body);
-      return next(err);
-    } else {
-      logger.debug('REST auth-local activateAccount - finished', user);
-      Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${user.local.email} with further instructions.`});
+  let localEmail;
+  User.findOne({
+    'local.activateAccountToken': req.body.emailToken,
+    'local.name': decodedUserName
+  }).then(user => {
+    if (!user) {
+      logger.error('REST auth-local activateAccount - db error, user not found', err);
+      return Utils.sendJSONres(res, 404, 'No account with that token exists.');
     }
+    if (user.local.activateAccountExpires < new Date(Date.now())) {
+      logger.error('REST auth-local activateAccount - Activation link expired', user.local.activateAccountExpires, new Date(Date.now()));
+      return Utils.sendJSONres(res, 404, 'Link exprired! Your account is removed. Please, create another account, also with the same email address.');
+    }
+    logger.debug('REST auth-local activateAccount - activate account with user', user);
+
+    user.local.activateAccountToken = undefined;
+    user.local.activateAccountExpires = undefined;
+    return user.save();
+  }).then(savedUser => {
+    logger.debug('REST auth-local activateAccount - activate account with savedUser', savedUser);
+    localEmail = savedUser.local.email;
+    //create email data
+    const msgText = 'This is a confirmation that your account ' + savedUser.local.name +
+      'with email ' + savedUser.local.email + ' has just been activated.\n';
+    const message = emailMsg(savedUser.local.email, 'Account activated for stefanocappa.it', msgText);
+    return mailTransport.sendMail(message);
+  }).then(() => {
+    logger.debug('REST auth-local activateAccount - finished');
+    Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${localEmail} with further instructions.`});
+  }).catch(err => {
+    logger.error('REST auth-local activateAccount - db error, user not found', err);
+    return Utils.sendJSONres(res, 404, 'No account with that token exists.');
   });
 };
