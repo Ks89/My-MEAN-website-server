@@ -13,6 +13,9 @@ let crypto = require('crypto');
 
 let mailTransport = MailUtils.getMailTransport();
 
+// custom errors
+let AuthLocalUserError = require('../../../utils/errors/user-errors');
+
 function emailMsg(to, subject, htmlMessage) {
   return {
     from: process.env.USER_EMAIL,
@@ -27,18 +30,6 @@ function emailMsg(to, subject, htmlMessage) {
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 // TODO replace duplicated functions switching to async/await
-//function passed to send an email
-function sendEmailAsyncAwait(user, message) {
-  return new Promise((resolve, reject) => {
-    mailTransport.sendMail(message, err => {
-      if(err) {
-        reject(err);
-      }
-      resolve(user);
-    });
-  });
-}
-
 //function to create a random token
 function createRandomTokenAsyncAwait() {
   return new Promise((resolve, reject) => {
@@ -54,8 +45,10 @@ function createRandomTokenAsyncAwait() {
 
 //function passed to async.waterfall's arrays to send an email
 function sendEmail(user, message, done) {
-  mailTransport.sendMail(message, err => {
-    done(err, user);
+  mailTransport.sendMail(message).then(() => {
+    done(null, user);
+  }).catch(err => {
+    done(err);
   });
 }
 
@@ -334,9 +327,9 @@ module.exports.reset = async (req, res) => {
       link + '\n\n' +
       'If you did not request this, please ignore this email and your password will remain unchanged.\n';
     const message = emailMsg(req.body.email, 'Password reset for stefanocappa.it', msgText);
-    let sentUser = await sendEmailAsyncAwait(savedUser, message);
-    logger.debug('REST auth-local reset - finished', sentUser);
-    return Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${sentUser.local.email} with further instructions.`});
+    let error = await  mailTransport.sendMail(message);
+    logger.debug('REST auth-local reset - finished', savedUser);
+    return Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${savedUser.local.email} with further instructions.`});
   } catch(err) {
     logger.error('REST auth-local reset - db error, user not found', err);
     return Utils.sendJSONres(res, 404, 'No account with that email address exists.');

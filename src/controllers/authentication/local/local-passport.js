@@ -12,21 +12,17 @@ module.exports = function (userRef) {
     passReqToCallback: true
   }, (req, username, password, done) => {
     process.nextTick(() => {
-      userRef.findOne({'local.email': username}, (err, user) => {
-        if (err) {
-          logger.error('REST local-passport init - db error, userRef not found', err);
-          return done(err);
-        }
-
+      userRef.findOne({'local.email': username}).then(user => {
         if (!user || !user.validPassword(password)) {
           logger.error('REST local-passport init - Incorrect username or password. Or this account is not activated, check your mailbox');
           return done(null, false, 'Incorrect username or password. Or this account is not activated, check your mailbox.');
         }
-
         return done(null, user);
+      }).catch(err => {
+        logger.error('REST local-passport init - db error, userRef not found', err);
+        return done(err);
       });
     });
   }));
-
   return module;
 };
