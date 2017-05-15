@@ -112,13 +112,12 @@ module.exports.sendEmailWithRecaptcha = function (req, res) {
         html: formEmail.messageText,
         generateTextFromHtml: true
       };
-      mailTransport.sendMail(message, err => {
-        if (err) {
-          logger.error('REST contact sendEmailWithRecaptcha - Error while sending an email', err.message);
-          done(err, 404, null);
-        }
+      mailTransport.sendMail(message).then(() => {
         logger.debug('REST contact sendEmailWithRecaptcha - Mail sent', formEmail);
         done(null, 200, formEmail);
+      }).catch(err => {
+          logger.error('REST contact sendEmailWithRecaptcha - Error while sending an email', err.message);
+          done(err, 404, null);
       });
     },
     (resultHttpCode, formEmail) => {

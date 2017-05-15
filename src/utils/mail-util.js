@@ -3,6 +3,9 @@ let logger = require('./logger-winston');
 let stubTransport = require('nodemailer-stub-transport');
 let nodemailer = require('nodemailer');
 
+let Bluebird = require('bluebird');
+Bluebird.promisifyAll(nodemailer);
+
 class MailUtils {
 
   static getMailTransport() {

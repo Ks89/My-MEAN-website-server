@@ -26,13 +26,11 @@ mongoose.connection.on('close', () => logger.warn('db - [Mongoose status] Mongoo
 mongoose.connection.on('reconnected', () => logger.warn('db - [Mongoose status] Mongoose reconnected'));
 mongoose.connection.on('disconnected', () => logger.debug('db - [Mongoose status] Mongoose disconnected'));
 
-mongoose.connect(dbURI, err => {
-  // found here http://mongoosejs.com/docs/api.html#index_Mongoose-connect
-  if (err) {
-    logger.error('db - Mongoose connection', err);
-  } else {
-    logger.debug('db - Mongoose connect called successfully');
-  }
+// found here http://mongoosejs.com/docs/api.html#index_Mongoose-connect
+mongoose.connect(dbURI).then(() => {
+  logger.debug('db - Mongoose connect called successfully');
+}).catch(err => {
+  logger.error('db - Mongoose connection', err);
 });
 
 let gracefulShutdown = function (msg, callback) {

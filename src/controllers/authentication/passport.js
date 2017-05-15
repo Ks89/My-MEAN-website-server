@@ -12,9 +12,12 @@ module.exports = function (passportRef) {
   });
 
   passportRef.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-      logger.silly(`Deserializing user ${user}`);
-      done(err, user);
+    User.findById(id).then(user => {
+      logger.silly('Deserializing user ', user);
+      done(null, user);
+    }).catch(err => {
+      logger.silly(`User with id=${id} not found`, err);
+      done(err);
     });
   });
 
