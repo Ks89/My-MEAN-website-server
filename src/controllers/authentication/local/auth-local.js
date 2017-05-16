@@ -10,11 +10,9 @@ let passport = require('passport');
 let authCommon = require('../common/auth-common.js');
 let async = require('async');
 let crypto = require('crypto');
+let Bluebird = require('bluebird');
 
 let mailTransport = MailUtils.getMailTransport();
-
-// custom errors
-let AuthLocalUserError = require('../../../utils/errors/user-errors');
 
 function emailMsg(to, subject, htmlMessage) {
   return {
@@ -26,13 +24,9 @@ function emailMsg(to, subject, htmlMessage) {
   };
 }
 
-// ----------------------------------------------------------
-// ----------------------------------------------------------
-// ----------------------------------------------------------
-// TODO replace duplicated functions switching to async/await
 //function to create a random token
-function createRandomTokenAsyncAwait() {
-  return new Promise((resolve, reject) => {
+function createRandomToken() {
+  return new Bluebird((resolve, reject) => {
     crypto.randomBytes(64, (err, buf) => {
       if (err) {
         reject(err);
@@ -42,30 +36,6 @@ function createRandomTokenAsyncAwait() {
     });
   });
 }
-
-//function passed to async.waterfall's arrays to send an email
-function sendEmail(user, message, done) {
-  mailTransport.sendMail(message).then(() => {
-    done(null, user);
-  }).catch(err => {
-    done(err);
-  });
-}
-
-//function passed to async.waterfall's arrays to create a random token
-function createRandomToken(done) {
-  crypto.randomBytes(64, (err, buf) => {
-    if (err) {
-      logger.error('REST auth-local createRandomToken - crypto.randomBytes');
-      throw err;
-    }
-    const token = buf.toString('hex');
-    done(err, token);
-  });
-}
-// ----------------------------------------------------------
-// ----------------------------------------------------------
-// ----------------------------------------------------------
 
 /**
  * @api {post} /api/register Register a new local user.
@@ -106,7 +76,7 @@ function createRandomToken(done) {
 *     "message": "User with email fake@fake.it registered."
 *   }
  */
-module.exports.register = (req, res, next) => {
+module.exports.register = (req, res) => {
   logger.debug('REST auth-local register - registering new user');
 
   if (!req.body.name || !req.body.email || !req.body.password) {
@@ -114,59 +84,48 @@ module.exports.register = (req, res, next) => {
     return Utils.sendJSONres(res, 400, 'All fields required');
   }
 
-  async.waterfall([
-    createRandomToken, //first function defined above
-    (token, done) => {
-      const encodedUserName = encodeURI(req.body.name);
-      logger.debug('REST auth-local register - encodedUserName', encodedUserName);
+  let token, savedUserRef, message, link;
+  createRandomToken().then(genToken => {
+    token = genToken;
 
-      const link = `http://${req.headers.host}/activate?emailToken=${token}&userName=${encodedUserName}`;
+    const encodedUserName = encodeURI(req.body.name);
+    logger.debug('REST auth-local register - encodedUserName', encodedUserName);
 
-      User.findOne({'local.email': req.body.email}, (err, user) => {
-        if (err) {
-          logger.error('REST auth-local register - db error while searching user', err);
-          return Utils.sendJSONres(res, 500, 'Unknown error while registering...');
-        }
+    link = `http://${req.headers.host}/activate?emailToken=${token}&userName=${encodedUserName}`;
 
-        if (user) {
-          logger.error('REST auth-local register - User already exists');
-          return Utils.sendJSONres(res, 400, 'User already exists. Try to login.');
-        }
-
-        let newUser = new User();
-        newUser.local.name = req.body.name;
-        newUser.local.email = req.body.email;
-        newUser.setPassword(req.body.password);
-        newUser.local.activateAccountToken = token;
-        newUser.local.activateAccountExpires = new Date(Date.now() + 24 * 3600 * 1000); // 1 hour
-
-        newUser.save((err, savedUser) => {
-          if (err) {
-            logger.error('REST auth-local register - db error while saving the new user', err);
-            throw err;
-          }
-          logger.debug('REST auth-local register - User registered', savedUser);
-
-          //create message data
-          const msgText = 'You are receiving this because you (or someone else) have requested an account for this website.\n' +
-            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-            link + '\n\n' +
-            'If you did not request this, please ignore this email.\n';
-          const message = emailMsg(req.body.email, 'Welcome to stefanocappa.it', msgText);
-
-          done(err, savedUser, message);
-        });
-      });
-    },
-    sendEmail //function defined below
-  ], (err, user) => {
-    if (err) {
-      logger.error('REST auth-local register - Unknown error', err);
-      return next(err);
-    } else {
-      logger.debug('REST auth-local register - User registered successfully', user);
-      return Utils.sendJSONres(res, 200, {message: 'User with email ' + user.local.email + ' registered.'});
+    return User.findOne({'local.email': req.body.email});
+  }).then(user => {
+    if (user) {
+      logger.error('REST auth-local register - User already exists');
+      return Utils.sendJSONres(res, 400, 'User already exists. Try to login.');
     }
+
+    let newUser = new User();
+    newUser.local.name = req.body.name;
+    newUser.local.email = req.body.email;
+    newUser.setPassword(req.body.password);
+    newUser.local.activateAccountToken = token;
+    newUser.local.activateAccountExpires = new Date(Date.now() + 24 * 3600 * 1000); // 1 hour
+
+    return newUser.save();
+  }).then(savedUser => {
+    savedUserRef = savedUser;
+    logger.debug('REST auth-local register - User registered', savedUser);
+
+    //create message data
+    const msgText = 'You are receiving this because you (or someone else) have requested an account for this website.\n' +
+      'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+      link + '\n\n' +
+      'If you did not request this, please ignore this email.\n';
+    message = emailMsg(req.body.email, 'Welcome to stefanocappa.it', msgText);
+    return mailTransport.sendMail(message);
+  }).then(() => {
+    logger.debug('REST auth-local register - User registered successfully', savedUserRef);
+    return Utils.sendJSONres(res, 200, {message: 'User with email ' + savedUserRef.local.email + ' registered.'});
+    // done(null, savedUserRef, message);
+  }).catch(err => {
+    logger.error('REST auth-local register - db error while searching user', err);
+    return Utils.sendJSONres(res, 500, 'Unknown error while registering...');
   });
 };
 
@@ -314,7 +273,7 @@ module.exports.reset = async (req, res) => {
   }
 
   try {
-    let token = await createRandomTokenAsyncAwait();
+    let token = await createRandomToken();
     let link = `http://${req.headers.host}/reset?emailToken=${token}`;
     let user = await User.findOne({'local.email': req.body.email});
     user.local.resetPasswordToken = token;
@@ -329,7 +288,7 @@ module.exports.reset = async (req, res) => {
     let error = await mailTransport.sendMail(message);
     logger.debug('REST auth-local reset - finished', savedUser);
     return Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${savedUser.local.email} with further instructions.`});
-  } catch(err) {
+  } catch (err) {
     logger.error('REST auth-local reset - db error, user not found', err);
     return Utils.sendJSONres(res, 404, 'No account with that email address exists.');
   }
@@ -396,7 +355,7 @@ module.exports.resetPasswordFromEmail = (req, res, next) => {
   }).then(savedUser => {
     localEmail = savedUser.local.email;
     //create email data
-    const msgText = `This is a confirmation that the password for your account ${savedUser.local.email} has just been changed.\n`;
+    const msgText = `This is a confirmation that the password for your account ${localEmail} has just been changed.\n`;
     const message = emailMsg(savedUser.local.email, 'Password for stefanocappa.it updated', msgText);
     return mailTransport.sendMail(message);
   }).then(() => {
@@ -444,7 +403,7 @@ module.exports.resetPasswordFromEmail = (req, res, next) => {
 *     "message":"An e-mail has been sent to fake@fake.it with further instructions."
 *   }
  */
-module.exports.activateAccount = (req, res, next) => {
+module.exports.activateAccount = (req, res) => {
   logger.debug('REST auth-local activateAccount - activateAccount called');
 
   if (!req.body.emailToken || !req.body.userName) {
@@ -464,6 +423,7 @@ module.exports.activateAccount = (req, res, next) => {
       logger.error('REST auth-local activateAccount - db error, user not found', err);
       return Utils.sendJSONres(res, 404, 'No account with that token exists.');
     }
+    logger.debug('REST auth-local activateAccount - user.activateAccountExpires', user.local.activateAccountExpires);
     if (user.local.activateAccountExpires < new Date(Date.now())) {
       logger.error('REST auth-local activateAccount - Activation link expired', user.local.activateAccountExpires, new Date(Date.now()));
       return Utils.sendJSONres(res, 404, 'Link exprired! Your account is removed. Please, create another account, also with the same email address.');
@@ -473,7 +433,7 @@ module.exports.activateAccount = (req, res, next) => {
     user.local.activateAccountToken = undefined;
     user.local.activateAccountExpires = undefined;
     return user.save();
-  }).then(savedUser => {
+  }).then(savedUser => {
     logger.debug('REST auth-local activateAccount - activate account with savedUser', savedUser);
     localEmail = savedUser.local.email;
     //create email data
@@ -483,7 +443,7 @@ module.exports.activateAccount = (req, res, next) => {
     return mailTransport.sendMail(message);
   }).then(() => {
     logger.debug('REST auth-local activateAccount - finished');
-    Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${localEmail} with further instructions.`});
+    return Utils.sendJSONres(res, 200, {message: `An e-mail has been sent to ${localEmail} with further instructions.`});
   }).catch(err => {
     logger.error('REST auth-local activateAccount - db error, user not found', err);
     return Utils.sendJSONres(res, 404, 'No account with that token exists.');
