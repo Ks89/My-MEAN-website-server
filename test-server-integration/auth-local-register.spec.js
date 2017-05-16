@@ -162,9 +162,10 @@ describe('auth-local', () => {
 			//of missing params
 			for(let i = 0; i<wrongRegisterMocks.length; i++) {
 				console.log(wrongRegisterMocks[i]);
-				it('should get 400 BAD REQUEST, because you must pass all mandatory params. Test i= ' + i, done => {
+        beforeEach(done => updateCookiesAndTokens(done));
 
-					beforeEach(done => updateCookiesAndTokens(done));
+        it('should get 400 BAD REQUEST, because you must pass all mandatory params. Test i= ' + i, done => {
+
 
 					async.waterfall([
 						asyncDone => insertUserTestDb(asyncDone),
@@ -177,7 +178,7 @@ describe('auth-local', () => {
 								if (err) {
 									asyncDone(err, null);
 								} else {
-									asyncDone(err, res.body);
+									asyncDone(null, res.body);
 								}
 							});
 						}
@@ -190,9 +191,10 @@ describe('auth-local', () => {
 						}
 					});
 
-					afterEach(done => dropUserCollectionTestDb(done));
 				});
-			}
+        afterEach(done => dropUserCollectionTestDb(done));
+
+      }
 
 			afterEach(done => dropUserCollectionTestDb(done));
 		});

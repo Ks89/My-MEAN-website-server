@@ -44,10 +44,12 @@ describe('rest-auth-middleware', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
+				console.log('getting csrftoken');
+				csrftoken = (res.headers['set-cookie']).filter(value => {
 					return value.includes('XSRF-TOKEN');
 				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
+        console.log('getting connectionSid');
+				connectionSid = (res.headers['set-cookie']).filter(value => {
 					return value.includes('connect.sid');
 				})[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
