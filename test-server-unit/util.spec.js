@@ -343,16 +343,16 @@ describe('util', () => {
 
     describe('---YES---', () => {
       it('should return the result, because jwt is valid', done => {
-        var expiry = new Date();
+        let expiry = new Date();
         expiry.setTime(expiry.getTime() + 600000);
         Utils.isJwtValid(getMockJwtString(expiry))
-        .then(function(result) {
+        .then(result => {
           console.log("IsJwtValid result");
           expect(result.user.local.name).to.be.equals(mockLocalUser.local.name);
           expect(result.user.local.email).to.be.equals(mockLocalUser.local.email);
           expect(result.user.local.hash).to.be.equals(mockLocalUser.local.hash);
           done();
-        }, function(reason) {
+        }).catch(reason => {
           console.log("IsJwtValid error");
           expect(true).to.be.false; //XD
           done();
@@ -363,13 +363,13 @@ describe('util', () => {
     describe('---NO---', () => {
       it('should return an error message, because jwt is expired', done => {
         //invalid because expired 10 minutes ago (10*60*1000)
-        var expiry = new Date();
+        let expiry = new Date();
         expiry.setTime(expiry.getTime() - 600000);
         Utils.isJwtValid(getMockJwtString(expiry))
-        .then(function(result) {
+        .then(result => {
           expect(true).to.be.false; //XD
           done();
-        }, function(reason) {
+        }).catch(reason => {
           console.log("IsJwtValid error");
           expect(reason.status).to.be.equals(401);
           expect(reason.message).to.be.equals("Token Session expired (date).");
@@ -379,13 +379,13 @@ describe('util', () => {
 
       it('should return an error message, because jwt is expired exactly in this moment', done => {
         //invalid because expired 0 seconds ago
-        var expiry = new Date();
+        let expiry = new Date();
         expiry.setTime(expiry.getTime());
         Utils.isJwtValid(getMockJwtString(expiry))
-        .then(function(result) {
+        .then(result => {
           expect(true).to.be.false; //XD
           done();
-        }, function(reason) {
+        }).catch(reason => {
           console.log("IsJwtValid error");
           expect(reason.status).to.be.equals(401);
           expect(reason.message).to.be.equals("Token Session expired (date).");
@@ -399,10 +399,10 @@ describe('util', () => {
         console.log("mockJwts[" + i + "]: " + mockJwts[i]);
         it('should return an error message, because jwt is an invalid String. Test i= ' + i, done => {
           Utils.isJwtValid(mockJwts[i])
-          .then(function(result) {
+          .then(result => {
             expect(true).to.be.false; //XD
             done();
-          }, function(reason) {
+          }).catch(reason => {
             console.log("IsJwtValid error");
             expect(reason.status).to.be.equals(401);
             expect(reason.message).to.be.equals(CORRUPTED_TOKEN);
