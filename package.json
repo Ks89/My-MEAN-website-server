@@ -63,6 +63,7 @@
     "apidoc": "^0.17.5",
     "babel-core": "^6.24.1",
     "babel-preset-latest": "^6.24.1",
+    "babel-register": "^6.24.1",
     "chai": "^3.5.0",
     "codeclimate-test-reporter": "^0.4.1",
     "coveralls": "^2.13.1",

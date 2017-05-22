@@ -134,7 +134,7 @@ describe('auth-local', () => {
 		describe('---NO - Wrong params/exprired---', () => {
 		 	beforeEach(done => registerUserTestDb(done));
 
-			it('should catch 404 NOT FOUND, because the token is exprired', done => {
+			it('should catch 404 NOT FOUND, because the token is expired', done => {
 				const activateAccountMock = {
 					emailToken : user.local.activateAccountToken,
 					userName : USER_NAME
