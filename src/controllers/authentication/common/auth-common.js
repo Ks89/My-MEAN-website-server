@@ -161,65 +161,50 @@ let unlinkServiceByName = function (req, serviceName, res) {
     return Utils.sendJSONres(res, 401, 'Token not found');
   }
 
-  async.waterfall([
-    done => {
-      Utils.isJwtValid(token).then(result => {
-        logger.debug('REST auth-common unlinkServiceByName - IsJwtValid result', result);
-        done(null, result);
-      }).catch(err => {
-        logger.error('REST auth-common unlinkServiceByName - IsJwtValid error', err);
-        Utils.sendJSONres(res, err.status, err.message);
-      });
-    },
-    (decodedToken, done) => {
-      User.findById(decodedToken.user._id).then(user => {
-        if(!user) {
-          logger.error('REST auth-common unlinkServiceByName - User not found - cannot unlink (usersReadOneById)');
-          return Utils.sendJSONres(res, 404, 'User not found - cannot unlink');
-        }
-        logger.debug('REST auth-common unlinkServiceByName - User found (usersReadOneById)', user);
-        done(null, user, decodedToken);
-      }).catch(err => {
-        logger.error('REST auth-common unlinkServiceByName - User not found - cannot unlink (usersReadOneById)', err);
-        return Utils.sendJSONres(res, 404, 'User not found - cannot unlink');
-      });
-    },
-    (user, decodedToken, done) => {
-      let lastUnlink = AuthUtils.checkIfLastUnlink(serviceName, user);
-      logger.debug('REST auth-common unlinkServiceByName - Check if last unlink', lastUnlink);
-      if (lastUnlink) {
-        if (decodedToken) {
-          req.session.destroy(() => {
-            logger.debug('REST auth-common unlinkServiceByName - Last unlink, session data destroyed, so removing from db');
-            user.remove().then(user => {
-              logger.debug('REST auth-common unlinkServiceByName - user removed', user);
-              done(null, user);
-            }).catch(err => {
-              logger.error('REST auth-common unlinkServiceByName - db user while removing', err);
-            });
+  let savedToken;
+  Utils.isJwtValid(token).then(decodedToken => {
+    savedToken = decodedToken;
+    logger.debug('REST auth-common unlinkServiceByName - IsJwtValid decodedToken', decodedToken);
+    return User.findById(decodedToken.user._id);
+  }).then(user => {
+    if (!user) {
+      logger.error('REST auth-common unlinkServiceByName - User not found - cannot unlink (usersReadOneById)');
+      return Utils.sendJSONres(res, 404, 'User not found - cannot unlink');
+    }
+    logger.debug('REST auth-common unlinkServiceByName - User found (usersReadOneById)', user);
+    let lastUnlink = AuthUtils.checkIfLastUnlink(serviceName, user);
+    logger.debug('REST auth-common unlinkServiceByName - Check if last unlink', lastUnlink);
+    if (lastUnlink) {
+      if (savedToken) {
+        req.session.destroy(() => {
+          logger.debug('REST auth-common unlinkServiceByName - Last unlink, session data destroyed, so removing from db');
+          user.remove().then(user => {
+            logger.debug('REST auth-common unlinkServiceByName - user removed', user);
+            logger.debug('REST auth-common unlinkServiceByName - User unlinked correctly!');
+            return Utils.sendJSONres(res, 200, 'User unlinked correctly!');
+          }).catch(err => {
+            logger.error('REST auth-common unlinkServiceByName - db user while removing', err);
           });
-        }
-      } else {
-        logger.debug('REST auth-common unlinkServiceByName - Unlinking normal situation, without a remove....');
-        user = AuthUtils.removeServiceFromUserDb(serviceName, user);
-        user.save().then(() => {
-          req.session.authToken = generateSessionJwtToken(user);
-          logger.debug('REST auth-common unlinkServiceByName - Unlinking, regenerate session token after unlink');
-          done(null, user);
-        }).catch(err => {
-          logger.error('REST auth-common unlinkServiceByName - Impossible to remove userService from db', err);
-          return Utils.sendJSONres(res, 500, 'Impossible to remove userService from db');
         });
       }
-    }], (err, user) => {
-      if (err) {
-        logger.error('REST auth-common unlinkServiceByName - Unknown error', err);
-        return Utils.sendJSONres(res, 500, 'Unknown error');
-      } else {
+    } else {
+      logger.debug('REST auth-common unlinkServiceByName - Unlinking normal situation, without a remove....');
+      user = AuthUtils.removeServiceFromUserDb(serviceName, user);
+      user.save().then(saved => {
+        req.session.authToken = generateSessionJwtToken(saved);
+        logger.debug('REST auth-common unlinkServiceByName - Unlinking, regenerate session token after unlink');
+        // done(null, user);
         logger.debug('REST auth-common unlinkServiceByName - User unlinked correctly!');
         return Utils.sendJSONres(res, 200, 'User unlinked correctly!');
-      }
-    });
+      }).catch(err => {
+        logger.error('REST auth-common unlinkServiceByName - Impossible to remove userService from db', err);
+        return Utils.sendJSONres(res, 500, 'Impossible to remove userService from db');
+      });
+    }
+  }).catch(err => {
+    logger.error('REST auth-common unlinkServiceByName - User not found - cannot unlink (usersReadOneById)', err);
+    Utils.sendJSONres(res, err.status, err.message);
+  });
 };
 
 module.exports = {
