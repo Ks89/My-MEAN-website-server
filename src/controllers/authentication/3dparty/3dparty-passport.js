@@ -112,11 +112,14 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
 
       logger.debug('REST 3dparty-passport authenticate - sessionLocalUserId found, managing 3dauth + local');
       //the user is already logged in
-      userRef.findOne({'_id': sessionLocalUserId}, (err, user) => {
-        if (!user || err) {
-          logger.error('REST 3dparty-passport authenticate - db error, cannot find logged user', err);
+      let userToCollapse;
+      userRef.findOne({'_id': sessionLocalUserId}).then(user => {
+        if (!user) {
+          logger.error('REST 3dparty-passport authenticate - db error, cannot find logged user');
           return done('Impossible to find a user with the specified sessionLocalUserId');
         }
+
+        userToCollapse = user;
         logger.debug('REST 3dparty-passport authenticate - user found, saving');
 
         let userUpdated;
@@ -128,15 +131,20 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
         }
 
         logger.debug('REST 3dparty-passport authenticate - updated localuser with 3dpartyauth');
-        userUpdated.save(err => {
-          if (err) {
-            return done(err);
-          }
-
-          //----------------- experimental ---------------
-          collapseDb(user, serviceName, req, done);
-          //----------------------------------------------
+        userUpdated.save(() => {
+          // ----------------- experimental ---------------
+          return authExperimentalFeatures.collapseDb(userToCollapse, serviceName, req);
+          // ----------------------------------------------
+        }).then(result => {
+          logger.debug('REST 3dparty-passport collapseDb - collapseDb OK', result);
+          return done(null, result);
+        }).catch(err => {
+          logger.error('REST 3dparty-passport collapseDb - collapseDb error', err);
+          return done(null, user);
         });
+      }).catch(err => {
+        logger.error('REST 3dparty-passport authenticate - db error, cannot find logged user', err);
+        return done('Impossible to find a user with the specified sessionLocalUserId');
       });
     } else {
       logger.debug('REST 3dparty-passport authenticate - only 3dauth');
@@ -208,17 +216,17 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
         // and finally update the user with the currecnt users credentials
         logger.debug(`REST 3dparty-passport authenticate - User already exists and I'm previously logged in`);
         let user = updateUser(req.user, accessToken, profile, serviceName);
-        user.save((err, savedUser) => {
-          if (err) {
-            logger.error('REST 3dparty-passport authenticate - db error while saving user', err);
-            throw err;
-          }
-
+        user.save(savedUser => {
           logger.debug('REST 3dparty-passport authenticate - Saving already existing user');
-
           //----------------- experimental ---------------
-          collapseDb(savedUser, serviceName, req, done);
+          return authExperimentalFeatures.collapseDb(savedUser, serviceName, req);
           //----------------------------------------------
+        }).then(result => {
+          logger.debug('REST 3dparty-passport collapseDb - collapseDb OK', result);
+          return done(null, result);
+        }).catch(err => {
+          logger.error('REST 3dparty-passport collapseDb - collapseDb error', err);
+          return done(null, user);
         });
       }
     }
