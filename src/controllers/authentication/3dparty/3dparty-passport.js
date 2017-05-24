@@ -157,12 +157,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
 
         logger.debug('REST 3dparty-passport authenticate - findOne by query', query);
 
-        userRef.findOne(query, (err, user) => {
-          if (err) {
-            logger.error('REST 3dparty-passport authenticate - db error, User.findOne', err);
-            return done(err);
-          }
-
+        userRef.findOne(query).then(user => {
           if (user) { // if the user is found, then log them in
             logger.debug(`REST 3dparty-passport authenticate - User aren't logged in, but I found an user on db`);
             // if there is already a user id but no token (user was linked at one point and then removed)
@@ -177,13 +172,12 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
                 return done(exception);
               }
 
-              userUpdated.save((err, userSaved) => {
-                if (err) {
-                  logger.error('REST 3dparty-passport authenticate - db error while saving userUpdated', err);
-                  done(err);
-                }
+              userUpdated.save().then(userSaved => {
                 logger.debug('REST 3dparty-passport authenticate - User updated and saved');
                 return done(null, userSaved);
+              }).catch(err => {
+                logger.error('REST 3dparty-passport authenticate - db error while saving userUpdated', err);
+                done(err);
               });
             } else {
               logger.debug('REST 3dparty-passport authenticate - Token is valid. Returns the user without modifications');
@@ -201,14 +195,16 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
               return done(exception);
             }
             logger.debug('REST 3dparty-passport authenticate - New user created', newUser);
-            newUser.save(err => {
-              if (err) {
-                logger.error('REST 3dparty-passport authenticate - db error while saving newUser', err);
-                throw err;
-              }
-              return done(null, newUser);
+            newUser.save().then(savedUser => {
+              return done(null, savedUser);
+            }).catch(err => {
+              logger.error('REST 3dparty-passport authenticate - db error while saving newUser', err);
+              throw err;
             });
           }
+        }).catch(err => {
+          logger.error('REST 3dparty-passport authenticate - db error, User.findOne', err);
+          return done(err);
         });
       } else {
         // user already exists and is logged in, we have to link accounts
@@ -216,7 +212,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
         // and finally update the user with the currecnt users credentials
         logger.debug(`REST 3dparty-passport authenticate - User already exists and I'm previously logged in`);
         let user = updateUser(req.user, accessToken, profile, serviceName);
-        user.save(savedUser => {
+        user.save().then(savedUser => {
           logger.debug('REST 3dparty-passport authenticate - Saving already existing user');
           //----------------- experimental ---------------
           return authExperimentalFeatures.collapseDb(savedUser, serviceName, req);
