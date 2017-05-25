@@ -83,18 +83,6 @@ function updateUser(user, accessToken, profile, serviceName) {
   return user;
 }
 
-// this function calls done() when finish
-function collapseDb(user, serviceName, req, done) {
-  authExperimentalFeatures.collapseDb(user, serviceName, req)
-    .then(result => {
-      logger.debug('REST 3dparty-passport collapseDb - collapseDb OK', result);
-      return done(null, result);
-    }, err => {
-      logger.error('REST 3dparty-passport collapseDb - collapseDb error', err);
-      return done(null, user);
-    });
-}
-
 function authenticate(req, accessToken, refreshToken, profile, done, serviceName, userRef) {
   process.nextTick(() => {
     let sessionLocalUserId = req.session.localUserId;
@@ -131,7 +119,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
         }
 
         logger.debug('REST 3dparty-passport authenticate - updated localuser with 3dpartyauth');
-        userUpdated.save(() => {
+        userUpdated.save().then(() => {
           // ----------------- experimental ---------------
           return authExperimentalFeatures.collapseDb(userToCollapse, serviceName, req);
           // ----------------------------------------------
@@ -140,7 +128,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
           return done(null, result);
         }).catch(err => {
           logger.error('REST 3dparty-passport collapseDb - collapseDb error', err);
-          return done(null, user);
+          return done(err, user);
         });
       }).catch(err => {
         logger.error('REST 3dparty-passport authenticate - db error, cannot find logged user', err);
@@ -222,7 +210,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
           return done(null, result);
         }).catch(err => {
           logger.error('REST 3dparty-passport collapseDb - collapseDb error', err);
-          return done(null, user);
+          return done(err, user);
         });
       }
     }
