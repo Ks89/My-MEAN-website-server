@@ -128,7 +128,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
           return done(null, result);
         }).catch(err => {
           logger.error('REST 3dparty-passport collapseDb - collapseDb error', err);
-          return done(err, user);
+          return done(null, user); // don't return err, because collapseDb it's optional
         });
       }).catch(err => {
         logger.error('REST 3dparty-passport authenticate - db error, cannot find logged user', err);
@@ -150,27 +150,27 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
             logger.debug(`REST 3dparty-passport authenticate - User aren't logged in, but I found an user on db`);
             // if there is already a user id but no token (user was linked at one point and then removed)
             // just add our token and profile informations
-            if (!user[serviceName].token) {
-              logger.debug('REST 3dparty-passport authenticate - Id is ok, but not token, updating user...');
-              let userUpdated;
-              try {
-                userUpdated = updateUser(user, accessToken, profile, serviceName);
-              } catch (exception) {
-                logger.error('REST 3dparty-passport authenticate - exception in updateUser', exception);
-                return done(exception);
-              }
-
-              userUpdated.save().then(userSaved => {
-                logger.debug('REST 3dparty-passport authenticate - User updated and saved');
-                return done(null, userSaved);
-              }).catch(err => {
-                logger.error('REST 3dparty-passport authenticate - db error while saving userUpdated', err);
-                done(err);
-              });
-            } else {
+            if(user[serviceName].token) {
               logger.debug('REST 3dparty-passport authenticate - Token is valid. Returns the user without modifications');
               return done(null, user);
             }
+
+            logger.debug('REST 3dparty-passport authenticate - Id is ok, but not token, updating user...');
+            let userUpdated;
+            try {
+              userUpdated = updateUser(user, accessToken, profile, serviceName);
+            } catch (exception) {
+              logger.error('REST 3dparty-passport authenticate - exception in updateUser', exception);
+              return done(exception);
+            }
+
+            userUpdated.save().then(userSaved => {
+              logger.debug('REST 3dparty-passport authenticate - User updated and saved');
+              return done(null, userSaved);
+            }).catch(err => {
+              logger.error('REST 3dparty-passport authenticate - db error while saving userUpdated', err);
+              return done(err);
+            });
           } else {
             //otherwise, if there is no user found with that id, create them
             logger.debug('REST 3dparty-passport authenticate - User not found with that id, creating a new one...');
@@ -187,7 +187,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
               return done(null, savedUser);
             }).catch(err => {
               logger.error('REST 3dparty-passport authenticate - db error while saving newUser', err);
-              throw err;
+              return done(err);
             });
           }
         }).catch(err => {
@@ -210,7 +210,7 @@ function authenticate(req, accessToken, refreshToken, profile, done, serviceName
           return done(null, result);
         }).catch(err => {
           logger.error('REST 3dparty-passport collapseDb - collapseDb error', err);
-          return done(err, user);
+          return done(null, user); // don't return err, because collapseDb it's optional
         });
       }
     }
