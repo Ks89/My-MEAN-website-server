@@ -10,5 +10,4 @@ then
   echo installing npm global packages also windows-build-tools and node-gyp
   npm install -g --production windows-build-tools
   npm install -g node-gyp
-  npm install -g snyk
 fi
