@@ -170,8 +170,8 @@ test_script:
   - ps: "npm --version # PowerShell" # Pass comment to PS for easier debugging
   # run tests
   - npm test
-  - echo "checking test threshold"
-#  - npm run nyc:threshold
+  # check test threshold"
+  - npm run nyc:threshold
 
 #---------------------------------#
 #      artifacts configuration    #

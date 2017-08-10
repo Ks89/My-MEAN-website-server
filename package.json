@@ -16,7 +16,7 @@
     "start": "nodemon",
     "prod:start": "NODE_ENV=production forever start bin/www",
     "prod:stop": "NODE_ENV=production forever stop bin/www",
-    "test": "npm run nyc && npm run mocha",
+    "test": "npm run nyc npm run mocha",
     "debug": "node --inspect --debug-brk app.js",
     "nyc": "nyc --reporter=lcov --reporter=json --reporter=text --reporter=text-summary",
     "mocha": "mocha test-server-unit/util.spec.js test-server-integration/**/*.spec.js test-server-unit/3dparty-passport.spec.js test-server-unit/auth-experimental-collapse-db.spec.js test-server-unit/auth-util.spec.js test-server-unit/passport.spec.js test-server-unit/users.spec.js",
