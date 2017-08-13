@@ -1,0 +1,65 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:7.10.0-browsers
+      - image: circleci/mongo:3.4.4
+      # Environment variable for all commands executed in the primary container
+        environment:
+          NODE_ENV: test
+          CI: yes
+          JWT_SECRET: faketestjwt
+          TWITTER_CONSUMER_KEY: consumerkey
+          TWITTER_CONSUMER_SECRET: consumersecret
+          TWITTER_CALLBACK_URL: http://127.0.0.1:3300/api/auth/twitter/callback
+          FACEBOOK_APP_ID: appid
+          FACEBOOK_APP_SECRET: appsecret
+          FACEBOOK_CALLBACK_URL: http://localhost:3300/api/auth/facebook/callback
+          GOOGLE_CLIENT_ID: clientid
+          GOOGLE_CLIENT_SECRET: clientsecret
+          GOOGLE_CALLBACK_URL: http://localhost:3300/api/auth/google/callback
+          GITHUB_CLIENT_ID: clientid
+          GITHUB_CLIENT_SECRET: clientsecret
+          GITHUB_CALLBACK_URL: http://localhost:3300/api/auth/github/callback
+          LINKEDIN_CLIENT_ID: clientid
+          LINKEDIN_CLIENT_SECRET: clientsecret
+          LINKEDIN_CALLBACK_URL: http://localhost:3300/api/auth/linkedin/callback
+          USER_EMAIL: fake@fake.it
+          PASS_EMAIL: fakepasswordemail
+          RECAPTCHA_PUBLIC: recaptchapublic
+          RECAPTCHA_SECRET: recaptchasecret
+    steps:
+      - checkout
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:6379 -timeout 1m #redis
+      - run:
+          name: npm-install-global
+          command: sudo npm install -g codeclimate-test-reporter
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: npm-install
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+         name: run-test
+         command: npm test
+      - run:
+         name: run-docs
+         command: npm run docs
+      - run:
+         name: run-codeclimate
+         command: npm run codeclimate
+      - run:
+         name: run-coveralls
+         command: npm run coveralls
