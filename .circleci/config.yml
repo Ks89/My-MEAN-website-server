@@ -4,9 +4,7 @@ jobs:
     working_directory: ~/project
     docker:
       - image: circleci/node:7.10.0-browsers
-      - image: circleci/mongo:3.4.4
-      - image: sameersbn/redis:latest
-      # Environment variable for all commands executed in the primary container
+        # Environment variable for all commands executed in the primary container
         environment:
           NODE_ENV: test
           CI: yes
@@ -30,16 +28,10 @@ jobs:
           PASS_EMAIL: fakepasswordemail
           RECAPTCHA_PUBLIC: recaptchapublic
           RECAPTCHA_SECRET: recaptchasecret
+      - image: circleci/mongo:3.4.4
+      - image: sameersbn/redis:latest
     steps:
       - checkout
-#      - run:
-#          name: install dockerize
-#          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-#          environment:
-#            DOCKERIZE_VERSION: v0.3.0
-#      - run:
-#          name: Wait for db
-#          command: dockerize -wait tcp://localhost:6379 -timeout 1m #redis
       - run:
           name: npm-install-global
           command: sudo npm install -g codeclimate-test-reporter
