@@ -5,6 +5,7 @@ jobs:
     docker:
       - image: circleci/node:7.10.0-browsers
       - image: circleci/mongo:3.4.4
+      - image: sameersbn/redis:latest
       # Environment variable for all commands executed in the primary container
         environment:
           NODE_ENV: test
