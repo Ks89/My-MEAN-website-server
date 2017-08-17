@@ -11,15 +11,15 @@ if(!process.env.CI) {
   require('dotenv').config();
 }
 
-var expect = require('chai').expect;
-var Promise = require('bluebird');
-var mongoose = require('mongoose');
-var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
-var passport = require('../src/controllers/authentication/passport');
-var userId;
+let expect = require('chai').expect;
+let Promise = require('bluebird');
+let mongoose = require('mongoose');
+let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
+let passport = require('../src/controllers/authentication/passport');
+let userId;
 
 require('../src/models/users');
-var User = mongoose.model('User');
+let User = mongoose.model('User');
 
 describe('passport', () => {
 
@@ -31,29 +31,26 @@ describe('passport', () => {
       done();
     } else {
       connectMongoose('mongodb://localhost/test-db', mongoose)
-      .then(() => {
-        console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
-        done();
-      });
+        .then(() => {
+          console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
+          done();
+        });
     }
   });
-
-  // before(done => {
-  //   // Connecting to a local test database or creating it on the fly
-  //   mongoose.createConnection('mongodb://localhost/test-db');
-  //   User = mongoose.model('User');
-  //   done();
-  // });
 
   describe('serializeUser and deserializeUser', () => {
 
     before(done => {
-      var newUser = new User();
-      newUser.save((err, savedUser) => {
-        expect(err).to.be.null;
-        userId = savedUser._id;
-        done(err);
-      });
+      let newUser = new User();
+      newUser.save()
+        .then(savedUser => {
+          userId = savedUser._id;
+          done();
+        }).catch(err => {
+          fail('should not throw an error');
+          done(err);
+        });
+
     });
 
     describe('---YES---', () => {
@@ -70,7 +67,7 @@ describe('passport', () => {
         // call the callback with a userMock object
         // and check if _id is equals to the _id in my database
         // inserted by the `before` function
-        var userMock = { id: '' };
+        let userMock = { id: '' };
         function mockedDoneDeserialize(err, userMock) {
           expect(userMock._id+"").to.be.equals(userId+"");
         }
@@ -80,7 +77,7 @@ describe('passport', () => {
 
         // create a passportRefMock (an object with come functions)
         // also `use`, because required by one `require` inside passport.js
-        var passportRefMock = {
+        let passportRefMock = {
           serializeUser: function(serialize) { 
             // mocked serializeUser function
             serialize(userMock,mockedDoneSerialize);
@@ -108,7 +105,7 @@ describe('passport', () => {
 
   after(done => {
     console.info("Disconnecting");
-    mongoose.disconnect(() => {
+    mongoose.disconnect().then(() => {
       console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
       done();
     });

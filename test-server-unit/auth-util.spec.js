@@ -4,21 +4,21 @@ process.env.NODE_ENV = 'test'; //before every other instruction
 console.log("Starting with NODE_ENV=" + process.env.NODE_ENV);
 console.log("process.env.CI is " + process.env.CI);
 
-if(!process.env.CI) {
+if (!process.env.CI) {
   console.log("Initializing dotenv (requires .env file)")
 	//to be able to use generateJwt I must import
 	//dotenv (otherwise I cannot read process.env with the encryption key)
 	require('dotenv').config();
 }
 
-var expect = require('chai').expect;
-var Promise = require('bluebird');
-var mongoose = require('mongoose');
-var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
-var AuthUtil = require('../src/utils/auth-util');
+let expect = require('chai').expect;
+let Promise = require('bluebird');
+let mongoose = require('mongoose');
+let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
+let AuthUtil = require('../src/utils/auth-util');
 
 require('../src/models/users');
-var User = mongoose.model('User');
+let User = mongoose.model('User');
 
 const FAKE = 'fake';
 const WRONG_SERVICE_NAME = 'wrong';
@@ -45,7 +45,7 @@ describe('auth-util', () => {
 
   describe('#constructor()', () => {
     it('should create an object calling the constructor', () => {
-      var authUtil = new AuthUtil();
+      let authUtil = new AuthUtil();
       expect(authUtil).to.be.not.null;
       expect(authUtil).to.be.not.undefined;
     });
@@ -72,7 +72,7 @@ describe('auth-util', () => {
 			for(let i=0; i<userMocks.length; i++) {
 				console.log("userMocks[" + i + "]", userMocks[i]);
 				it('should return true, because it\'s a lastUnlink. Test i=' + i, done => {
-					var lastUnlink = AuthUtil.checkIfLastUnlink(userMocks[i].serviceName, userMocks[i].user);
+					let lastUnlink = AuthUtil.checkIfLastUnlink(userMocks[i].serviceName, userMocks[i].user);
 					expect(lastUnlink).to.be.true;
 					done();
 				});
@@ -140,14 +140,14 @@ describe('auth-util', () => {
 			for(let i=0; i<userWrongMocks.length; i++) {
 				console.log("userWrongMocks[" + i + "]", userWrongMocks[i]);
 				it('should return false, because it\'s not a last unlink. Test i=' + i , done => {
-					var lastUnlink = AuthUtil.checkIfLastUnlink(userWrongMocks[i].serviceName, userWrongMocks[i].user);
+					let lastUnlink = AuthUtil.checkIfLastUnlink(userWrongMocks[i].serviceName, userWrongMocks[i].user);
 					expect(lastUnlink).to.be.false;
 					done();
 				});
 			}
 
 			it('should return false, because this serviceName is not recognized', done => {
-				var lastUnlink = AuthUtil.checkIfLastUnlink(WRONG_SERVICE_NAME, {});
+				let lastUnlink = AuthUtil.checkIfLastUnlink(WRONG_SERVICE_NAME, {});
 				expect(lastUnlink).to.be.false;
 				done();
 			});
@@ -206,15 +206,15 @@ describe('auth-util', () => {
 			for(let i=0; i<userMocks.length; i++) {
 				console.log("userMocks[" + i + "]", userMocks[i]);
 				it('should return true, because it removes the specified service. Test i=' + i, done => {
-					var removed = AuthUtil.removeServiceFromUserDb(userMocks[i].serviceName, userMocks[i].user);
+					let removed = AuthUtil.removeServiceFromUserDb(userMocks[i].serviceName, userMocks[i].user);
 					console.log(removed);
 
-					if(userMocks[i].serviceName !== 'local') expect(removed.local).to.be.equals(userMocks[i].user.local);
-					if(userMocks[i].serviceName !== 'facebook') expect(removed.facebook).to.be.equals(userMocks[i].user.facebook);
-					if(userMocks[i].serviceName !== 'google') expect(removed.google).to.be.equals(userMocks[i].user.google);
-					if(userMocks[i].serviceName !== 'github') expect(removed.github).to.be.equals(userMocks[i].user.github);
-					if(userMocks[i].serviceName !== 'twitter') expect(removed.twitter).to.be.equals(userMocks[i].user.twitter);
-					if(userMocks[i].serviceName !== 'linkedin') expect(removed.linkedin).to.be.equals(userMocks[i].user.linkedin);
+					if (userMocks[i].serviceName !== 'local') expect(removed.local).to.be.equals(userMocks[i].user.local);
+					if (userMocks[i].serviceName !== 'facebook') expect(removed.facebook).to.be.equals(userMocks[i].user.facebook);
+					if (userMocks[i].serviceName !== 'google') expect(removed.google).to.be.equals(userMocks[i].user.google);
+					if (userMocks[i].serviceName !== 'github') expect(removed.github).to.be.equals(userMocks[i].user.github);
+					if (userMocks[i].serviceName !== 'twitter') expect(removed.twitter).to.be.equals(userMocks[i].user.twitter);
+					if (userMocks[i].serviceName !== 'linkedin') expect(removed.linkedin).to.be.equals(userMocks[i].user.linkedin);
 
 					expect(removed[userMocks[i].serviceName]).to.be.undefined;
 
@@ -283,7 +283,7 @@ describe('auth-util', () => {
 
   after(done => {
     console.info("Disconnecting");
-    mongoose.disconnect(() => {
+    mongoose.disconnect().then(() => {
       console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
       done();
     });

@@ -11,20 +11,20 @@ if(!process.env.CI) {
 	require('dotenv').config();
 }
 
-var expect = require('chai').expect;
+let expect = require('chai').expect;
 const serviceNames = require('../src/controllers/authentication/serviceNames');
-var Promise = require('bluebird');
-var mongoose = require('mongoose');
-var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
+let Promise = require('bluebird');
+let mongoose = require('mongoose');
+let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 
 require('../src/models/users');
-var User = mongoose.model('User');
+let User = mongoose.model('User');
 
-var collapser = require('../src/controllers/authentication/common/auth-experimental-collapse-db');
+let collapser = require('../src/controllers/authentication/common/auth-experimental-collapse-db');
 
 //add session property to the mocked
 //request (used to store jwt session token by redis)
-var mockedReq = {
+let mockedReq = {
 	session : {
 			authToken : null
 	}
@@ -121,7 +121,7 @@ describe('auth-experimental-collapse-db', () => {
 		}
 
 		function getUser(serviceNames, profileType) {
-			var newUser = new User();
+			let newUser = new User();
 			//if profileType === 0 => don't add anything
 			if(profileType !== 0) {
 				addProfile(newUser, profileType);
@@ -170,132 +170,128 @@ describe('auth-experimental-collapse-db', () => {
 
 		describe('---YES---', () => {
 
-			beforeEach(() => User.remove({}, err => err));
+			beforeEach(() => {
+			  User.remove({}).catch(err => fail('should not throw an error'));
+      });
 
 			for(let i=0; i<inputAndOutputMocked.length; i++) {
 				it('should collapse the db and check that users has been merged. Test i=' + i + ', common service=' + inputAndOutputMocked[i].service, done => {
-					var tempAlreadyOnDbUser = inputAndOutputMocked[i].alreadyOnDb;
-					var tempInputCollapse = inputAndOutputMocked[i].inputCollapse;
-					var service = inputAndOutputMocked[i].service;
+					let tempAlreadyOnDbUser = inputAndOutputMocked[i].alreadyOnDb;
+					let tempInputCollapse = inputAndOutputMocked[i].inputCollapse;
+					let service = inputAndOutputMocked[i].service;
 
-					inputAndOutputMocked[i].alreadyOnDb.save((err, onDbUser) => {
-						if(err) done(err);
+					inputAndOutputMocked[i].alreadyOnDb.save()
+            .then(() => inputAndOutputMocked[i].inputCollapse.save())
+            .then(() => collapser.collapseDb(tempInputCollapse, service, mockedReq))
+            .then(result => {
+              if(!result) done("result is null");
+              console.log("collapseDb localuser with 3dpartyauth promise");
+              console.log(result);
 
-						inputAndOutputMocked[i].inputCollapse.save((err, inputCollapseUser) => {
-							if(err) done(err);
+              console.log("----------------alreadyOnDb---------------");
+              console.log(tempAlreadyOnDbUser);
+              console.log("----------------inputCollapseUser---------------");
+              console.log(tempInputCollapse);
+              console.log("----------------COLLAPSE RESULT---------------");
+              console.log(result);
 
-							collapser.collapseDb(tempInputCollapse, service, mockedReq)
-		          .then(result => {
-								if(!result) done("result is null");
-		            console.log("collapseDb localuser with 3dpartyauth promise");
-		            console.log(result);
+              //iterate over an array of two objects built on the fly with alreadyOnDbUser and inputCollapseUser
+              for(let tempObjUser of [tempAlreadyOnDbUser,tempInputCollapse]) {
+                //Iterate over the properties of the object
+                for(let tempObjServiceName in tempObjUser) {
+                  //if the property is recognized (found inside serviceNames array) go ahead
+                  if(serviceNames.indexOf(tempObjServiceName) !== -1 &&
+                    tempObjUser[tempObjServiceName] !== undefined &&
+                    (tempObjUser[tempObjServiceName]['name'] !== undefined
+                      || tempObjUser[tempObjServiceName]['id'] !== undefined)) {
+                    // console.log("§§§§§§§§§§§§§§§§§§§§§§§§§ " + tempObjServiceName);
 
-		            console.log("----------------alreadyOnDb---------------");
-		            console.log(tempAlreadyOnDbUser);
-		            console.log("----------------inputCollapseUser---------------");
-		            console.log(tempInputCollapse);
-		            console.log("----------------COLLAPSE RESULT---------------");
-		            console.log(result);
+                    //I store in two constants these two objects
+                    //The first one is the result object (not the entire user,
+                    // but only the user retrieved by the serviceName) with the collapsed data.
+                    //The last one is one of the original users used by the collapse procedure.
+                    let resultUserSN = result[tempObjServiceName];
+                    let originalUserSN = tempObjUser[tempObjServiceName];
 
-								//iterate over an array of two objects built on the fly with alreadyOnDbUser and inputCollapseUser
-								for(let tempObjUser of [tempAlreadyOnDbUser,tempInputCollapse]) {
-									//Iterate over the properties of the object
-									for(let tempObjServiceName in tempObjUser) {
-										//if the property is recognized (found inside serviceNames array) go ahead
-										if(serviceNames.indexOf(tempObjServiceName) !== -1 &&
-											tempObjUser[tempObjServiceName] !== undefined &&
-											(tempObjUser[tempObjServiceName]['name'] !== undefined
-												|| tempObjUser[tempObjServiceName]['id'] !== undefined)) {
-											console.log("§§§§§§§§§§§§§§§§§§§§§§§§§ " + tempObjServiceName);
+                    //il check if the result's properties are equal to the object, before the collapse procedure
+                    if(tempObjServiceName === 'local') {
+                      console.log(originalUserSN);
+                      console.log(resultUserSN);
+                      expect(resultUserSN.email).to.be.not.undefined;
+                      expect(resultUserSN.name).to.be.not.undefined;
+                      expect(resultUserSN.hash).to.be.not.undefined;
+                      expect(resultUserSN.email).to.be.equal(originalUserSN.email);
+                      expect(resultUserSN.name).to.be.equal(originalUserSN.name);
+                      expect(originalUserSN.hash).to.be.not.undefined;
+                      // expect(tempObjUser.validPassword(PASSWORD)).to.be.true;
+                      // expect(result.validPassword(PASSWORD)).to.be.true;
+                    } else if(tempObjServiceName !== 'profile') {
+                      expect(resultUserSN.id).to.be.not.undefined;
+                      expect(resultUserSN.token).to.be.not.undefined;
+                      expect(resultUserSN.email).to.be.not.undefined;
+                      expect(resultUserSN.name).to.be.not.undefined;
+                      expect(resultUserSN.id).to.be.equal(originalUserSN.id);
+                      expect(resultUserSN.token).to.be.equal(originalUserSN.token);
+                      expect(resultUserSN.email).to.be.equal(originalUserSN.email);
+                      expect(resultUserSN.name).to.be.equal(originalUserSN.name);
+                      switch(tempObjServiceName) {
+                        case 'facebook':
+                          expect(resultUserSN.profileUrl).to.be.not.undefined;
+                          expect(resultUserSN.profileUrl).to.be.equal(originalUserSN.profileUrl);
+                          break;
+                        case 'github':
+                          expect(resultUserSN.username).to.be.not.undefined;
+                          expect(resultUserSN.profileUrl).to.be.not.undefined;
+                          expect(resultUserSN.username).to.be.equal(originalUserSN.username);
+                          expect(resultUserSN.profileUrl).to.be.equal(originalUserSN.profileUrl);
+                          break;
+                        case 'twitter':
+                          expect(resultUserSN.username).to.be.not.undefined;
+                          expect(resultUserSN.username).to.be.equal(originalUserSN.username);
+                          break;
+                      }
+                    } else if(tempObjServiceName === 'profile') {
+                      if(resultUserSN !== null && resultUserSN !== undefined) {
+                        console.log(resultUserSN);
 
-											//I store in two constants these two objects
-											//The first one is the result object (not the entire user,
-											// but only the user retrieved by the serviceName) with the collapsed data.
-											//The last one is one of the original users used by the collapse procedure.
-											var resultUserSN = result[tempObjServiceName];
-											var originalUserSN = tempObjUser[tempObjServiceName];
+                        if(originalUserSN !== null && originalUserSN !== undefined) {
+                          console.log(originalUserSN);
 
-											//il check if the result's properties are equal to the object, before the collapse procedure
-											if(tempObjServiceName === 'local') {
-												console.log(originalUserSN);
-												console.log(resultUserSN);
-												expect(resultUserSN.email).to.be.not.undefined;
-												expect(resultUserSN.name).to.be.not.undefined;
-												expect(resultUserSN.hash).to.be.not.undefined;
-												expect(resultUserSN.email).to.be.equal(originalUserSN.email);
-												expect(resultUserSN.name).to.be.equal(originalUserSN.name);
-												expect(originalUserSN.hash).to.be.not.undefined;
-												// expect(tempObjUser.validPassword(PASSWORD)).to.be.true;
-												// expect(result.validPassword(PASSWORD)).to.be.true;
-											} else if(tempObjServiceName !== 'profile') {
-												expect(resultUserSN.id).to.be.not.undefined;
-												expect(resultUserSN.token).to.be.not.undefined;
-												expect(resultUserSN.email).to.be.not.undefined;
-												expect(resultUserSN.name).to.be.not.undefined;
-												expect(resultUserSN.id).to.be.equal(originalUserSN.id);
-												expect(resultUserSN.token).to.be.equal(originalUserSN.token);
-												expect(resultUserSN.email).to.be.equal(originalUserSN.email);
-												expect(resultUserSN.name).to.be.equal(originalUserSN.name);
-												switch(tempObjServiceName) {
-													case 'facebook':
-														expect(resultUserSN.profileUrl).to.be.not.undefined;
-														expect(resultUserSN.profileUrl).to.be.equal(originalUserSN.profileUrl);
-														break;
-													case 'github':
-														expect(resultUserSN.username).to.be.not.undefined;
-														expect(resultUserSN.profileUrl).to.be.not.undefined;
-														expect(resultUserSN.username).to.be.equal(originalUserSN.username);
-														expect(resultUserSN.profileUrl).to.be.equal(originalUserSN.profileUrl);
-														break;
-													case 'twitter':
-														expect(resultUserSN.username).to.be.not.undefined;
-														expect(resultUserSN.username).to.be.equal(originalUserSN.username);
-														break;
-												}
-											} else if(tempObjServiceName === 'profile') {
-												if(resultUserSN !== null && resultUserSN !== undefined) {
-														console.log(resultUserSN);
-
-														if(originalUserSN !== null && originalUserSN !== undefined) {
-																console.log(originalUserSN);
-
-																if(originalUserSN.name!==resultUserSN.name) {
-																	if(originalUserSN.name===PROFILENAME1) {
-																		expect(resultUserSN.name).to.be.equal(PROFILENAME2);
-															      expect(resultUserSN.surname).to.be.equal(PROFILESURNAME2);
-															      expect(resultUserSN.nickname).to.be.equal(PROFILENICKNAME2);
-															      expect(resultUserSN.email).to.be.equal(PROFILEEMAIL2);
-															      //expect(resultUserSN.updated).to.be.equal(PROFILEDATE);
-															      expect(resultUserSN.visible).to.be.equal(PROFILEVISIBLE2);
-																	} else {
-																		expect(resultUserSN.name).to.be.equal(PROFILENAME1);
-															      expect(resultUserSN.surname).to.be.equal(PROFILESURNAME1);
-															      expect(resultUserSN.nickname).to.be.equal(PROFILENICKNAME1);
-															      expect(resultUserSN.email).to.be.equal(PROFILEEMAIL1);
-															      //expect(resultUserSN.updated).to.be.equal(PROFILEDATE);
-															      expect(resultUserSN.visible).to.be.equal(PROFILEVISIBLE1);
-																	}
-																} else {
-																	expect(resultUserSN.name).to.be.equal(originalUserSN.name);
-														      expect(resultUserSN.surname).to.be.equal(originalUserSN.surname);
-														      expect(resultUserSN.nickname).to.be.equal(originalUserSN.nickname);
-														      expect(resultUserSN.email).to.be.equal(originalUserSN.email);
-														      //expect(resultUserSN.updated).to.be.equal(originalUserSN.);
-														      expect(resultUserSN.visible).to.be.equal(originalUserSN.visible);
-																}
-														}
-												}
-											}
-										}
-									}
-								}
-								done();
-		          }, reason => {
-		            console.log("ERROR collapseDb localuser with 3dpartyauth promise");
-								done("error while calling collapseDb");
-		          });
-	          });
-					});
+                          if(originalUserSN.name!==resultUserSN.name) {
+                            if(originalUserSN.name===PROFILENAME1) {
+                              expect(resultUserSN.name).to.be.equal(PROFILENAME2);
+                              expect(resultUserSN.surname).to.be.equal(PROFILESURNAME2);
+                              expect(resultUserSN.nickname).to.be.equal(PROFILENICKNAME2);
+                              expect(resultUserSN.email).to.be.equal(PROFILEEMAIL2);
+                              //expect(resultUserSN.updated).to.be.equal(PROFILEDATE);
+                              expect(resultUserSN.visible).to.be.equal(PROFILEVISIBLE2);
+                            } else {
+                              expect(resultUserSN.name).to.be.equal(PROFILENAME1);
+                              expect(resultUserSN.surname).to.be.equal(PROFILESURNAME1);
+                              expect(resultUserSN.nickname).to.be.equal(PROFILENICKNAME1);
+                              expect(resultUserSN.email).to.be.equal(PROFILEEMAIL1);
+                              //expect(resultUserSN.updated).to.be.equal(PROFILEDATE);
+                              expect(resultUserSN.visible).to.be.equal(PROFILEVISIBLE1);
+                            }
+                          } else {
+                            expect(resultUserSN.name).to.be.equal(originalUserSN.name);
+                            expect(resultUserSN.surname).to.be.equal(originalUserSN.surname);
+                            expect(resultUserSN.nickname).to.be.equal(originalUserSN.nickname);
+                            expect(resultUserSN.email).to.be.equal(originalUserSN.email);
+                            //expect(resultUserSN.updated).to.be.equal(originalUserSN.);
+                            expect(resultUserSN.visible).to.be.equal(originalUserSN.visible);
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              done();
+            }).catch(err => {
+              console.error('ERROR collapseDb localuser with 3dpartyauth promise. Reason:', err);
+              done("error while calling collapseDb");
+            });
 				});
 			}
 		});
@@ -309,10 +305,11 @@ describe('auth-experimental-collapse-db', () => {
 			for(let i=0; i<serviceNameWrongMock.length; i++) {
 				it('should catch an error, because you must pass a serviceName as parameter. Test i=' + i, done => {
 					collapser.collapseDb({}, serviceNameWrongMock[i], mockedReq)
-	        .then(result => {}, reason => {
-	          expect(reason).to.be.equals('impossible to collapseDb because serviceName must be a string');
-	          done(null);
-	        });
+	          .then(result => fail('should thrown an error'))
+            .catch(reason => {
+	            expect(reason).to.be.equals('impossible to collapseDb because serviceName must be a string');
+	            done();
+	          });
 				});
 			}
 
@@ -322,10 +319,11 @@ describe('auth-experimental-collapse-db', () => {
 			for(let i=0; i<serviceNameUnrecognizedMock.length; i++) {
 				it('should catch an error, because you must pass a recognized serviceName as parameter. Test i=' + i, done => {
 					collapser.collapseDb({}, serviceNameUnrecognizedMock[i], mockedReq)
-	        .then(result => {}, reason => {
-	          expect(reason).to.be.equals('impossible to collapseDb because serviceName is not recognized');
-	          done(null);
-	        });
+	          .then(result => fail('should thrown an error'))
+            .catch(reason => {
+	            expect(reason).to.be.equals('impossible to collapseDb because serviceName is not recognized');
+	            done();
+	          });
 				});
 			}
 
@@ -336,10 +334,11 @@ describe('auth-experimental-collapse-db', () => {
 			for(let i=0; i<loggedUserWrongMock.length; i++) {
 				it(`should catch an error, because you must pass an object as loggedUser's parameter. Test i=${i}`, done => {
 					collapser.collapseDb(loggedUserWrongMock[i], 'local', mockedReq)
-          .then(result => {}, reason => {
-            expect(reason).to.be.equals('impossible to collapseDb because loggedUser is not an object');
-            done(null);
-          });
+            .then(result => fail('should thrown an error'))
+            .catch(reason => {
+              expect(reason).to.be.equals('impossible to collapseDb because loggedUser is not an object');
+              done();
+            });
 				});
 			}
 
@@ -375,38 +374,42 @@ describe('auth-experimental-collapse-db', () => {
 			for(let i=0; i<loggedUserIdNotValidMock.length; i++) {
 				it('should catch an error, because logged user hasn\'t an id/email for the specified serviceName. Test i=' + i, done => {
 					collapser.collapseDb(loggedUserIdNotValidMock[i].user, loggedUserIdNotValidMock[i].serviceName, mockedReq)
-	        .then(result => {}, reason => {
-	          expect(reason).to.be.equals('input id not valid while collapsing');
-	          done();
-	        });
+	          .then(result => fail('should thrown an error'))
+            .catch(reason => {
+              expect(reason).to.be.equals('input id not valid while collapsing');
+              done();
+            });
 				});
 			}
 
 
 			it('should catch an error, because there isn\'t a duplicated user', done => {
-				var alreadyOnDbUser = getUser(['local','github'],1);
-				var loggingInUser = getUser(['facebook','google'],0);
+				let alreadyOnDbUser = getUser(['local','github'],1);
+				let loggingInUser = getUser(['facebook','google'],0);
 
-				User.remove({}, err => {
-					alreadyOnDbUser.save((err, onDbUser) => {
-						if(err) done(err);
-						loggingInUser.save((err, onDbUser) => {
-							if(err) done(err);
-							collapser.collapseDb(loggingInUser, 'facebook', mockedReq)
-							.then(result => done('error'), reason => {
-								expect(reason).to.be.equals('No duplicated user found while collapsing');
-								done();
-							});
-						});
-					});
-				});
+				User.remove({})
+          .then(() => {
+            return alreadyOnDbUser.save();
+          })
+          .then(() => {
+            return loggingInUser.save();
+          })
+          .then(() => {
+            return collapser.collapseDb(loggingInUser, 'facebook', mockedReq)
+              .then(result => fail('should thrown an error'))
+              .catch(reason => {
+                expect(reason).to.be.equals('No duplicated user found while collapsing');
+                done();
+              });
+          })
+          .catch(error => done(error));
 			});
 		});
 	});
 
   after(done => {
     console.info("Disconnecting");
-    mongoose.disconnect(() => {
+    mongoose.disconnect().then(() => {
       console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
       done();
     });

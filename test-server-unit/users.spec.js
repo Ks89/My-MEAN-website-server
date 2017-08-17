@@ -11,14 +11,14 @@ if(!process.env.CI) {
 	require('dotenv').config();
 }
 
-var expect = require('chai').expect;
-var jwt = require('jsonwebtoken');
-var Promise = require('bluebird');
-var mongoose = require('mongoose');
-var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
+let expect = require('chai').expect;
+let jwt = require('jsonwebtoken');
+let Promise = require('bluebird');
+let mongoose = require('mongoose');
+let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 
 require('../src/models/users');
-var User = mongoose.model('User');
+let User = mongoose.model('User');
 
 describe('users model', () => {
 
@@ -30,10 +30,10 @@ describe('users model', () => {
       done();
     } else {
       connectMongoose('mongodb://localhost/test-db', mongoose)
-      .then(() => {
-        console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
-        done();
-      });
+				.then(() => {
+					console.log(`----------------- connection created - connections size: ${mongoose.connections.length}`);
+					done();
+				});
     }
   });
 
@@ -42,7 +42,7 @@ describe('users model', () => {
 	const PASSWORD = 'Password1';
 
 	function getCorrectNewUser() {
-		var newUser = new User();
+		let newUser = new User();
 		newUser.local.name = USERNAME;
 		newUser.local.email = EMAIL;
 		newUser.setPassword(PASSWORD);
@@ -55,19 +55,22 @@ describe('users model', () => {
 
 		describe('---YES---', () => {
 			it('should create a user and verify it with a correct password', done => {
-				var newUser = new User();
+				let newUser = new User();
 				newUser.setPassword(PASSWORD);
-				newUser.save((err, savedUser) => {
-					expect(err).to.be.null;
-					expect(savedUser.validPassword(PASSWORD)).to.be.true;
-					done(err);
-				});
+				newUser.save()
+					.then(savedUser => {
+            expect(savedUser.validPassword(PASSWORD)).to.be.true;
+            done();
+					}).catch(err => {
+						fail('should not throw an error');
+          	done(err);
+					});
 			});
 		});
 
 		describe('---ERRORS---', () => {
 			it('should catch -not a valid password format- exception', done => {
-				var newUser = new User();
+				let newUser = new User();
 				expect(() => newUser.setPassword(new Date())).to.throw(NOT_VALID_PASSWORD_FORMAT);
 				expect(() => newUser.setPassword(undefined)).to.throw(NOT_VALID_PASSWORD_FORMAT);
 				expect(() => newUser.setPassword(null)).to.throw(NOT_VALID_PASSWORD_FORMAT);
@@ -87,27 +90,33 @@ describe('users model', () => {
 	describe('#validPassword()', () => {
 		describe('---YES---', () => {
 			it('should create a user and verify it with a correct password', done => {
-				var newUser = getCorrectNewUser();
-				newUser.save((err, savedUser) => {
-					expect(err).to.be.null;
-					expect(savedUser.local.name).to.be.equals(USERNAME);
-					expect(savedUser.local.email).to.be.equals(EMAIL);
-					expect(savedUser.validPassword(PASSWORD)).to.be.true;
-					done(err);
-				});
+				let newUser = getCorrectNewUser();
+        newUser.save()
+          .then(savedUser => {
+            expect(savedUser.local.name).to.be.equals(USERNAME);
+            expect(savedUser.local.email).to.be.equals(EMAIL);
+            expect(savedUser.validPassword(PASSWORD)).to.be.true;
+            done();
+          }).catch(err => {
+						fail('should not throw an error');
+						done(err);
+        	});
 			});
 		});
 
 		describe('---NO---', () => {
 			it('should create a user and verify it with a wrong password', done => {
-				var newUser = getCorrectNewUser();
-				newUser.save((err, savedUser) => {
-					expect(err).to.be.null;
-					expect(savedUser.local.name).to.be.equals(USERNAME);
-					expect(savedUser.local.email).to.be.equals(EMAIL);
-					expect(savedUser.validPassword('wrong password')).to.be.false;
-					done(err);
-				});
+				let newUser = getCorrectNewUser();
+        newUser.save()
+          .then(savedUser => {
+            expect(savedUser.local.name).to.be.equals(USERNAME);
+            expect(savedUser.local.email).to.be.equals(EMAIL);
+            expect(savedUser.validPassword('wrong password')).to.be.false;
+            done();
+          }).catch(err => {
+            fail('should not throw an error');
+            done(err);
+          });
 			});
 		});
 	});
@@ -131,7 +140,7 @@ describe('users model', () => {
 			});
 
 			it('should generate a valid JWT with the correct filtered user', done => {
-				var newUser = getCompleteUser();
+				let newUser = getCompleteUser();
 				const jsonWebToken = newUser.generateJwt();
 				expect(jsonWebToken).to.be.not.null;
 				jwt.verify(jsonWebToken, process.env.JWT_SECRET, (err, decoded) => {
@@ -155,7 +164,7 @@ describe('users model', () => {
 			});
 
 			it('should generate a valid JWT with the correct filtered user', done => {
-				var newUser = getCompleteUser();
+				let newUser = getCompleteUser();
 				const jsonWebToken = newUser.generateSessionJwtToken();
 				expect(jsonWebToken).to.be.not.null;
 				jwt.verify(jsonWebToken, process.env.JWT_SECRET, (err, decoded) => {
@@ -167,7 +176,7 @@ describe('users model', () => {
 	});
 
 	function getCompleteUser() {
-		var newUser = new User();
+		let newUser = new User();
 		newUser.local.name = USERNAME;
 		newUser.local.email = EMAIL;
 		newUser.setPassword(PASSWORD);
@@ -188,7 +197,7 @@ describe('users model', () => {
 			email : EMAIL,
 			updated : new Date(),
 			visible : true
-		}
+		};
 		return newUser;
 	}
 
@@ -233,10 +242,10 @@ describe('users model', () => {
 
   after(done => {
     console.info("Disconnecting");
-    mongoose.disconnect(() => {
-      console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
-      done();
-    });
+    mongoose.disconnect().then(() => {
+			console.info(`Disconnected - test finished - connection size: ${mongoose.connections.length}`);
+			done();
+		});
   });
 
 });

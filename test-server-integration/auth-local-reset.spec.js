@@ -42,9 +42,9 @@ describe('auth-local', () => {
 				connectionSid = (res.headers['set-cookie']).filter(value =>{
 					return value.includes('connect.sid');
 				})[0];
-	 	csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-	 	connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-      	done();
+				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
+				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
+				done();
       }
     });
 	}

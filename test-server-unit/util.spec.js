@@ -11,11 +11,11 @@ if(!process.env.CI) {
   require('dotenv').config();
 }
 
-var expect = require('chai').expect;
-var jwt = require('jsonwebtoken');
-var Utils = require('../src/utils/util');
-var MockedRes = require('./mocked-res-class');
-var mockedRes = new MockedRes();
+let expect = require('chai').expect;
+let jwt = require('jsonwebtoken');
+let Utils = require('../src/utils/util');
+let MockedRes = require('./mocked-res-class');
+let mockedRes = new MockedRes();
 
 describe('util', () => {
 
@@ -28,7 +28,7 @@ describe('util', () => {
 
   describe('#constructor()', () => {
     it('should create an object calling the constructor', () => {
-      var utils = new Utils();
+      let utils = new Utils();
       expect(utils).to.be.not.null;
       expect(utils).to.be.not.undefined;
     });
@@ -225,9 +225,9 @@ describe('util', () => {
   });
 
   describe('#isJwtValidDate()', () => {
-    var mockJwt, mockJwtNotFloat;
-    var mockLocalUser;
-    var dateExpire = new Date();
+    let mockJwt;
+    let mockLocalUser;
+    let dateExpire = new Date();
 
     before(() => {
       mockLocalUser = {
@@ -321,8 +321,8 @@ describe('util', () => {
   });
 
   describe('#isJwtValid()', () => {
-    var mockLocalUser;
-    var getMockJwtString;
+    let mockLocalUser;
+    let getMockJwtString;
 
     before(() => {
       mockLocalUser = {

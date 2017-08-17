@@ -1,26 +1,16 @@
 # Changelog
 
-## Alpha 7
+## Alpha 8
 
 ### **Features**
 
-- #88 **Promisify mongoose calls with bluebird**
-- #89 Helmet - Expect-CT
-- #83 Add Circle Ci
-- #84 "npm run debug" to start app.js in debug mode into chrome dev tools
+- #95 update to circleci 2
 
 ### **Chore**
+-
 
-- #86 Create utility to check the environment
-- #80 Fix "morgan deprecated default format"
-- #81 Replace console.log with Winston logger
-- #82 Replace (_.isNull || _.isUndefined) with _.isNil
-
-### **Refactor**
-
-- #75 refactor to reduce sizes of all functions
-- #78 **Replace Promises with async/await**
-- #79 Refactor to follow jshint rules
+### **Bugfixes**
+-
 
 
 ## Alpha 6
@@ -39,7 +29,6 @@
 - #47 `gulp test` fails when istanbul coverage is higher than the specified threshold
 
 and other small changes everywhere... :)
-
 
 
 ## Alpha 5

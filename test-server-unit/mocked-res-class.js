@@ -1,8 +1,8 @@
 'use strict';
 //this class simulate/mock the response (res) for sendJSONres int util.js
-var statusVar = null;
-var contentTypeVar = null;
-var contentVal = null;
+let statusVar = null;
+let contentTypeVar = null;
+let contentVal = null;
 class MockedRes {
   constructor(){}
   status(val) {

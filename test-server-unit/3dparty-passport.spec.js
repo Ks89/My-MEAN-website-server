@@ -11,26 +11,26 @@ if(!process.env.CI) {
 	require('dotenv').config();
 }
 
-var expect = require('chai').expect;
-var _ = require('lodash');
-var rewire = require('rewire');
+let expect = require('chai').expect;
+let _ = require('lodash');
+let rewire = require('rewire');
 const serviceNames = require('../src/controllers/authentication/serviceNames');
-var Promise = require('bluebird');
-var mongoose = require('mongoose');
-var connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
+let Promise = require('bluebird');
+let mongoose = require('mongoose');
+let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 
 require('../src/models/users');
-var User = mongoose.model('User');
+let User = mongoose.model('User');
 
-var userDb;
+let userDb;
 
 //rewire to call functions using _get_
-var thirdParty = rewire('../src/controllers/authentication/3dparty/3dparty-passport');
+let thirdParty = rewire('../src/controllers/authentication/3dparty/3dparty-passport');
 
 
 //add session property to the mocked
 //request (used to store jwt session token by redis)
-var mockedReq = {
+let mockedReq = {
 	session : {
 			authToken : null
 	}
@@ -134,7 +134,7 @@ describe('3dparty-passport', () => {
   }
 
   function getUser(profileType) {
-    var newUser = new User();
+    let newUser = new User();
     //if profileType === 0 => don't add anything
     if (profileType !== 0) {
       addProfile(newUser, profileType);
@@ -142,37 +142,27 @@ describe('3dparty-passport', () => {
     return newUser;
   }
 
-  // function insertUserTestDb(done) {
-  // 	userDb = new User();
-  // 	userDb.local.name = NAME;
-  // 	userDb.local.email = EMAIL;
-  // 	userDb.setPassword(PASSWORD);
-  // 	userDb.save((err, usr) => {
-  // 		if(err) {
-  // 			done(err);
-  // 		}
-  // 		userDb._id = usr._id;
-  // 		done(); //pass done, it's important!
-  // 	});
-  // }
-
   function dropUserCollectionTestDb(done) {
-    User.remove({}, err => {
-      done(err);
-    });
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+        fail('should not throw an error');
+        done(err);
+      });
   }
 
   describe('#authenticate()', () => {
     describe('---YES---', () => {
       beforeEach(done => dropUserCollectionTestDb(done));
 
-      var whitelistServices = _.without(serviceNames, 'profile', 'local');
+      let whitelistServices = _.without(serviceNames, 'profile', 'local');
       for (let i = 0; i < whitelistServices.length; i++) {
         it('should authenticate for the first time (new user 3dparty service). Test i=' + i, done => {
-          var authenticateFunct = thirdParty.__get__('authenticate');
+          let authenticateFunct = thirdParty.__get__('authenticate');
 
           //callback fun ction used below
-          var callbackResponse = function (err, response) {
+          let callbackResponse = function (err, response) {
             console.log(err);
 
             expect(response[whitelistServices[i]].token).to.be.equals(TOKEN);
@@ -213,200 +203,206 @@ describe('3dparty-passport', () => {
       }
 
       it('should authenticate, but the user is existing and you are logged in.', done => {
-        var authenticateFunct = thirdParty.__get__('authenticate');
+        let authenticateFunct = thirdParty.__get__('authenticate');
 
         userDb = new User();
 
         addUserByServiceName(userDb, 'twitter');
 
-        userDb.save((err, usr) => {
-          if (err) {
-            done(err);
-          }
+        userDb.save()
+          .then(usr => {
 
-          console.log("user input saved on db");
-          console.log(usr);
+            console.log("user input saved on db");
+            console.log(usr);
 
-          //callback fun ction used below
-          var callbackResponse = function (err, response) {
-            console.log(err);
-            expect(response.github.token).to.be.equals(TOKEN);
-            expect(response.github.id).to.be.equals('id');
-            expect(response.github.name).to.be.equals(NAME);
-            expect(response.github.username).to.be.equals(USERNAME);
-            expect(response.github.profileUrl).to.be.equals(URL);
-            expect(response.github.email).to.be.equals(EMAIL);
-            done();
-          };
+            //callback fun ction used below
+            let callbackResponse = function (err, response) {
+              console.log(err);
+              expect(response.github.token).to.be.equals(TOKEN);
+              expect(response.github.id).to.be.equals('id');
+              expect(response.github.name).to.be.equals(NAME);
+              expect(response.github.username).to.be.equals(USERNAME);
+              expect(response.github.profileUrl).to.be.equals(URL);
+              expect(response.github.email).to.be.equals(EMAIL);
+              done();
+            };
 
-          mockedReq.user = usr; //already logged in
+            mockedReq.user = usr; //already logged in
 
-          authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
-            callbackResponse, 'github', User);
+            authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
+              callbackResponse, 'github', User);
+        })
+        .catch(err => {
+          fail('should not throw an error');
+          done(err);
         });
       });
 
       it('should authenticate, but the user is NOT existing and you aren\'t logged in.', done => {
-        var authenticateFunct = thirdParty.__get__('authenticate');
+        let authenticateFunct = thirdParty.__get__('authenticate');
 
         userDb = new User();
 
         addUserByServiceName(userDb, 'twitter');
 
-        userDb.save((err, usr) => {
-          if (err) {
+        userDb.save()
+          .then(usr => {
+            console.log("user input saved on db");
+            console.log(usr);
+
+            //callback fun ction used below
+            let callbackResponse = function (err, response) {
+              console.log(err);
+
+              expect(response.github.token).to.be.equals(TOKEN);
+              expect(response.github.id).to.be.equals('not already existing token');
+              expect(response.github.name).to.be.equals(NAME);
+              expect(response.github.username).to.be.equals(USERNAME);
+              expect(response.github.profileUrl).to.be.equals(URL);
+              expect(response.github.email).to.be.equals(EMAIL);
+              done();
+            };
+
+            mockedReq.user = null;
+            let profileMockModified = _.clone(profileMock);
+            profileMockModified.id = 'not already existing token';
+
+            authenticateFunct(mockedReq, TOKEN, TOKEN, profileMockModified,
+              callbackResponse, 'github', User);
+          })
+          .catch(err => {
+            fail('should not throw an error');
             done(err);
-          }
-
-          console.log("user input saved on db");
-          console.log(usr);
-
-          //callback fun ction used below
-          var callbackResponse = function (err, response) {
-            console.log(err);
-
-            expect(response.github.token).to.be.equals(TOKEN);
-            expect(response.github.id).to.be.equals('not already existing token');
-            expect(response.github.name).to.be.equals(NAME);
-            expect(response.github.username).to.be.equals(USERNAME);
-            expect(response.github.profileUrl).to.be.equals(URL);
-            expect(response.github.email).to.be.equals(EMAIL);
-            done();
-          };
-
-          mockedReq.user = null;
-          let profileMockModified = _.clone(profileMock);
-          profileMockModified.id = 'not already existing token';
-
-          authenticateFunct(mockedReq, TOKEN, TOKEN, profileMockModified,
-            callbackResponse, 'github', User);
-        });
+          });
       });
 
       it('should authenticate, but the user exists and you aren\'t logged in.', done => {
-        var authenticateFunct = thirdParty.__get__('authenticate');
+        let authenticateFunct = thirdParty.__get__('authenticate');
 
         userDb = new User();
 
         addUserByServiceName(userDb, 'github');
         userDb.github.token = null;
 
-        userDb.save((err, usr) => {
-          if (err) {
+        userDb.save()
+          .then(usr => {
+            console.log("user input saved on db");
+            console.log(usr);
+
+            //callback fun ction used below
+            let callbackResponse = function (err, response) {
+              console.log(err);
+              expect(response.github.token).to.be.equals(TOKEN);
+              expect(response.github.id).to.be.equals(profileMockModified.id);
+              expect(response.github.name).to.be.equals(NAME);
+              expect(response.github.username).to.be.equals(USERNAME);
+              expect(response.github.profileUrl).to.be.equals(URL);
+              expect(response.github.email).to.be.equals(EMAIL);
+              done();
+            };
+
+            mockedReq.user = null;
+            let profileMockModified = _.clone(profileMock);
+            profileMockModified.id = 'github' + ID_POSTFIX;
+
+            authenticateFunct(mockedReq, TOKEN, TOKEN, profileMockModified,
+              callbackResponse, 'github', User);
+          })
+          .catch(err => {
+            fail('should not throw an error');
             done(err);
-          }
-
-          console.log("user input saved on db");
-          console.log(usr);
-
-          //callback fun ction used below
-          var callbackResponse = function (err, response) {
-            console.log(err);
-            expect(response.github.token).to.be.equals(TOKEN);
-            expect(response.github.id).to.be.equals(profileMockModified.id);
-            expect(response.github.name).to.be.equals(NAME);
-            expect(response.github.username).to.be.equals(USERNAME);
-            expect(response.github.profileUrl).to.be.equals(URL);
-            expect(response.github.email).to.be.equals(EMAIL);
-            done();
-          };
-
-          mockedReq.user = null;
-          let profileMockModified = _.clone(profileMock);
-          profileMockModified.id = 'github' + ID_POSTFIX;
-
-          authenticateFunct(mockedReq, TOKEN, TOKEN, profileMockModified,
-            callbackResponse, 'github', User);
-        });
+          });
       });
 
       it('should authenticate, but there is a local user already logged in.', done => {
-        var authenticateFunct = thirdParty.__get__('authenticate');
+        let authenticateFunct = thirdParty.__get__('authenticate');
         userDb = new User();
         addUserByServiceName(userDb, 'local');
 
-        userDb.save((err, usr) => {
-          if (err) {
+        userDb.save()
+          .then(usr => {
+            //callback fun ction used below
+            let callbackResponse = function (err, response) {
+              console.log(err);
+              expect(response.github.token).to.be.equals(TOKEN);
+              expect(response.github.id).to.be.equals('id');
+              expect(response.github.name).to.be.equals(NAME);
+              expect(response.github.username).to.be.equals(USERNAME);
+              expect(response.github.profileUrl).to.be.equals(URL);
+              expect(response.github.email).to.be.equals(EMAIL);
+              done();
+            };
+
+            mockedReq.session.localUserId = usr._id;
+
+            authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
+              callbackResponse, 'github', User);
+          })
+          .catch(err => {
+            fail('should not throw an error');
             done(err);
-          }
-
-          //callback fun ction used below
-          var callbackResponse = function (err, response) {
-            console.log(err);
-            expect(response.github.token).to.be.equals(TOKEN);
-            expect(response.github.id).to.be.equals('id');
-            expect(response.github.name).to.be.equals(NAME);
-            expect(response.github.username).to.be.equals(USERNAME);
-            expect(response.github.profileUrl).to.be.equals(URL);
-            expect(response.github.email).to.be.equals(EMAIL);
-            done();
-          };
-
-          mockedReq.session.localUserId = usr._id;
-
-          authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
-            callbackResponse, 'github', User);
-        });
+          });
       });
 
     });
 
     describe('---NO/ERRORS---', () => {
       it('should not authenticate, because the local user id isn\'t existing.', done => {
-        var authenticateFunct = thirdParty.__get__('authenticate');
+        let authenticateFunct = thirdParty.__get__('authenticate');
         userDb = new User();
         addUserByServiceName(userDb, 'local');
 
-        userDb.save((err, usr) => {
-          if (err) {
+        userDb.save()
+          .then(usr => {
+            //callback function used below
+            let callbackResponse = function (err, response) {
+              expect(err).to.be.equals('Impossible to find a user with the specified sessionLocalUserId');
+              done();
+            };
+
+            let ObjectID = require('mongodb').ObjectID;
+            // Create a new ObjectID using the createFromHexString function
+            let objectID = new ObjectID.createFromHexString('123456789012345678901234');
+            mockedReq.session.localUserId = objectID;
+
+            authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
+              callbackResponse, 'github', User);
+            })
+          .catch(err => {
+            fail('should not throw an error');
             done(err);
-          }
-
-          //callback function used below
-          var callbackResponse = function (err, response) {
-            expect(err).to.be.equals('Impossible to find a user with the specified sessionLocalUserId');
-            done();
-          };
-
-          var ObjectID = require('mongodb').ObjectID;
-          // Create a new ObjectID using the createFromHexString function
-          var objectID = new ObjectID.createFromHexString('123456789012345678901234');
-          mockedReq.session.localUserId = objectID;
-
-          authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
-            callbackResponse, 'github', User);
-        });
+          });
       });
 
       const mockedWrongLocalUserId = [
         -2, -1, -0, 0, 1, 2, function () {}, () => {}, /fooRegex/i, [],
-        //new Error(), TODO why after refactoring with strict mode and let instead of vars this test will fail?
+        //new Error(), TODO why after refactoring with strict mode and let instead of lets this test will fail?
         new RegExp(/fooRegex/, 'i'), new RegExp('/fooRegex/', 'i'),
         new Date(), new Array(), true, false
       ];
 
       for (let i = 0; i < mockedWrongLocalUserId.length; i++) {
         it('should not authenticate, because the local user id isn\'t valid. Test i=' + i, done => {
-          var authenticateFunct = thirdParty.__get__('authenticate');
+          let authenticateFunct = thirdParty.__get__('authenticate');
           userDb = new User();
           addUserByServiceName(userDb, 'local');
 
-          userDb.save((err, usr) => {
-            if (err) {
+          userDb.save()
+            .then(usr => {
+              //callback function used below
+              let callbackResponse = function (err, response) {
+                expect(err).to.be.equals('sessionLocalUserId must be either a string, null, undefined or an ObjectId');
+                done();
+              };
+
+              mockedReq.session.localUserId = mockedWrongLocalUserId[i];
+
+              authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
+                  callbackResponse, 'github', User);
+            }).catch(err => {
+              fail('should not throw an error');
               done(err);
-            }
-
-            //callback function used below
-            var callbackResponse = function (err, response) {
-              expect(err).to.be.equals('sessionLocalUserId must be either a string, null, undefined or an ObjectId');
-              done();
-            };
-
-            mockedReq.session.localUserId = mockedWrongLocalUserId[i];
-
-            authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
-              callbackResponse, 'github', User);
-          });
+            });
         });
       }
 
@@ -419,26 +415,26 @@ describe('3dparty-passport', () => {
 
       for (let i = 0; i < mockedNotFoundLocalUserId.length; i++) {
         it('should not authenticate, because the local user id isn\'t inside the db. Test i=' + i, done => {
-          var authenticateFunct = thirdParty.__get__('authenticate');
+          let authenticateFunct = thirdParty.__get__('authenticate');
           userDb = new User();
           addUserByServiceName(userDb, 'local');
 
-          userDb.save((err, usr) => {
-            if (err) {
+          userDb.save()
+            .then(usr => {
+              //callback function used below
+              let callbackResponse = function (err, response) {
+                expect(err).to.be.equals('Impossible to find a user with the specified sessionLocalUserId');
+                done();
+              };
+
+              mockedReq.session.localUserId = mockedNotFoundLocalUserId[i];
+
+              authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
+                callbackResponse, 'github', User);
+            }).catch(err => {
+              fail('should not throw an error');
               done(err);
-            }
-
-            //callback function used below
-            var callbackResponse = function (err, response) {
-              expect(err).to.be.equals('Impossible to find a user with the specified sessionLocalUserId');
-              done();
-            };
-
-            mockedReq.session.localUserId = mockedNotFoundLocalUserId[i];
-
-            authenticateFunct(mockedReq, TOKEN, TOKEN, profileMock,
-              callbackResponse, 'github', User);
-          });
+            });
         });
       }
 
@@ -477,26 +473,26 @@ describe('3dparty-passport', () => {
 
       for (let i = 0; i < mockedWrongDataLocal.length; i++) {
         it('should not authenticate (previously logged as local user), because there is an error in updateUser. Test i=' + i, done => {
-          var authenticateFunct = thirdParty.__get__('authenticate');
+          let authenticateFunct = thirdParty.__get__('authenticate');
           userDb = new User();
           addUserByServiceName(userDb, 'local');
 
-          userDb.save((err, usr) => {
-            if (err) {
+          userDb.save()
+            .then(usr => {
+              //callback function used below
+              let callbackResponse = function (err, response) {
+                expect(err).to.be.equals(mockedWrongDataLocal[i].exception);
+                done();
+              };
+
+              mockedReq.session.localUserId = usr._id;
+
+              authenticateFunct(mockedReq, mockedWrongDataLocal[i].token, TOKEN,
+                mockedWrongDataLocal[i].profile, callbackResponse, mockedWrongDataLocal[i].serviceName, User);
+            }).catch(err => {
+              fail('should not throw an error');
               done(err);
-            }
-
-            //callback function used below
-            var callbackResponse = function (err, response) {
-              expect(err).to.be.equals(mockedWrongDataLocal[i].exception);
-              done();
-            };
-
-            mockedReq.session.localUserId = usr._id;
-
-            authenticateFunct(mockedReq, mockedWrongDataLocal[i].token, TOKEN,
-              mockedWrongDataLocal[i].profile, callbackResponse, mockedWrongDataLocal[i].serviceName, User);
-          });
+            });
         });
       }
 
@@ -535,26 +531,26 @@ describe('3dparty-passport', () => {
 
       for (let i = 0; i < mockedWrongData3dparty.length; i++) {
         it('should not authenticate (previously logged as 3dparty user), because there is an error in updateUser. Test i=' + i, done => {
-          var authenticateFunct = thirdParty.__get__('authenticate');
+          let authenticateFunct = thirdParty.__get__('authenticate');
           userDb = new User();
           addUserByServiceName(userDb, 'twitter');
 
-          userDb.save((err, usr) => {
-            if (err) {
+          userDb.save()
+            .then(usr => {
+              //callback fun ction used below
+              let callbackResponse = function (err, response) {
+                expect(err).to.be.equals(mockedWrongData3dparty[i].exception);
+                done();
+              };
+
+              mockedReq.session.localUserId = usr._id;
+
+              authenticateFunct(mockedReq, mockedWrongData3dparty[i].token, TOKEN,
+                mockedWrongData3dparty[i].profile, callbackResponse, mockedWrongData3dparty[i].serviceName, User);
+            }).catch(err => {
+              fail('should not throw an error');
               done(err);
-            }
-
-            //callback fun ction used below
-            var callbackResponse = function (err, response) {
-              expect(err).to.be.equals(mockedWrongData3dparty[i].exception);
-              done();
-            };
-
-            mockedReq.session.localUserId = usr._id;
-
-            authenticateFunct(mockedReq, mockedWrongData3dparty[i].token, TOKEN,
-              mockedWrongData3dparty[i].profile, callbackResponse, mockedWrongData3dparty[i].serviceName, User);
-          });
+            });
         });
       }
 
@@ -587,44 +583,45 @@ describe('3dparty-passport', () => {
 
       for (let i = 0; i < mockedWrongData3dpartyNew.length; i++) {
         it('should not authenticate (NOT previously logged), because there is an error in updateUser. Test i=' + i, done => {
-          var authenticateFunct = thirdParty.__get__('authenticate');
+          let authenticateFunct = thirdParty.__get__('authenticate');
 
           userDb = new User();
           addUserByServiceName(userDb, 'twitter');
 
-          userDb.save((err, usr) => {
-            if (err) {
+          userDb.save()
+            .then(usr => {
+              //callback function used below
+              let callbackResponse = function (err, response) {
+                //TODO FIXME sometime this line throws an error (it's not really predictable - this is the real problem)
+                // expect(err).to.be.equals(mockedWrongData3dpartyNew[i].exception);
+                done();
+              };
+
+              mockedReq.user = null;
+              let profileMockModified = _.clone(mockedWrongData3dpartyNew[i].profile);
+              profileMockModified.id = 'not already existing token';
+
+              authenticateFunct(mockedReq, mockedWrongData3dpartyNew[i].token, TOKEN,
+                mockedWrongData3dpartyNew[i].profile, callbackResponse, mockedWrongData3dpartyNew[i].serviceName, User);
+            }).catch(err => {
+              fail('should not throw an error');
               done(err);
-            }
-
-            //callback function used below
-            var callbackResponse = function (err, response) {
-              //TODO FIXME sometime this line throws an error (it's not really predictable - this is the real problem)
-              // expect(err).to.be.equals(mockedWrongData3dpartyNew[i].exception);
-              done();
-            };
-
-            mockedReq.user = null;
-            let profileMockModified = _.clone(mockedWrongData3dpartyNew[i].profile);
-            profileMockModified.id = 'not already existing token';
-
-            authenticateFunct(mockedReq, mockedWrongData3dpartyNew[i].token, TOKEN,
-              mockedWrongData3dpartyNew[i].profile, callbackResponse, mockedWrongData3dpartyNew[i].serviceName, User);
-          });
+            });
         });
       }
-
     });
   });
 
   describe('#updateUser()', () => {
     describe('---YES---', () => {
 
-      beforeEach(() => User.remove({}, err => err));
+      beforeEach(() => {
+        User.remove({}).catch(err => fail('should not throw an error'));
+      });
 
       it('should update an empty object with profile infos after the 3dparty login.', done => {
         // Overwrite the private a1 function with the mock.
-        var updateFunct = thirdParty.__get__('updateUser');
+        let updateFunct = thirdParty.__get__('updateUser');
 
         let userGithub = updateFunct(getUser(1), TOKEN, profileMock, 'github');
         let userGoogle = updateFunct(getUser(1), TOKEN, profileMock, 'google');
@@ -666,7 +663,7 @@ describe('3dparty-passport', () => {
 
       it('should update an empty object with twitter profile without email after the 3dparty login.', done => {
         // Overwrite the private a1 function with the mock.
-        var updateFunct = thirdParty.__get__('updateUser');
+        let updateFunct = thirdParty.__get__('updateUser');
         //remove profileMock's email
         profileMock.emails = undefined;
 
@@ -683,7 +680,7 @@ describe('3dparty-passport', () => {
     });
 
     describe('---ERRORS---', () => {
-      var updateFunct = thirdParty.__get__('updateUser')
+      let updateFunct = thirdParty.__get__('updateUser')
 
       it('should catch an exception, because user must be an object.', done => {
         expect(() => updateFunct("", TOKEN, profileMock, 'any_string')).to.throw(USER_NOT_AN_OBJECT);
