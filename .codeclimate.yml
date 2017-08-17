@@ -53,8 +53,9 @@ ratings:
 exclude_paths:
 - "test-client-e2e/"
 - "test-client-e2e-angular1-deprecated/"
-- "test-server-integration/"
-- "test-server-unit/"
+- "test-integration/"
+- "test-unit/"
+- "test-util/"
 - "spec"
 - "docs"
 - "bin"
