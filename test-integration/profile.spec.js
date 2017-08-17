@@ -1,18 +1,22 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -35,12 +39,8 @@ describe('profile', () => {
 			if(err1) {
 				throw "Error while calling login page";
 			} else {
-				csrftoken = (res1.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res1.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res1.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res1.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
 				done();
@@ -54,7 +54,7 @@ describe('profile', () => {
 		user.local.email = USER_EMAIL;
 		user.setPassword(USER_PASSWORD);
 		user.github.id = '1231232';
-	  	user.github.token = 'TOKEN';
+		user.github.token = 'TOKEN';
 		user.github.email = 'email@email.it';
 		user.github.name = 'username';
 		user.github.username = 'username';
@@ -67,13 +67,14 @@ describe('profile', () => {
 			updated : new Date(),
 			visible : true
 		};
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+    user.save()
+			.then(usr => {
+        user._id = usr._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+			})
+			.catch(err => {
+        done(err);
+			});
 	}
 
 	//useful function that prevent to copy and paste the same code
@@ -87,7 +88,13 @@ describe('profile', () => {
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => done(err));
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+      fail('should not throw an error');
+      done(err);
+    });
 	}
 
 	describe('#login()', () => {
@@ -130,18 +137,22 @@ describe('profile', () => {
 						});
 					},
 					asyncDone => {
-						User.findOne({ 'local.email': USER_EMAIL }, (err, usr) => {
-							expect(usr.local.name).to.be.equals(user.local.name);
-							expect(usr.local.email).to.be.equals(user.local.email);
-		          expect(usr.validPassword(USER_PASSWORD));
-							expect(usr.profile.name).to.be.equals(user.profile.name);
-							expect(usr.profile.surname).to.be.equals(user.profile.surname);
-							expect(usr.profile.nickname).to.be.equals(user.profile.nickname);
-							expect(usr.profile.email).to.be.equals(user.profile.email);
-							//expect(usr.profile.updated).to.be.equals(user.profile.updated);
-							expect(usr.profile.visible).to.be.equals(user.profile.visible);
-							asyncDone(err);
-					  });
+            User.findOne({ 'local.email': USER_EMAIL })
+              .then(usr => {
+                expect(usr.local.name).to.be.equals(user.local.name);
+                expect(usr.local.email).to.be.equals(user.local.email);
+                expect(usr.validPassword(USER_PASSWORD));
+                expect(usr.profile.name).to.be.equals(user.profile.name);
+                expect(usr.profile.surname).to.be.equals(user.profile.surname);
+                expect(usr.profile.nickname).to.be.equals(user.profile.nickname);
+                expect(usr.profile.email).to.be.equals(user.profile.email);
+                //expect(usr.profile.updated).to.be.equals(user.profile.updated);
+                expect(usr.profile.visible).to.be.equals(user.profile.visible);
+                asyncDone();
+              })
+              .catch(err => {
+                asyncDone(err);
+              });
 					}
 				], (err, response) => done(err));
 			});

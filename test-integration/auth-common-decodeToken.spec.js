@@ -1,20 +1,24 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
-var jwt = require('jsonwebtoken');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
+let jwt = require('jsonwebtoken');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
 
-var user;
-var csrftoken;
-var connectionSid;
-var jwtStringToken;
+let user;
+let csrftoken;
+let connectionSid;
+let jwtStringToken;
 
 const USER_NAME = 'fake user';
 const USER_EMAIL = 'fake@email.com';
@@ -45,7 +49,7 @@ const loginMock = {
 };
 
 const jwtWrongDateStringToken = function () {
-	var expiry = new Date();
+	let expiry = new Date();
 	expiry.setTime(expiry.getTime() - 600000); //expired 10 minutes ago (10*60*1000)
 
 	return jwt.sign({
@@ -72,12 +76,8 @@ describe('auth-common', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
 				done();
@@ -90,24 +90,29 @@ describe('auth-common', () => {
 		user.local.name = USER_NAME;
 		user.local.email = USER_EMAIL;
 		user.setPassword(USER_PASSWORD);
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			jwtStringToken = user.generateJwt();
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+		user.save()
+			.then(usr => {
+        user._id = usr._id;
+        jwtStringToken = user.generateJwt();
+        updateCookiesAndTokens(done); //pass done, it's important!
+			})
+			.catch(err => {
+        done(err);
+			});
 	}
 
 	function dropUserTestDbAndLogout(done) {
-		User.remove({}, err => {
-			//I want to try to logout to be able to run all tests in a clean state
-			//If this call returns 4xx or 2xx it's not important here
-			getPartialGetRequest(URL_LOGOUT)
-			.send()
-			.end((err, res) => done(err));
-		});
+    User.remove({})
+      .then(() => {
+        //I want to try to logout to be able to run all tests in a clean state
+        //If this call returns 4xx or 2xx it's not important here
+        getPartialGetRequest(URL_LOGOUT)
+          .send()
+          .end((err, res) => done(err));
+      }).catch(err => {
+      fail('should not throw an error');
+      done(err);
+    });
 	}
 
 	function getPartialPostRequest (apiUrl) {
@@ -119,7 +124,7 @@ describe('auth-common', () => {
 		.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialGetRequest (apiUrl) {
 		return agent
 		.get(apiUrl)
@@ -243,7 +248,7 @@ describe('auth-common', () => {
 		});
 	});
 
-  after(() => {
-    // mongoose.disconnect();
-  });
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });

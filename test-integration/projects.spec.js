@@ -1,16 +1,20 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
 
 require('../src/models/projects');
-var mongoose = require('mongoose');
-var Project = mongoose.model('Project');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let Project = mongoose.model('Project');
 
-var project;
-var project2;
+let project;
+let project2;
 
 const URL_PROJECTS = '/api/projects';
 const URL_PROJECTHOME = '/api/projecthome';
@@ -56,21 +60,31 @@ describe('projects', () => {
 		};
 		project2.projectHomeView = {
 			carouselImagePath: 'fakeCarouselPath2'
-		}
-		project.save((err, prj) => {
-			if(err) {
-				done(err);
-			}
-			project._id = prj._id;
-			project2.save((err2, prj2) => {
-				project2._id = prj2._id;
-				done(err2);
-			});
-		});
+		};
+
+    project.save()
+      .then(prj => {
+        project._id = prj._id;
+        return project2.save();
+      })
+      .then(prj2 => {
+        project2._id = prj2._id;
+        done();
+      })
+      .catch(err => {
+        fail('should not throw an error');
+        done(err);
+      });
 	}
 
 	function dropProjectCollectionTestDb(done) {
-		Project.remove({}, err => done(err));
+    Project.remove({})
+      .then(() => {
+    		done();
+      }).catch(err => {
+				fail('should not throw an error');
+				done(err);
+    });
 	}
 
 	function getPartialGetRequest (apiUrl) {
@@ -96,7 +110,7 @@ describe('projects', () => {
 						expect(res.body).to.be.not.undefined;
 						expect(res.body.length).to.be.equals(2);
 
-						var prjToCheck;
+						let prjToCheck;
 						for(let prj of res.body) {
 							if(prj.name === project.name) {
 								prjToCheck = project;
@@ -170,7 +184,6 @@ describe('projects', () => {
 						expect(res.body).to.be.not.undefined;
 						expect(res.body.length).to.be.equals(1);
 
-						var prjToCheck;
 						for(let prj of res.body) {
 							if(prj.name === project2.name) {
 								expect(prj.projectHomeView.carouselImagePath).to.be.equals(project2.projectHomeView.carouselImagePath);
@@ -287,7 +300,7 @@ describe('projects', () => {
 		});
 	});
 
-  after(() => {
-    // mongoose.disconnect();
-  });
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });

@@ -1,21 +1,25 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
-var _ = require('lodash');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
+let _ = require('lodash');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var fullServiceNames = require('../src/controllers/authentication/serviceNames');
-var serviceNames = _.without(fullServiceNames, 'profile');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
+let fullServiceNames = require('../src/controllers/authentication/serviceNames');
+let serviceNames = _.without(fullServiceNames, 'profile');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
 const USER_NAME = 'fake user';
 const USER_EMAIL = 'fake@email.com';
@@ -40,7 +44,7 @@ const SESSION_NOT_VALID = 'Session not valid, probably it\'s expired';
 const LOGOUT_SUCCEEDED = 'Logout succeeded';
 const NO_TOKEN_PROVIDED = 'No token provided';
 
-//this file is usefull to test authCommon.unlinkServiceByName for 3dauth,
+//this file is useful to test authCommon.unlinkServiceByName for 3dauth,
 //i.e. to call /unlink/****serviceName**** in auth-3dparty.js
 //indirectly I'm testing authCommon.unlinkServiceByName, call rest services /unlink/...
 
@@ -53,12 +57,8 @@ describe('auth-3dparty', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
 				done();
@@ -71,13 +71,14 @@ describe('auth-3dparty', () => {
 		user.local.name = USER_NAME;
 		user.local.email = USER_EMAIL;
 		user.setPassword(USER_PASSWORD);
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+    user.save()
+      .then(savedUser => {
+        user._id = savedUser._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+      })
+      .catch(err => {
+        done(err);
+      });
 	}
 
 	function insertUserLastUnlinkTestDb(serviceName, done) {
@@ -85,26 +86,31 @@ describe('auth-3dparty', () => {
 		//i'm registering a local user that i'll
 		//use to login (because it's quicker than mock oauth2 authentication :)).
 		//Also, I'm adding another service speicified by serviceName,
-		//to do a real and usefull test
+		//to do a real and useful test
 		user.local.name = USER_NAME;
 		user.local.email = USER_EMAIL;
 		user.setPassword(USER_PASSWORD);
 		if(serviceName !== 'local') {
 			user[serviceName] = { id : FAKE_ID };
 		}
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+    user.save()
+      .then(savedUser => {
+        user._id = savedUser._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+      })
+      .catch(err => {
+        done(err);
+      });
 	}
 
 	function dropUserTestDb(done) {
-		User.remove({}, err => {
-			done(err);
-		});
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+      fail('should not throw an error');
+      done(err);
+    });
 	}
 
 	function getPartialPostRequest (apiUrl) {
@@ -116,7 +122,7 @@ describe('auth-3dparty', () => {
 		.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialGetRequest (apiUrl) {
 		return agent
 		.get(apiUrl)
@@ -162,7 +168,7 @@ describe('auth-3dparty', () => {
 
 			describe('YES LAST UNLINK', () => {
 				//because I'm testing on 3dauth-unlink, I'm removing 'local'
-				var services3dAuth = _.without(serviceNames, 'local');
+				let services3dAuth = _.without(serviceNames, 'local');
 
 				for(let i=0; i<services3dAuth.length; i++) {
 					it('should remove ' + services3dAuth[i] + ' account from an user with only this account [YES LAST UNLINK].', done => {
@@ -279,9 +285,12 @@ describe('auth-3dparty', () => {
 							.send(loginMock)
 							.expect(200)
 							.end((err, res) => {
-								User.remove({}, err => {
-									asyncDone(err, res);
-								});
+                User.remove({})
+                  .then(() => {
+                    asyncDone(null, res);
+                  }).catch(err => {
+                  	asyncDone(err, res);
+									});
 							});
 						},
 						(res, asyncDone) => {
@@ -433,8 +442,8 @@ describe('auth-3dparty', () => {
 		});
 	});
 
-  after((done) => {
-    // mongoose.disconnect();
-    done();
-  });
+  // after((done) => {
+  //   mongoose.disconnect();
+  //   done();
+  // });
 });

@@ -1,22 +1,26 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
-var NEW_NAME = 'Fake name';
-var NEW_EMAIL = 'fake@email.com';
-var NEW_PASSWORD = 'Password2';
+let NEW_NAME = 'Fake name';
+let NEW_EMAIL = 'fake@email.com';
+let NEW_PASSWORD = 'Password2';
 
 const registerMock = {
 	name: NEW_NAME,
@@ -33,17 +37,13 @@ describe('auth-local', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => {
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => {
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-		      	connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-		    	done();
-		    }
-    	});
+				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
+				done();
+			}
+		});
 	}
 
 	function insertUserTestDb(done) {
@@ -51,16 +51,17 @@ describe('auth-local', () => {
 		user.local.name = NEW_NAME;
 		user.local.email = NEW_EMAIL;
 		user.setPassword(NEW_PASSWORD);
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+		user.save()
+			.then(usr => {
+        user._id = usr._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+			})
+			.catch(err => {
+        done(err);
+			});
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialPostRequest (apiUrl) {
 		return agent
 	    	.post(apiUrl)
@@ -71,9 +72,13 @@ describe('auth-local', () => {
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => {
-			done(err);
-		});
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+        fail('should not throw an error');
+        done(err);
+      });
 	}
 
 	describe('#register()', () => {
@@ -95,16 +100,20 @@ describe('auth-local', () => {
 					} else {
 						expect(res.body.message).to.be.equals("User with email "  + registerMock.email + " registered.");
 
-						User.findOne({ 'local.email': registerMock.email }, (err1, user) => {
-							expect(user.local.name).to.be.equals(registerMock.name);
-							expect(user.local.email).to.be.equals(registerMock.email);
-					       	expect(user.validPassword(registerMock.password));
-							expect(user.local.activateAccountExpires).to.be.not.null;
-							expect(user.local.activateAccountToken).to.be.not.null;
-							expect(user.local.activateAccountExpires).to.be.not.undefined;
-							expect(user.local.activateAccountToken).to.be.not.undefined;
-							done(err1);
-					    });
+						User.findOne({ 'local.email': registerMock.email })
+              .then(user => {
+                expect(user.local.name).to.be.equals(registerMock.name);
+                expect(user.local.email).to.be.equals(registerMock.email);
+                expect(user.validPassword(registerMock.password));
+                expect(user.local.activateAccountExpires).to.be.not.null;
+                expect(user.local.activateAccountToken).to.be.not.null;
+                expect(user.local.activateAccountExpires).to.be.not.undefined;
+                expect(user.local.activateAccountToken).to.be.not.undefined;
+                done();
+              })
+              .catch(err1 => {
+                done(err1);
+              });
 					}
 				});
 			});
@@ -166,7 +175,6 @@ describe('auth-local', () => {
 
         it('should get 400 BAD REQUEST, because you must pass all mandatory params. Test i= ' + i, done => {
 
-
 					async.waterfall([
 						asyncDone => insertUserTestDb(asyncDone),
 						asyncDone => {
@@ -193,7 +201,6 @@ describe('auth-local', () => {
 
 				});
         afterEach(done => dropUserCollectionTestDb(done));
-
       }
 
 			afterEach(done => dropUserCollectionTestDb(done));
@@ -210,7 +217,7 @@ describe('auth-local', () => {
 		});
 	});
 
-  after(() => {
-    // mongoose.disconnect();
-  });
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });

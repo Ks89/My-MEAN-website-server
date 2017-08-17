@@ -1,18 +1,22 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -33,17 +37,13 @@ describe('auth-local', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 			 	csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 			 	connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-		      	done();
-      		}
-    	});
+				done();
+			}
+		});
 	}
 
 	function registerUserTestDb(done) {
@@ -53,12 +53,12 @@ describe('auth-local', () => {
 				user.local.name = USER_NAME;
 				user.local.email = USER_EMAIL;
 				user.setPassword(USER_PASSWORD);
-				user.save((err, usr) => {
-					if(err) {
-						asyncDone(err);
-					}
-					updateCookiesAndTokens(asyncDone);
-				});
+				user.save()
+          .then(usr => {
+            updateCookiesAndTokens(asyncDone);
+          }).catch(err => {
+            asyncDone(err);
+          });
 			},
 			asyncDone => {
 				getPartialPostRequest('/api/reset')
@@ -70,18 +70,21 @@ describe('auth-local', () => {
 						return asyncDone(err);
 					} else {
 						expect(res.body.message).to.be.equals('An e-mail has been sent to ' + USER_EMAIL + ' with further instructions.');
-						User.findOne({ 'local.email': resetMock.email }, (err1, usr) => {
-							expect(usr.local.name).to.be.equals(USER_NAME);
-							expect(usr.local.email).to.be.equals(USER_EMAIL);
-							expect(usr.validPassword(USER_PASSWORD));
-							expect(usr.local.resetPasswordExpires).to.be.not.undefined;
-							expect(usr.local.resetPasswordToken).to.be.not.undefined;
+						User.findOne({ 'local.email': resetMock.email })
+              .then(usr => {
+                expect(usr.local.name).to.be.equals(USER_NAME);
+                expect(usr.local.email).to.be.equals(USER_EMAIL);
+                expect(usr.validPassword(USER_PASSWORD));
+                expect(usr.local.resetPasswordExpires).to.be.not.undefined;
+                expect(usr.local.resetPasswordToken).to.be.not.undefined;
 
-							user.local.resetPasswordToken = usr.local.resetPasswordToken;
-							user.local.resetPasswordExpires = usr.local.resetPasswordExpires;
+                user.local.resetPasswordToken = usr.local.resetPasswordToken;
+                user.local.resetPasswordExpires = usr.local.resetPasswordExpires;
 
-							asyncDone(err1);
-					    });
+                asyncDone();
+              }).catch(err1 => {
+                asyncDone(err1);
+              });
 					}
 				});
 			}
@@ -94,7 +97,7 @@ describe('auth-local', () => {
 		});
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialPostRequest (apiUrl) {
 		return agent
 			.post(apiUrl)
@@ -105,9 +108,13 @@ describe('auth-local', () => {
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => {
-			done(err);
-		});
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+      fail('should not throw an error');
+      done(err);
+    });
 	}
 
 	describe('#resetPasswordFromEmail()', () => {
@@ -131,17 +138,21 @@ describe('auth-local', () => {
 					} else {
 						console.log(res.body.message);
 						expect(res.body.message).to.be.equals('An e-mail has been sent to ' + USER_EMAIL + ' with further instructions.');
-						User.findOne({ 'local.email': resetMock.email }, (err1, usr) => {
-							expect(usr.local.name).to.be.equals(USER_NAME);
-							expect(usr.local.email).to.be.equals(USER_EMAIL);
-							expect(usr.local.resetPasswordExpires).to.be.undefined;
-							expect(usr.local.resetPasswordToken).to.be.undefined;
+						User.findOne({ 'local.email': resetMock.email })
+              .then(usr => {
+                expect(usr.local.name).to.be.equals(USER_NAME);
+                expect(usr.local.email).to.be.equals(USER_EMAIL);
+                expect(usr.local.resetPasswordExpires).to.be.undefined;
+                expect(usr.local.resetPasswordToken).to.be.undefined;
 
-							expect(usr.validPassword(NEW_PASSWORD)).to.be.true;
-							expect(usr.validPassword(USER_PASSWORD)).to.be.false;
+                expect(usr.validPassword(NEW_PASSWORD)).to.be.true;
+                expect(usr.validPassword(USER_PASSWORD)).to.be.false;
 
-							done(err1);
-						});
+                done();
+              })
+              .catch(err1 => {
+                done(err1);
+              });
 					}
 				});
 			});
@@ -159,29 +170,29 @@ describe('auth-local', () => {
 					emailToken : user.local.resetPasswordToken
 				};
 
-				User.findOne({ 'local.email': resetMock.email }, (err1, usr) => {
-					expect(usr.local.resetPasswordToken).to.be.not.undefined;
-
-					usr.local.resetPasswordExpires =  Date.now() - 3600000; // - 1 hour
-					usr.save((err, savedUser) => {
-						if(err) {
-							done(err);
-						}
-
-						getPartialPostRequest('/api/resetNewPassword')
-						.set('XSRF-TOKEN', csrftoken)
-						.send(updateResetPwdMock)
-						.expect(404)
-						.end((err, res) => {
-							if (err) {
-								return done(err);
-							} else {
-								expect(res.body.message).to.be.equals('No account with that token exists.');
-								done();
-							}
-						});
-					});
-			    });
+				User.findOne({ 'local.email': resetMock.email })
+          .then(usr => {
+            expect(usr.local.resetPasswordToken).to.be.not.undefined;
+            usr.local.resetPasswordExpires =  Date.now() - 3600000; // - 1 hour
+            return usr.save();
+          })
+          .then(savedUser => {
+            getPartialPostRequest('/api/resetNewPassword')
+              .set('XSRF-TOKEN', csrftoken)
+              .send(updateResetPwdMock)
+              .expect(404)
+              .end((err, res) => {
+                if (err) {
+                  return done(err);
+                } else {
+                  expect(res.body.message).to.be.equals('No account with that token exists.');
+                  done();
+                }
+              });
+          })
+          .catch(err => {
+             done(err);
+          });
 			});
 
 
@@ -191,29 +202,29 @@ describe('auth-local', () => {
 					emailToken : user.local.resetPasswordToken
 				};
 
-				User.findOne({ 'local.email': resetMock.email }, (err1, usr) => {
-					expect(usr.local.resetPasswordToken).to.be.not.undefined;
-
-					usr.local.resetPasswordToken = 'random_wrong_token';
-					usr.save((err, savedUser) => {
-						if(err) {
-							done(err);
-						}
-
-						getPartialPostRequest('/api/resetNewPassword')
-						.set('XSRF-TOKEN', csrftoken)
-						.send(updateResetPwdMock)
-						.expect(404)
-						.end((err, res) => {
-							if (err) {
-								return done(err);
-							} else {
-								expect(res.body.message).to.be.equals('No account with that token exists.');
-								done();
-							}
-						});
-					});
-			    });
+				User.findOne({ 'local.email': resetMock.email })
+          .then(usr => {
+            expect(usr.local.resetPasswordToken).to.be.not.undefined;
+            usr.local.resetPasswordToken = 'random_wrong_token';
+            return usr.save();
+          })
+          .then(savedUser => {
+            getPartialPostRequest('/api/resetNewPassword')
+              .set('XSRF-TOKEN', csrftoken)
+              .send(updateResetPwdMock)
+              .expect(404)
+              .end((err, res) => {
+                if (err) {
+                  return done(err);
+                } else {
+                  expect(res.body.message).to.be.equals('No account with that token exists.');
+                  done();
+                }
+              });
+          })
+          .catch(err => {
+            done(err);
+          });
 			});
 
 			afterEach(done => dropUserCollectionTestDb(done));
@@ -228,7 +239,7 @@ describe('auth-local', () => {
 				{}
 			];
 
-			//these are multiple tests that I'm execting for all cobinations
+			//these are multiple tests that I'm expecting for all combinations
 			//of wrong params
 			for(let i = 0; i<missingUpdatePwdMocks.length; i++) {
 				console.log(missingUpdatePwdMocks[i]);
@@ -262,7 +273,7 @@ describe('auth-local', () => {
 		});
 	});
 
-  after(() => {
-    // mongoose.disconnect();
-  });
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });

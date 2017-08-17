@@ -1,17 +1,21 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -36,12 +40,8 @@ describe('auth-local', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
 				done();
@@ -54,16 +54,17 @@ describe('auth-local', () => {
 		user.local.name = USER_NAME;
 		user.local.email = USER_EMAIL;
 		user.setPassword(USER_PASSWORD);
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+		user.save()
+      .then(usr => {
+        user._id = usr._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+      })
+      .catch(err => {
+        done(err);
+      });
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialPostRequest (apiUrl) {
 		return agent
 			.post(apiUrl)
@@ -74,9 +75,13 @@ describe('auth-local', () => {
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => {
-			done(err);
-		});
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+        fail('should not throw an error');
+        done(err);
+      });
 	}
 
 	describe('#reset()', () => {
@@ -97,16 +102,20 @@ describe('auth-local', () => {
 						if(err) {
 							done(err);
 						} else {
-							User.findOne({ 'local.email': resetMock.email }, (err1, user) => {
-						        expect(user.local.name).to.be.equals(USER_NAME);
-						        expect(user.local.email).to.be.equals(USER_EMAIL);
-						       	expect(user.validPassword(USER_PASSWORD)).to.be.true;
-						        expect(user.local.resetPasswordExpires).to.be.not.null;
-						        expect(user.local.resetPasswordToken).to.be.not.null;
-						        expect(user.local.resetPasswordExpires).to.be.not.undefined;
-						        expect(user.local.resetPasswordToken).to.be.not.undefined;
-						        done(err1);
-						    });
+							User.findOne({ 'local.email': resetMock.email })
+                .then(user => {
+                  expect(user.local.name).to.be.equals(USER_NAME);
+                  expect(user.local.email).to.be.equals(USER_EMAIL);
+                  expect(user.validPassword(USER_PASSWORD)).to.be.true;
+                  expect(user.local.resetPasswordExpires).to.be.not.null;
+                  expect(user.local.resetPasswordToken).to.be.not.null;
+                  expect(user.local.resetPasswordExpires).to.be.not.undefined;
+                  expect(user.local.resetPasswordToken).to.be.not.undefined;
+                  done();
+                })
+                .catch(err1 => {
+                  done(err1);
+                });
 						}
 					}
 				});

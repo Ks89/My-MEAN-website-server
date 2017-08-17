@@ -1,13 +1,13 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var nock = require('nock');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let nock = require('nock');
 
-var csrftoken;
-var connectionSid;
+let csrftoken;
+let connectionSid;
 
 const RECAPTCHA_BASE_URL = 'https://www.google.com/recaptcha';
 const RECAPTCHA_API_URL = '/api/siteverify';
@@ -55,17 +55,13 @@ describe('contact', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-		      	connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-		    	done();
-		    }
-    	});
+				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
+				done();
+			}
+		});
 	}
 
 	function getPartialPostRequest (apiUrl) {

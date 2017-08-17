@@ -1,23 +1,27 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var authCommon = require('../src/controllers/authentication/common/auth-common');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
+let authCommon = require('../src/controllers/authentication/common/auth-common');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
-var NEW_NAME = 'Fake name';
-var NEW_EMAIL = 'fake@email.com';
-var NEW_PASSWORD = 'Password2';
+let NEW_NAME = 'Fake name';
+let NEW_EMAIL = 'fake@email.com';
+let NEW_PASSWORD = 'Password2';
 
 const loginMock = {
 	email : NEW_EMAIL,
@@ -39,12 +43,8 @@ describe('auth-common', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
 				done();
@@ -57,22 +57,27 @@ describe('auth-common', () => {
 		user.local.name = NEW_NAME;
 		user.local.email = NEW_EMAIL;
 		user.setPassword(NEW_PASSWORD);
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+    user.save()
+      .then(savedUser => {
+        user._id = savedUser._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+      })
+      .catch(err => {
+        done(err);
+      });
 	}
 
 	function dropUserCollectionTestDb(done) {
-		User.remove({}, err => {
-			done(err);
-		});
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+      fail('should not throw an error');
+      done(err);
+    });
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialGetRequest (apiUrl) {
 		return agent
 		.get(apiUrl)
@@ -161,7 +166,7 @@ describe('auth-common', () => {
 		});
 	});
 
-  after(() => {
-    // mongoose.disconnect();
-  });
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });

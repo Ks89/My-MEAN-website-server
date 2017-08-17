@@ -1,18 +1,22 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -36,12 +40,8 @@ describe('users', () => {
 			if(err1) {
 				throw "Error while calling login page";
 			} else {
-				csrftoken = (res1.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res1.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res1.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res1.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
 				done();
@@ -72,13 +72,13 @@ describe('users', () => {
 				updated : new Date(),
 				visible : true
 		};
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+    user.save()
+      .then(usr => {
+        user._id = usr._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+      }).catch(err => {
+        done(err);
+      });
 	}
 
 	//useful function that prevent to copy and paste the same code
@@ -99,13 +99,17 @@ describe('users', () => {
 	}
 
 	function dropUserTestDbAndLogout(done) {
-		User.remove({}, err => {
-			//I want to try to logout to be able to run all tests in a clean state
-			//If this call returns 4xx or 2xx it's not important here
-			getPartialGetRequest(URL_LOGOUT)
-			.send()
-			.end((err, res) => done(err));
-		});
+		User.remove({})
+			.then(() => {
+        //I want to try to logout to be able to run all tests in a clean state
+        //If this call returns 4xx or 2xx it's not important here
+        getPartialGetRequest(URL_LOGOUT)
+          .send()
+          .end((err, res) => done(err));
+			}).catch(err => {
+				fail('should not throw an error');
+				done(err);
+			});
 	}
 
 	describe('---YES---', () => {
@@ -196,7 +200,7 @@ describe('users', () => {
 		after(done => dropUserTestDbAndLogout(done));
 	});
 
-  after(() => {
-    // mongoose.disconnect();
-  });
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });

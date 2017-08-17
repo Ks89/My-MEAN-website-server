@@ -1,9 +1,9 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
 
 //useful function that prevent to copy and paste the same code
 function getPartialPostRequest (apiUrl) {

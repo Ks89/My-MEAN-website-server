@@ -1,18 +1,22 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-var expect = require('chai').expect;
-var app = require('../app');
-var agent = require('supertest').agent(app);
-var async = require('async');
+let expect = require('chai').expect;
+let app = require('../app');
+let agent = require('supertest').agent(app);
+let async = require('async');
 
 require('../src/models/users');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+let mongoose = require('mongoose');
+// ------------------------
+// as explained here http://mongoosejs.com/docs/promises.html
+mongoose.Promise = require('bluebird');
+// ------------------------
+let User = mongoose.model('User');
 
-var user;
-var csrftoken;
-var connectionSid;
+let user;
+let csrftoken;
+let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -45,12 +49,8 @@ describe('auth-local', () => {
 			if(err) {
 				done(err);
 			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('XSRF-TOKEN');
-				})[0];
-				connectionSid = (res.headers['set-cookie']).filter(value =>{
-					return value.includes('connect.sid');
-				})[0];
+				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
+				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
 				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
 				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
 				done();
@@ -63,16 +63,17 @@ describe('auth-local', () => {
 		user.local.name = USER_NAME;
 		user.local.email = USER_EMAIL;
 		user.setPassword(USER_PASSWORD);
-		user.save((err, usr) => {
-			if(err) {
-				done(err);
-			}
-			user._id = usr._id;
-			updateCookiesAndTokens(done); //pass done, it's important!
-		});
+    user.save()
+      .then(usr2 => {
+        user._id = usr2._id;
+        updateCookiesAndTokens(done); //pass done, it's important!
+      })
+      .catch(err => {
+        done(err);
+      });
 	}
 
-	//usefull function that prevent to copy and paste the same code
+	//useful function that prevent to copy and paste the same code
 	function getPartialPostRequest (apiUrl) {
 		return agent
 			.post(apiUrl)
@@ -90,13 +91,17 @@ describe('auth-local', () => {
 	}
 
 	function dropUserTestDbAndLogout(done) {
-		User.remove({}, err => {
-			//I want to try to logout to be able to run all tests in a clean state
-			//If this call returns 4xx or 2xx it's not important here
-			getPartialGetRequest(URL_UNLINK_LOCAL)
-			.send()
-			.end((err, res) => done(err));
-		});
+    User.remove({})
+      .then(() => {
+        //I want to try to logout to be able to run all tests in a clean state
+        //If this call returns 4xx or 2xx it's not important here
+        getPartialGetRequest(URL_LOGOUT)
+          .send()
+          .end((err, res) => done(err));
+      }).catch(err => {
+        fail('should not throw an error');
+        done(err);
+      });
 	}
 
 	describe('#unlinkLocal()', () => {
@@ -139,33 +144,31 @@ describe('auth-local', () => {
 			it('should correctly unlink local user (not last unlink)', done => {
 				async.waterfall([
 					asyncDone => {
-						User.findOne({ 'local.email': USER_EMAIL }, (err1, usr) => {
-							if(err1) {
-								return asyncDone(err1);
-							}
-							usr.github.id = '1231232';
-							usr.github.token = 'TOKEN';
-							usr.github.email = 'email@email.it';
-							usr.github.name = 'username';
-							usr.github.username = 'username';
-							usr.github.profileUrl = 'http://fakeprofileurl.com/myprofile';
-							usr.save((err, usr) => {
-								if(err) {
-									return asyncDone(err);
-								}
-								user = usr;
-								updateCookiesAndTokens(asyncDone); //pass done, it's important!
-							});
-						});
+            User.findOne({ 'local.email': USER_EMAIL })
+              .then(usr => {
+                usr.github.id = '1231232';
+                usr.github.token = 'TOKEN';
+                usr.github.email = 'email@email.it';
+                usr.github.name = 'username';
+                usr.github.username = 'username';
+                usr.github.profileUrl = 'http://fakeprofileurl.com/myprofile';
+                return usr.save();
+              })
+              .then(usr2 => {
+                user = usr2;
+                updateCookiesAndTokens(asyncDone); //pass done, it's important!
+              })
+              .catch(err1 => {
+                return asyncDone(err1);
+              });
 					},
 					asyncDone => {
-						User.findOne({ 'local.email': USER_EMAIL }, (err1, usr) => {
-							if(err1) {
-								return asyncDone(err1);
-							}
-							updateCookiesAndTokens(asyncDone);
-
-						});
+            User.findOne({ 'local.email': USER_EMAIL })
+              .then(usr => {
+                updateCookiesAndTokens(asyncDone);
+              }).catch(err => {
+                return asyncDone(err1);
+              });
 					},
 					asyncDone => {
 						getPartialPostRequest(URL_LOGIN)
@@ -192,22 +195,21 @@ describe('auth-local', () => {
 						});
 					},
 					asyncDone => {
-						User.findOne({ 'github.id': user.github.id }, (err1, usr) => {
-							if(err1) {
-								return asyncDone(err1);
-							}
-							expect(usr.local.name).to.be.undefined;
-							expect(usr.local.email).to.be.undefined;
-							expect(usr.local.hash).to.be.undefined;
-							expect(usr.github.id).to.be.equals(user.github.id);
-							expect(usr.github.token).to.be.equals(user.github.token);
-							expect(usr.github.email).to.be.equals(user.github.email);
-							expect(usr.github.name).to.be.equals(user.github.name);
-							expect(usr.github.username).to.be.equals(user.github.username);
-							expect(usr.github.profileUrl).to.be.equals(user.github.profileUrl);
-							asyncDone();
-
-						});
+						User.findOne({ 'github.id': user.github.id })
+              .then(usr => {
+                expect(usr.local.name).to.be.undefined;
+                expect(usr.local.email).to.be.undefined;
+                expect(usr.local.hash).to.be.undefined;
+                expect(usr.github.id).to.be.equals(user.github.id);
+                expect(usr.github.token).to.be.equals(user.github.token);
+                expect(usr.github.email).to.be.equals(user.github.email);
+                expect(usr.github.name).to.be.equals(user.github.name);
+                expect(usr.github.username).to.be.equals(user.github.username);
+                expect(usr.github.profileUrl).to.be.equals(user.github.profileUrl);
+                asyncDone();
+              }).catch(err1 => {
+                return asyncDone(err1);
+              });
 					}
 				], (err, response) => done(err));
 			});
@@ -230,9 +232,12 @@ describe('auth-local', () => {
 						.end((err, res) => asyncDone(err));
 					},
 					asyncDone => {
-						User.remove({}, err => {
-							asyncDone(err);
-						});
+            User.remove({})
+              .then(() => {
+                asyncDone();
+              }).catch(err => {
+              	asyncDone(err);
+            });
 					},
 					asyncDone => {
 						getPartialGetRequest(URL_UNLINK_LOCAL)
@@ -267,7 +272,7 @@ describe('auth-local', () => {
 		});
 	});
 
-  after(() => {
-    // mongoose.disconnect();
-  });
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });
