@@ -20,8 +20,6 @@ mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
 
-let user;
-
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
 const USER_PASSWORD = 'Password1';
@@ -36,54 +34,21 @@ const URL_LOGIN = '/api/login';
 
 describe('profile', () => {
 
-	function insertUserTestDb(done) {
-		user = new User();
-		user.local.name = USER_NAME;
-		user.local.email = USER_EMAIL;
-		user.setPassword(USER_PASSWORD);
-		user.github.id = '1231232';
-		user.github.token = 'TOKEN';
-		user.github.email = 'email@email.it';
-		user.github.name = 'username';
-		user.github.username = 'username';
-		user.github.profileUrl = 'http://fakeprofileurl.com/myprofile';
-		user.profile = {
-			name : 'usernameUpdated',
-			surname : 'surnameUpdated',
-			nickname : 'nicknameUpdated',
-			email : 'email@emailprofile.it',
-			updated : new Date(),
-			visible : true
-		};
-    user.save()
-			.then(usr => {
-        user._id = usr._id;
-        testUtils.updateCookiesAndTokens(done); //pass done, it's important!
-			})
-			.catch(err => {
-        done(err);
-			});
-	}
-
 	describe('#login()', () => {
 		describe('---YES---', () => {
 
-			beforeEach(done => insertUserTestDb(done));
+			beforeEach(done => testUsersUtils.insertUserWithProfileTestDb(done));
 
 			it('should correctly update the profile by github id', done => {
 
-				const mockedProfilePost = {
-					localUserEmail: user.local.email,
-					id: "", //only for 3dauth
-					serviceName: "local",
-					name: user.profile.name,
-					surname: user.profile.surname,
-					nickname: user.profile.nickname,
-					email: user.profile.email
-				};
+			  let user;
 
 				async.waterfall([
-					asyncDone => {
+          asyncDone => {
+            testUsersUtils.readUserLocalByEmailLocal(asyncDone);
+          },
+          (userDb, asyncDone) => {
+				    user = userDb;
 						testUtils.getPartialPostRequest(URL_LOGIN)
 						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(loginMock)
@@ -95,6 +60,16 @@ describe('profile', () => {
 						});
 					},
 					asyncDone => {
+            const mockedProfilePost = {
+              localUserEmail: user.local.email,
+              id: "", //only for 3dauth
+              serviceName: "local",
+              name: user.profile.name,
+              surname: user.profile.surname,
+              nickname: user.profile.nickname,
+              email: user.profile.email
+            };
+
 						testUtils.getPartialPostRequest(URL_PROFILE)
 						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(mockedProfilePost)
@@ -130,7 +105,7 @@ describe('profile', () => {
 
 		describe('---NO - Missing params or not accepted combination of them---', () => {
 
-			before(done => insertUserTestDb(done));
+			before(done => testUsersUtils.insertUserWithProfileTestDb(done));
 
 			const missingServiceNameParams = [
 				{localUserEmail: 'fake_email', name:'a',surname:'b',nickname:'c',email:'d'},
@@ -191,7 +166,7 @@ describe('profile', () => {
 
 		describe('---NO - Wrong params---', () => {
 
-			before(done => insertUserTestDb(done));
+			before(done => testUsersUtils.insertUserWithProfileTestDb(done));
 
 			const wrongLocalProfileMock = {
 				localUserEmail: 'WRONG_EMAIL',
