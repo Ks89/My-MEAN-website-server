@@ -1,5 +1,7 @@
 'use strict';
 
+let nock = require('nock');
+
 const URL_CLIENT_LOGIN_PAGE = '/login';
 
 class TestUtils {
@@ -50,6 +52,11 @@ class TestUtils {
       .get(apiUrl)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+  }
+
+  getPartialNockApiUrl (baseUrl, apiUrl) {
+    return nock(baseUrl)
+      .post(apiUrl);
   }
 }
 

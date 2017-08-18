@@ -6,6 +6,12 @@ let app = require('../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -13,10 +19,6 @@ let mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
-
-let user;
-let csrftoken;
-let connectionSid;
 
 let NEW_NAME = 'Fake name';
 let NEW_EMAIL = 'fake@email.com';
@@ -30,106 +32,52 @@ const registerMock = {
 
 describe('auth-local', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
-
-	function insertUserTestDb(done) {
-		user = new User();
-		user.local.name = NEW_NAME;
-		user.local.email = NEW_EMAIL;
-		user.setPassword(NEW_PASSWORD);
-		user.save()
-			.then(usr => {
-        user._id = usr._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
-			})
-			.catch(err => {
-        done(err);
-			});
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialPostRequest (apiUrl) {
-		return agent
-	    	.post(apiUrl)
-	    	.set('Content-Type', 'application/json')
-	    	.set('Accept', 'application/json')
-	    	.set('set-cookie', 'connect.sid=' + connectionSid)
-	    	.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	function dropUserCollectionTestDb(done) {
-    User.remove({})
-      .then(() => {
-        done();
-      }).catch(err => {
-        fail('should not throw an error');
-        done(err);
-      });
-	}
-
 	describe('#register()', () => {
 
-		beforeEach(done => dropUserCollectionTestDb(done));
+		beforeEach(done => testUsersUtils.dropUserTestDb(done));
 
 		describe('---YES---', () => {
 
-			beforeEach(done => updateCookiesAndTokens(done));
+			beforeEach(done => testUtils.updateCookiesAndTokens(done));
 
 			it('should correctly register a new user', done => {
-	    		getPartialPostRequest('/api/register')
-				.set('XSRF-TOKEN', csrftoken)
+	    		testUtils.getPartialPostRequest('/api/register')
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(registerMock)
 				.expect(200)
 				.end((err, res) => {
 					if (err) {
 						return done(err);
-					} else {
-						expect(res.body.message).to.be.equals("User with email "  + registerMock.email + " registered.");
-
-						User.findOne({ 'local.email': registerMock.email })
-              .then(user => {
-                expect(user.local.name).to.be.equals(registerMock.name);
-                expect(user.local.email).to.be.equals(registerMock.email);
-                expect(user.validPassword(registerMock.password));
-                expect(user.local.activateAccountExpires).to.be.not.null;
-                expect(user.local.activateAccountToken).to.be.not.null;
-                expect(user.local.activateAccountExpires).to.be.not.undefined;
-                expect(user.local.activateAccountToken).to.be.not.undefined;
-                done();
-              })
-              .catch(err1 => {
-                done(err1);
-              });
 					}
+          expect(res.body.message).to.be.equals("User with email "  + registerMock.email + " registered.");
+
+          User.findOne({ 'local.email': registerMock.email })
+            .then(user => {
+              expect(user.local.name).to.be.equals(registerMock.name);
+              expect(user.local.email).to.be.equals(registerMock.email);
+              expect(user.validPassword(registerMock.password));
+              expect(user.local.activateAccountExpires).to.be.not.null;
+              expect(user.local.activateAccountToken).to.be.not.null;
+              expect(user.local.activateAccountExpires).to.be.not.undefined;
+              expect(user.local.activateAccountToken).to.be.not.undefined;
+              done();
+            })
+            .catch(err1 => done(err1));
 				});
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDb(done));
 		});
 
 		describe('---NO---', () => {
-			beforeEach(done => updateCookiesAndTokens(done));
+			beforeEach(done => testUtils.updateCookiesAndTokens(done));
 
 			it('should get 400 BAD REQUEST, because user already exists', done => {
 				async.waterfall([
-					asyncDone => insertUserTestDb(asyncDone),
+					asyncDone => testUsersUtils.insertUserTestDb(asyncDone, NEW_NAME, NEW_EMAIL, NEW_PASSWORD),
 					asyncDone => {
-						getPartialPostRequest('/api/register')
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest('/api/register')
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(registerMock)
 						.expect(400)
 						.end((err, res) => {
@@ -142,20 +90,19 @@ describe('auth-local', () => {
 					}
 				], (err, res) => {
 					if (err) {
-						done(err);
-					} else {
-						expect(res.body.message).to.be.equals("User already exists. Try to login.");
-						done();
+						return done(err);
 					}
+          expect(res.body.message).to.be.equals("User already exists. Try to login.");
+          done();
 				});
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDb(done));
 		});
 
 
 		describe('---NO - Wrong/Missing params---', () => {
-			beforeEach(done => updateCookiesAndTokens(done));
+			beforeEach(done => testUtils.updateCookiesAndTokens(done));
 
 			const wrongRegisterMocks = [
 				{name: NEW_NAME, email : NEW_EMAIL},
@@ -171,15 +118,15 @@ describe('auth-local', () => {
 			//of missing params
 			for(let i = 0; i<wrongRegisterMocks.length; i++) {
 				console.log(wrongRegisterMocks[i]);
-        beforeEach(done => updateCookiesAndTokens(done));
+        beforeEach(done => testUtils.updateCookiesAndTokens(done));
 
         it('should get 400 BAD REQUEST, because you must pass all mandatory params. Test i= ' + i, done => {
 
 					async.waterfall([
-						asyncDone => insertUserTestDb(asyncDone),
+						asyncDone => testUsersUtils.insertUserTestDb(asyncDone, NEW_NAME, NEW_EMAIL, NEW_PASSWORD),
 						asyncDone => {
-							getPartialPostRequest('/api/register')
-							.set('XSRF-TOKEN', csrftoken)
+							testUtils.getPartialPostRequest('/api/register')
+							.set('XSRF-TOKEN', testUtils.csrftoken)
 							.send(wrongRegisterMocks[i])
 							.expect(400)
 							.end((err, res) => {
@@ -192,23 +139,22 @@ describe('auth-local', () => {
 						}
 					], (err, response) => {
 						if (err) {
-							done(err);
-						} else {
-							expect(response.message).to.be.equals("All fields required");
-							done();
+							return done(err);
 						}
+            expect(response.message).to.be.equals("All fields required");
+            done();
 					});
 
 				});
-        afterEach(done => dropUserCollectionTestDb(done));
+        afterEach(done => testUsersUtils.dropUserTestDb(done));
       }
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDb(done));
 		});
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				getPartialPostRequest('/api/register')
+				testUtils.getPartialPostRequest('/api/register')
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(registerMock)
 				.expect(403)
@@ -216,8 +162,4 @@ describe('auth-local', () => {
 			});
 		});
 	});
-
-  // after(() => {
-  //   mongoose.disconnect();
-  // });
 });

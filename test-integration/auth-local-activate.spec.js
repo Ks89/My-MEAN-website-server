@@ -6,6 +6,12 @@ let app = require('../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -13,10 +19,6 @@ let mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
-
-let user;
-let csrftoken;
-let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -30,28 +32,12 @@ const registerMock = {
 
 describe('auth-local', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-			 	csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-			 	connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-        done();
-      }
-    });
-	}
-
 	function registerUserTestDb(done) {
 		async.waterfall([
-			asyncDone => updateCookiesAndTokens(asyncDone),
+			asyncDone => testUtils.updateCookiesAndTokens(asyncDone),
 			asyncDone => {
-				getPartialPostRequest('/api/register')
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialPostRequest('/api/register')
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(registerMock)
 				.expect(200)
 				.end((err, res) => asyncDone(err, res));
@@ -67,34 +53,11 @@ describe('auth-local', () => {
             expect(usr.local.activateAccountToken).to.be.not.null;
             expect(usr.local.activateAccountExpires).to.be.not.undefined;
             expect(usr.local.activateAccountToken).to.be.not.undefined;
-            user = usr;
             asyncDone();
           })
-          .catch(err => {
-            asyncDone(err);
-          });
+          .catch(err => asyncDone(err));
 			}
 		], (err, response) => done(err));
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialPostRequest (apiUrl) {
-		return agent
-			.post(apiUrl)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json')
-			.set('set-cookie', 'connect.sid=' + connectionSid)
-			.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	function dropUserCollectionTestDb(done) {
-    User.remove({})
-      .then(() => {
-        done();
-      }).catch(err => {
-      fail('should not throw an error');
-      done(err);
-    });
 	}
 
 	describe('#activateAccount()', () => {
@@ -103,44 +66,47 @@ describe('auth-local', () => {
 			beforeEach(done => registerUserTestDb(done));
 
 			it('should correctly activate an account', done => {
-				const activateAccountMock = {
-					emailToken : user.local.activateAccountToken,
-					userName : USER_NAME
-				};
-				expect(user.local.activateAccountToken).to.be.not.undefined;
-				expect(user.local.activateAccountExpires).to.be.not.undefined;
-				expect(user.local.activateAccountToken).to.be.not.null;
-				expect(user.local.activateAccountExpires).to.be.not.null;
 
-				getPartialPostRequest('/api/activateAccount')
-				.set('XSRF-TOKEN', csrftoken)
-				.send(activateAccountMock)
-				.expect(200)
-				.end((err, res) => {
-					if (err) {
-						return done(err);
-					} else {
-						expect(res.body.message).to.be.equals('An e-mail has been sent to ' + USER_EMAIL + ' with further instructions.');
+        async.waterfall([
+          asyncDone => testUsersUtils.readUserLocalByEmailLocal(asyncDone),
+          (user, asyncDone) => {
+            const activateAccountMock = {
+              emailToken : user.local.activateAccountToken,
+              userName : USER_NAME
+            };
+            expect(user.local.activateAccountToken).to.be.not.undefined;
+            expect(user.local.activateAccountExpires).to.be.not.undefined;
+            expect(user.local.activateAccountToken).to.be.not.null;
+            expect(user.local.activateAccountExpires).to.be.not.null;
 
-						User.findOne({ 'local.email': registerMock.email })
-							.then(usr => {
-                expect(usr.local.name).to.be.equals(USER_NAME);
-                expect(usr.local.email).to.be.equals(USER_EMAIL);
-                expect(usr.validPassword(USER_PASSWORD)).to.be.true;
+            testUtils.getPartialPostRequest('/api/activateAccount')
+              .set('XSRF-TOKEN', testUtils.csrftoken)
+              .send(activateAccountMock)
+              .expect(200)
+              .end((err, res) => {
+                if (err) {
+                  return asyncDone(err);
+                }
+                expect(res.body.message).to.be.equals('An e-mail has been sent to ' + USER_EMAIL + ' with further instructions.');
 
-                expect(usr.local.activateAccountToken).to.be.undefined;
-                expect(usr.local.activateAccountExpires).to.be.undefined;
+                User.findOne({ 'local.email': registerMock.email })
+                  .then(usr => {
+                    expect(usr.local.name).to.be.equals(USER_NAME);
+                    expect(usr.local.email).to.be.equals(USER_EMAIL);
+                    expect(usr.validPassword(USER_PASSWORD)).to.be.true;
 
-                done();
-							})
-							.catch(err1 => {
-                done(err1);
-							});
-					}
-				});
+                    expect(usr.local.activateAccountToken).to.be.undefined;
+                    expect(usr.local.activateAccountExpires).to.be.undefined;
+
+                    asyncDone();
+                  })
+                  .catch(err1 => asyncDone(err1));
+              });
+          }
+        ], (err, response) => done(err));
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 
@@ -148,89 +114,96 @@ describe('auth-local', () => {
 		 	beforeEach(done => registerUserTestDb(done));
 
 			it('should catch 404 NOT FOUND, because the token is expired', done => {
-				const activateAccountMock = {
-					emailToken : user.local.activateAccountToken,
-					userName : USER_NAME
-				};
 
-				User.findOne({ 'local.email': USER_EMAIL })
-          .then(usr => {
-            expect(usr.local.activateAccountToken).to.be.not.undefined;
+        async.waterfall([
+          asyncDone => testUsersUtils.readUserLocalByEmailLocal(asyncDone),
+          (user, asyncDone) => {
+            const activateAccountMock = {
+              emailToken : user.local.activateAccountToken,
+              userName : USER_NAME
+            };
 
-            console.log("token " + usr.local.activateAccountToken);
-            console.log("exprires: " + usr.local.activateAccountExpires);
+            User.findOne({ 'local.email': USER_EMAIL })
+              .then(usr => {
+                expect(usr.local.activateAccountToken).to.be.not.undefined;
 
-            usr.local.activateAccountExpires =  Date.now() - 3600000; // - 1 hour
+                console.log("token " + usr.local.activateAccountToken);
+                console.log("exprires: " + usr.local.activateAccountExpires);
 
-            console.log("exprires: " + usr.local.activateAccountExpires);
+                usr.local.activateAccountExpires =  Date.now() - 3600000; // - 1 hour
 
-            return usr.save();
-          })
-          .then(savedUser => {
-            console.log("saved exprires: " + savedUser.local.activateAccountExpires);
-            console.log(savedUser);
-            getPartialPostRequest('/api/activateAccount')
-              .set('XSRF-TOKEN', csrftoken)
-              .send(activateAccountMock)
-              .expect(404)
-              .end((err, res) => {
-                if (err) {
-                  return done(err);
-                } else {
-                  console.log(res.body.message);
-                  expect(res.body.message).to.be.equals('Link exprired! Your account is removed. Please, create another account, also with the same email address.');
-                  done();
-                }
+                console.log("exprires: " + usr.local.activateAccountExpires);
+
+                return usr.save();
+              })
+              .then(savedUser => {
+                console.log("saved exprires: " + savedUser.local.activateAccountExpires);
+                console.log(savedUser);
+                testUtils.getPartialPostRequest('/api/activateAccount')
+                  .set('XSRF-TOKEN', testUtils.csrftoken)
+                  .send(activateAccountMock)
+                  .expect(404)
+                  .end((err, res) => {
+                    if (err) {
+                      return asyncDone(err);
+                    }
+                    console.log(res.body.message);
+                    expect(res.body.message).to.be.equals('Link exprired! Your account is removed. Please, create another account, also with the same email address.');
+                    asyncDone();
+                  });
+              })
+              .catch(err => {
+                asyncDone(err);
               });
-          })
-          .catch(err => {
-            done(err);
-          });
+          }
+        ], (err, response) => done(err));
 			});
 
 
 			it('should catch 404 NOT FOUND, because token is not valid', done => {
-				const activateAccountMock = {
-					emailToken : user.local.activateAccountToken,
-					userName : USER_NAME
-				};
+        async.waterfall([
+          asyncDone => testUsersUtils.readUserLocalByEmailLocal(asyncDone),
+          (user, asyncDone) => {
+            const activateAccountMock = {
+              emailToken : user.local.activateAccountToken,
+              userName : USER_NAME
+            };
 
-				User.findOne({ 'local.email': USER_EMAIL })
-          .then(usr => {
-            expect(usr.local.activateAccountToken).to.be.not.undefined;
+            User.findOne({ 'local.email': USER_EMAIL })
+              .then(usr => {
+                expect(usr.local.activateAccountToken).to.be.not.undefined;
 
-            console.log("token " + usr.local.activateAccountToken);
-            console.log("exprires: " + usr.local.activateAccountExpires);
+                console.log("token " + usr.local.activateAccountToken);
+                console.log("exprires: " + usr.local.activateAccountExpires);
 
-            usr.local.activateAccountToken = 'random_wrong_token';
+                usr.local.activateAccountToken = 'random_wrong_token';
 
-            console.log("token: " + usr.local.activateAccountToken);
+                console.log("token: " + usr.local.activateAccountToken);
 
-            return usr.save();
-          })
-          .then(savedUser => {
-            console.log("saved token: " + savedUser.local.activateAccountToken);
-            console.log(savedUser);
-            getPartialPostRequest('/api/activateAccount')
-              .set('XSRF-TOKEN', csrftoken)
-              .send(activateAccountMock)
-              .expect(404)
-              .end((err, res) => {
-                if (err) {
-                  return done(err);
-                } else {
-                  console.log(res.body.message);
-                  expect(res.body.message).to.be.equals('No account with that token exists.');
-                  done();
-                }
-              });
-          })
-          .catch(err1 => {
-            done(err1);
-          });
+                return usr.save();
+              })
+              .then(savedUser => {
+                console.log("saved token: " + savedUser.local.activateAccountToken);
+                console.log(savedUser);
+                testUtils.getPartialPostRequest('/api/activateAccount')
+                  .set('XSRF-TOKEN', testUtils.csrftoken)
+                  .send(activateAccountMock)
+                  .expect(404)
+                  .end((err, res) => {
+                    if (err) {
+                      return asyncDone(err);
+                    }
+                    console.log(res.body.message);
+                    expect(res.body.message).to.be.equals('No account with that token exists.');
+                    asyncDone();
+                  });
+              })
+              .catch(err1 => asyncDone(err1));
+          }
+        ], (err, response) => done(err));
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 		describe('---NO - Missing params---', () => {
@@ -247,27 +220,26 @@ describe('auth-local', () => {
 			for(let i = 0; i<missingUpdatePwdMocks.length; i++) {
 				console.log(missingUpdatePwdMocks[i]);
 				it('should get 400 BAD REQUEST, because emailToken and userName are mandatory. Test i=' + i, done => {
-					getPartialPostRequest('/api/activateAccount')
-					.set('XSRF-TOKEN', csrftoken)
+					testUtils.getPartialPostRequest('/api/activateAccount')
+					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(missingUpdatePwdMocks[i])
 					.expect(400)
 					.end((err, res) => {
 						if (err) {
 							return done(err);
-						} else {
-							expect(res.body.message).to.be.equals("EmailToken and userName fields are required.");
-							done();
 						}
+            expect(res.body.message).to.be.equals("EmailToken and userName fields are required.");
+            done();
 					});
 				});
 			}
 
-			after(done => dropUserCollectionTestDb(done));
+			after(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				getPartialPostRequest('/api/activate')
+				testUtils.getPartialPostRequest('/api/activate')
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(registerMock)
 				.expect(403)
@@ -275,8 +247,4 @@ describe('auth-local', () => {
 			});
 		});
 	});
-
-  after(() => {
-		// mongoose.disconnect();
-  });
 });

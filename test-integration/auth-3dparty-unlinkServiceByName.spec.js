@@ -7,6 +7,12 @@ let agent = require('supertest').agent(app);
 let async = require('async');
 let _ = require('lodash');
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -18,8 +24,6 @@ let fullServiceNames = require('../src/controllers/authentication/serviceNames')
 let serviceNames = _.without(fullServiceNames, 'profile');
 
 let user;
-let csrftoken;
-let connectionSid;
 
 const USER_NAME = 'fake user';
 const USER_EMAIL = 'fake@email.com';
@@ -50,22 +54,6 @@ const NO_TOKEN_PROVIDED = 'No token provided';
 
 describe('auth-3dparty', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
-
 	function insertUserTestDb(done) {
 		user = new User();
 		user.local.name = USER_NAME;
@@ -74,7 +62,7 @@ describe('auth-3dparty', () => {
     user.save()
       .then(savedUser => {
         user._id = savedUser._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
+        testUtils.updateCookiesAndTokens(done); //pass done, it's important!
       })
       .catch(err => {
         done(err);
@@ -96,38 +84,11 @@ describe('auth-3dparty', () => {
     user.save()
       .then(savedUser => {
         user._id = savedUser._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
+        testUtils.updateCookiesAndTokens(done); //pass done, it's important!
       })
       .catch(err => {
         done(err);
       });
-	}
-
-	function dropUserTestDb(done) {
-    User.remove({})
-      .then(() => {
-        done();
-      }).catch(err => {
-      fail('should not throw an error');
-      done(err);
-    });
-	}
-
-	function getPartialPostRequest (apiUrl) {
-		return agent
-		.post(apiUrl)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json')
-		.set('set-cookie', 'connect.sid=' + connectionSid)
-		.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialGetRequest (apiUrl) {
-		return agent
-		.get(apiUrl)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
 	}
 
 	describe('#unlinkServiceByName()', () => {
@@ -141,8 +102,8 @@ describe('auth-3dparty', () => {
 					it('should remove ' + serviceNames[i] + ' account from an user with many other accounts [NO last unlink].', done => {
 						async.waterfall([
 							asyncDone => {
-								getPartialPostRequest(URL_LOGIN)
-								.set('XSRF-TOKEN', csrftoken)
+								testUtils.getPartialPostRequest(URL_LOGIN)
+								.set('XSRF-TOKEN', testUtils.csrftoken)
 								.send(loginMock)
 								.expect(200)
 								.end((err, res) => asyncDone(err, res));
@@ -151,7 +112,7 @@ describe('auth-3dparty', () => {
 								expect(res.body.token).to.be.not.null;
 								expect(res.body.token).to.be.not.undefined;
 
-								getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+								testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 								.send()
 								.expect(200)
 								.end((err, res) => {
@@ -162,7 +123,7 @@ describe('auth-3dparty', () => {
 					});
 				}
 
-				afterEach(done => dropUserTestDb(done));
+				afterEach(done => testUsersUtils.dropUserTestDb(done));
 
 			});
 
@@ -176,8 +137,8 @@ describe('auth-3dparty', () => {
 							asyncDone => insertUserLastUnlinkTestDb(services3dAuth[i], asyncDone),
 							asyncDone => {
 								//login as local user
-								getPartialPostRequest(URL_LOGIN)
-								.set('XSRF-TOKEN', csrftoken)
+								testUtils.getPartialPostRequest(URL_LOGIN)
+								.set('XSRF-TOKEN', testUtils.csrftoken)
 								.send(loginMock)
 								.expect(200)
 								.end((err, res) => asyncDone(err, res));
@@ -189,7 +150,7 @@ describe('auth-3dparty', () => {
 								expect(res.body.token).to.be.not.null;
 								expect(res.body.token).to.be.not.undefined;
 
-								getPartialGetRequest(URL_BASE_UNLINK + 'local')
+								testUtils.getPartialGetRequest(URL_BASE_UNLINK + 'local')
 								.send()
 								.expect(200)
 								.end((err, res) => {
@@ -202,7 +163,7 @@ describe('auth-3dparty', () => {
 								// I call unlink/*serviceName* to remove this account, however
 								// because this is the last account into the user object,
 								// this is a LAST UNLINK!!!!
-								getPartialGetRequest(URL_BASE_UNLINK + services3dAuth[i])
+								testUtils.getPartialGetRequest(URL_BASE_UNLINK + services3dAuth[i])
 								.send()
 								.expect(200)
 								.end((err, res) => {
@@ -213,7 +174,7 @@ describe('auth-3dparty', () => {
 					});
 				}
 
-				afterEach(done => dropUserTestDb(done));
+				afterEach(done => testUsersUtils.dropUserTestDb(done));
 
 			});
 		});
@@ -225,7 +186,7 @@ describe('auth-3dparty', () => {
 
 			for(let i=0; i<serviceNames.length; i++) {
 				it('should get 403 FORBIDDEN, because you aren\'t authenticated. Test serviceName=' + serviceNames[i], done => {
-					getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+					testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 					//not authenticated
 					.send(loginMock)
 					.expect(403)
@@ -237,14 +198,14 @@ describe('auth-3dparty', () => {
 
 					async.waterfall([
 						asyncDone => {
-							getPartialPostRequest(URL_LOGIN)
-							.set('XSRF-TOKEN', csrftoken)
+							testUtils.getPartialPostRequest(URL_LOGIN)
+							.set('XSRF-TOKEN', testUtils.csrftoken)
 							.send(loginMock)
 							.expect(200)
 							.end((err, res) => asyncDone(err, res));
 						},
 						(res, asyncDone) => {
-							getPartialGetRequest(URL_LOGOUT)
+							testUtils.getPartialGetRequest(URL_LOGOUT)
 							.send()
 							.expect(200)
 							.end((err, res) => {
@@ -255,7 +216,7 @@ describe('auth-3dparty', () => {
 						(res, asyncDone) => {
 							console.log(res.body);
 
-							getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+							testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 							.send()
 							.expect(403)
 							.end((err, res) => {
@@ -269,7 +230,7 @@ describe('auth-3dparty', () => {
 
 			for(let i=0; i<serviceNames.length; i++) {
 				it('should get 403 FORBIDDEN, because you aren\'t authenticated. Test serviceName=' + serviceNames[i], done => {
-					getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+					testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 					//not authenticated
 					.send(loginMock)
 					.expect(403)
@@ -280,8 +241,8 @@ describe('auth-3dparty', () => {
 
 					async.waterfall([
 						asyncDone => {
-							getPartialPostRequest(URL_LOGIN)
-							.set('XSRF-TOKEN', csrftoken)
+							testUtils.getPartialPostRequest(URL_LOGIN)
+							.set('XSRF-TOKEN', testUtils.csrftoken)
 							.send(loginMock)
 							.expect(200)
 							.end((err, res) => {
@@ -295,7 +256,7 @@ describe('auth-3dparty', () => {
 						},
 						(res, asyncDone) => {
 							console.log(res.body);
-							getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+							testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 							.send()
 							.expect(404)
 							.end((err, res) => {
@@ -312,8 +273,8 @@ describe('auth-3dparty', () => {
 
 					async.waterfall([
 						asyncDone => {
-							getPartialPostRequest(URL_LOGIN)
-							.set('XSRF-TOKEN', csrftoken)
+							testUtils.getPartialPostRequest(URL_LOGIN)
+							.set('XSRF-TOKEN', testUtils.csrftoken)
 							.send(loginMock)
 							.expect(200)
 							.end((err, res) => asyncDone(err, res));
@@ -323,7 +284,7 @@ describe('auth-3dparty', () => {
 							expect(res.body.token).to.be.not.undefined;
 							console.log(res.body);
 
-							getPartialGetRequest(URL_DESTROY_SESSION)
+							testUtils.getPartialGetRequest(URL_DESTROY_SESSION)
 							.send()
 							.expect(200)
 							.end((err, res) => asyncDone(err, res));
@@ -332,7 +293,7 @@ describe('auth-3dparty', () => {
 							// BYPASS rest-auth-middleware
 							process.env.DISABLE_REST_AUTH_MIDDLEWARE = 'yes';
 
-							getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+							testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 							.send()
 							.expect(401)
 							.end((err, res) => {
@@ -357,8 +318,8 @@ describe('auth-3dparty', () => {
 
 					async.waterfall([
 						asyncDone => {
-							getPartialPostRequest(URL_LOGIN)
-							.set('XSRF-TOKEN', csrftoken)
+							testUtils.getPartialPostRequest(URL_LOGIN)
+							.set('XSRF-TOKEN', testUtils.csrftoken)
 							.send(loginMock)
 							.expect(200)
 							.end((err, res) => asyncDone(err, res));
@@ -368,7 +329,7 @@ describe('auth-3dparty', () => {
 							expect(res.body.token).to.be.not.undefined;
 							console.log(res.body);
 
-							getPartialGetRequest(URL_SET_JSON_WITHOUT_TOKEN_SESSION)
+							testUtils.getPartialGetRequest(URL_SET_JSON_WITHOUT_TOKEN_SESSION)
 							.send()
 							.expect(200)
 							.end((err, res) => asyncDone(err, res));
@@ -377,7 +338,7 @@ describe('auth-3dparty', () => {
 							// BYPASS rest-auth-middleware
 							process.env.DISABLE_REST_AUTH_MIDDLEWARE = 'yes';
 
-							getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+							testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 							.send()
 							.expect(401)
 							.end((err, res) => {
@@ -401,8 +362,8 @@ describe('auth-3dparty', () => {
 
 					async.waterfall([
 						asyncDone => {
-							getPartialPostRequest(URL_LOGIN)
-							.set('XSRF-TOKEN', csrftoken)
+							testUtils.getPartialPostRequest(URL_LOGIN)
+							.set('XSRF-TOKEN', testUtils.csrftoken)
 							.send(loginMock)
 							.expect(200)
 							.end((err, res) => asyncDone(err, res));
@@ -412,7 +373,7 @@ describe('auth-3dparty', () => {
 							expect(res.body.token).to.be.not.undefined;
 							console.log(res.body);
 
-							getPartialGetRequest(URL_SET_JSON_WITH_WRONGFORMAT_TOKEN_SESSION)
+							testUtils.getPartialGetRequest(URL_SET_JSON_WITH_WRONGFORMAT_TOKEN_SESSION)
 							.send()
 							.expect(200)
 							.end((err, res) => asyncDone(err, res));
@@ -421,7 +382,7 @@ describe('auth-3dparty', () => {
 							// BYPASS rest-auth-middleware
 							process.env.DISABLE_REST_AUTH_MIDDLEWARE = 'yes';
 
-							getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
+							testUtils.getPartialGetRequest(URL_BASE_UNLINK + serviceNames[i])
 							.send()
 							.expect(401)
 							.end((err, res) => {
@@ -438,12 +399,7 @@ describe('auth-3dparty', () => {
 				});
 			}
 
-			afterEach(done => dropUserTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDb(done));
 		});
 	});
-
-  // after((done) => {
-  //   mongoose.disconnect();
-  //   done();
-  // });
 });

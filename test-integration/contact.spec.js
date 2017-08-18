@@ -4,10 +4,9 @@ process.env.NODE_ENV = 'test'; //before every other instruction
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
-let nock = require('nock');
 
-let csrftoken;
-let connectionSid;
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
 
 const RECAPTCHA_BASE_URL = 'https://www.google.com/recaptcha';
 const RECAPTCHA_API_URL = '/api/siteverify';
@@ -48,46 +47,16 @@ const recaptchaWrong2RespMock = {
 
 describe('contact', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
-
-	function getPartialPostRequest (apiUrl) {
-		return agent
-	    	.post(apiUrl)
-	    	.set('Content-Type', 'application/json')
-	    	.set('Accept', 'application/json')
-	    	.set('set-cookie', 'connect.sid=' + connectionSid)
-	    	.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	function getPartialNockApiUrl () {
-		return nock(RECAPTCHA_BASE_URL)
-				.post(RECAPTCHA_API_URL);
-	}
-
 	describe('#sendEmailWithRecaptcha()', () => {
 
 		describe('---YES---', () => {
 
-			beforeEach(done => updateCookiesAndTokens(done));
+			beforeEach(done => testUtils.updateCookiesAndTokens(done));
 
 			it('should correctly send an email', done => {
-				getPartialNockApiUrl().reply(200, recaptchaCorrectRespMock);
-	    		getPartialPostRequest(EMAIL_URL)
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialNockApiUrl(RECAPTCHA_BASE_URL, RECAPTCHA_API_URL).reply(200, recaptchaCorrectRespMock);
+        testUtils.getPartialPostRequest(EMAIL_URL)
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(contactMock)
 				.expect(200)
 				.end((err, res) => {
@@ -102,12 +71,12 @@ describe('contact', () => {
 
 		describe('---NO---', () => {
 
-			beforeEach(done => updateCookiesAndTokens(done));
+			beforeEach(done => testUtils.updateCookiesAndTokens(done));
 
 			it('should catch a 401 UNAUTHORIZED, because Recaptcha2 answers false', done => {
-				getPartialNockApiUrl().reply(200, recaptchaWrong1RespMock);
-	    		getPartialPostRequest(EMAIL_URL)
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialNockApiUrl(RECAPTCHA_BASE_URL, RECAPTCHA_API_URL).reply(200, recaptchaWrong1RespMock);
+        testUtils.getPartialPostRequest(EMAIL_URL)
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(contactMock)
 				.expect(401)
 				.end((err, res) => {
@@ -119,9 +88,9 @@ describe('contact', () => {
 			});
 
 			it('should catch a 401 UNAUTHORIZED, because Recaptcha2 answers false also with an array of error codes', done => {
-				getPartialNockApiUrl().reply(200, recaptchaWrong2RespMock);
-	    		getPartialPostRequest(EMAIL_URL)
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialNockApiUrl(RECAPTCHA_BASE_URL, RECAPTCHA_API_URL).reply(200, recaptchaWrong2RespMock);
+        testUtils.getPartialPostRequest(EMAIL_URL)
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(contactMock)
 				.expect(401)
 				.end((err, res) => {
@@ -156,19 +125,19 @@ describe('contact', () => {
 				{}
 			];
 
-			//these are multiple tests that I'm execting for all cobinations
+			//these are multiple tests that I'm expecting for all combinations
 			//of missing params
 			for(let i = 0; i<missingContactMocks.length; i++) {
 				console.log(missingContactMocks[i]);
 
 				it('should catch a 400 BAD REQUEST, because subject, object and text params are mandatory. Test i=' + i, done => {
-					getPartialNockApiUrl().reply(200, recaptchaCorrectRespMock);
+					testUtils.getPartialNockApiUrl(RECAPTCHA_BASE_URL, RECAPTCHA_API_URL).reply(200, recaptchaCorrectRespMock);
 
 					//remove imput params
 					delete contactMock.emailFormData;
 
-		    		getPartialPostRequest(EMAIL_URL)
-					.set('XSRF-TOKEN', csrftoken)
+          testUtils.getPartialPostRequest(EMAIL_URL)
+					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(contactMock)
 					.expect(400)
 					.end((err, res) => {
@@ -183,7 +152,7 @@ describe('contact', () => {
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN,, because XSRF-TOKEN is not available', done => {
-				getPartialPostRequest(EMAIL_URL)
+				testUtils.getPartialPostRequest(EMAIL_URL)
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(contactMock)
 				.expect(403)

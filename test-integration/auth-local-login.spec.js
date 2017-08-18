@@ -5,6 +5,12 @@ let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -12,10 +18,6 @@ let mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
-
-let user;
-let csrftoken;
-let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -36,65 +38,14 @@ const wrongLoginMock = {
 
 describe('auth-local', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
-
-	function insertUserTestDb(done) {
-		user = new User();
-		user.local.name = USER_NAME;
-		user.local.email = USER_EMAIL;
-		user.setPassword(USER_PASSWORD);
-		user.save()
-			.then(usr => {
-        user._id = usr._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
-			})
-			.catch(err => {
-        done(err);
-			});
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialPostRequest (apiUrl) {
-		return agent
-			.post(apiUrl)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json')
-			.set('set-cookie', 'connect.sid=' + connectionSid)
-			.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	function dropUserCollectionTestDb(done) {
-    User.remove({})
-      .then(() => {
-        done();
-      }).catch(err => {
-      fail('should not throw an error');
-      done(err);
-    });
-	}
-
 	describe('#login()', () => {
 		describe('---YES---', () => {
 
-			beforeEach(done => insertUserTestDb(done));
+			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should correctly login', done => {
-				getPartialPostRequest('/api/login')
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialPostRequest('/api/login')
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(loginMock)
 				.expect(200)
 				.end((err, res) => {
@@ -108,11 +59,11 @@ describe('auth-local', () => {
 				});
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 		describe('---NO - Wrong params---', () => {
-			before(done => insertUserTestDb(done));
+			before(done => testUsersUtils.insertUserTestDb(done));
 
 			const wrongLoginMocks = [
 				{email : USER_EMAIL, password : LOGIN_WRONG_PASSWORD},
@@ -125,8 +76,8 @@ describe('auth-local', () => {
 			for(let i = 0; i<wrongLoginMocks.length; i++) {
 				console.log(wrongLoginMocks[i]);
 				it('should get 401 UNAUTHORIZED, because the correct input params are wrong. Test i= ' + i, done => {
-					getPartialPostRequest('/api/login')
-					.set('XSRF-TOKEN', csrftoken)
+					testUtils.getPartialPostRequest('/api/login')
+					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(wrongLoginMocks[i])
 					.expect(401)
 					.end((err, res) => {
@@ -143,8 +94,8 @@ describe('auth-local', () => {
 			it('should get 400 BAD REQUEST, because the correct input params are wrong ' +
 				'(passed name and blabla insted of emailand password).', done => {
 
-				getPartialPostRequest('/api/login')
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialPostRequest('/api/login')
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send({name: 'wrong_name_param', blabla: 'wrong_name_param', })
 				.expect(400)
 				.end((err, res) => {
@@ -157,11 +108,11 @@ describe('auth-local', () => {
 				});
 			});
 
-			after(done => dropUserCollectionTestDb(done));
+			after(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 		describe('---NO - MISSING params---', () => {
-			before(done => insertUserTestDb(done));
+			before(done => testUsersUtils.insertUserTestDb(done));
 
 			const missingLoginMocks = [
 				{email: USER_EMAIL},
@@ -175,8 +126,8 @@ describe('auth-local', () => {
 				console.log(missingLoginMocks[i]);
 
 				it('should get 400 BAD REQUEST, because input params are missing. Test i= ' + i, done => {
-					getPartialPostRequest('/api/login')
-					.set('XSRF-TOKEN', csrftoken)
+					testUtils.getPartialPostRequest('/api/login')
+					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(missingLoginMocks[i])
 					.expect(400)
 					.end((err, res) => {
@@ -190,11 +141,11 @@ describe('auth-local', () => {
 				});
 			}
 
-			after(done => dropUserCollectionTestDb(done));
+			after(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 		describe('---NO - NOT ACTIVATED---', () => {
-			before(done => insertUserTestDb(done));
+			before(done => testUsersUtils.insertUserTestDb(done));
 
 			const activateCombinations = [
 				{token : 'FAKE_TOKEN', expires : new Date()},
@@ -209,7 +160,7 @@ describe('auth-local', () => {
 
 				it('should get 401 UNAUTHORIZED, because this account is not activated. Test i= ' + i, done => {
 					before(done => {
-						user = new User();
+						let user = new User();
 						user.local.name = USER_NAME;
 						user.local.email = USER_EMAIL;
 						user.setPassword(USER_PASSWORD);
@@ -218,15 +169,15 @@ describe('auth-local', () => {
 						user.save()
 							.then(usr => {
                 user._id = usr._id;
-                updateCookiesAndTokens(done); //pass done, it's important!
+                testUtils.updateCookiesAndTokens(done); //pass done, it's important!
 							})
 							.catch(err => {
                 done(err);
 							});
 					});
 
-					getPartialPostRequest('/api/login')
-					.set('XSRF-TOKEN', csrftoken)
+					testUtils.getPartialPostRequest('/api/login')
+					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(wrongLoginMock)
 					.expect(401)
 					.end((err, res) => {
@@ -239,13 +190,13 @@ describe('auth-local', () => {
 					});
 				});
 
-				after(done => dropUserCollectionTestDb(done));
+				after(done => testUsersUtils.dropUserTestDbAndLogout(done));
 			}
 		});
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				getPartialPostRequest('/api/login')
+				testUtils.getPartialPostRequest('/api/login')
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(loginMock)
 				.expect(403)

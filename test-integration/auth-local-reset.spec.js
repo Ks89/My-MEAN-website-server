@@ -5,6 +5,12 @@ let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -12,10 +18,6 @@ let mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
-
-let user;
-let csrftoken;
-let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -33,100 +35,45 @@ const wrongResetMock = {
 
 describe('auth-local', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-      }
-    });
-	}
-
-	function insertUserTestDb(done) {
-		user = new User();
-		user.local.name = USER_NAME;
-		user.local.email = USER_EMAIL;
-		user.setPassword(USER_PASSWORD);
-		user.save()
-      .then(usr => {
-        user._id = usr._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
-      })
-      .catch(err => {
-        done(err);
-      });
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialPostRequest (apiUrl) {
-		return agent
-			.post(apiUrl)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json')
-			.set('set-cookie', 'connect.sid=' + connectionSid)
-			.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	function dropUserCollectionTestDb(done) {
-    User.remove({})
-      .then(() => {
-        done();
-      }).catch(err => {
-        fail('should not throw an error');
-        done(err);
-      });
-	}
-
 	describe('#reset()', () => {
 		describe('---YES---', () => {
 
-			beforeEach(done => insertUserTestDb(done));
+			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should correctly reset password', done => {
-				getPartialPostRequest('/api/reset')
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialPostRequest('/api/reset')
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(resetMock)
 				.expect(200)
 				.end((err, res) => {
 					if (err) {
 						return done(err);
-					} else {
-						expect(res.body.message).to.be.equals('An e-mail has been sent to ' + USER_EMAIL + ' with further instructions.');
-						if(err) {
-							done(err);
-						} else {
-							User.findOne({ 'local.email': resetMock.email })
-                .then(user => {
-                  expect(user.local.name).to.be.equals(USER_NAME);
-                  expect(user.local.email).to.be.equals(USER_EMAIL);
-                  expect(user.validPassword(USER_PASSWORD)).to.be.true;
-                  expect(user.local.resetPasswordExpires).to.be.not.null;
-                  expect(user.local.resetPasswordToken).to.be.not.null;
-                  expect(user.local.resetPasswordExpires).to.be.not.undefined;
-                  expect(user.local.resetPasswordToken).to.be.not.undefined;
-                  done();
-                })
-                .catch(err1 => {
-                  done(err1);
-                });
-						}
 					}
+          expect(res.body.message).to.be.equals('An e-mail has been sent to ' + USER_EMAIL + ' with further instructions.');
+          if(err) {
+            done(err);
+          }
+          User.findOne({ 'local.email': resetMock.email })
+            .then(user => {
+              expect(user.local.name).to.be.equals(USER_NAME);
+              expect(user.local.email).to.be.equals(USER_EMAIL);
+              expect(user.validPassword(USER_PASSWORD)).to.be.true;
+              expect(user.local.resetPasswordExpires).to.be.not.null;
+              expect(user.local.resetPasswordToken).to.be.not.null;
+              expect(user.local.resetPasswordExpires).to.be.not.undefined;
+              expect(user.local.resetPasswordToken).to.be.not.undefined;
+              done();
+            })
+            .catch(err1 => done(err1));
 				});
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDb(done));
 		});
 
 
 		describe('---NO - MISSING params---', () => {
-			before(done => insertUserTestDb(done));
+			before(done => testUsersUtils.insertUserTestDb(done));
 
 			const missingLoginMocks = [
 				{email : null},
@@ -139,43 +86,41 @@ describe('auth-local', () => {
 			for(let i = 0; i<missingLoginMocks.length; i++) {
 				console.log(missingLoginMocks[i]);
 				it('should get 400 BAD REQUEST, because email param is mandatory.', done => {
-					getPartialPostRequest('/api/reset')
-					.set('XSRF-TOKEN', csrftoken)
+					testUtils.getPartialPostRequest('/api/reset')
+					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(missingLoginMocks[i])
 					.expect(400)
 					.end((err, res) => {
 						if (err) {
 							return done(err);
-						} else {
-							expect(res.body.message).to.be.equals("Email fields is required.");
-							done(err);
 						}
+            expect(res.body.message).to.be.equals("Email fields is required.");
+            done();
 					});
 				});
 			}
 
 			it('should get 404 NOT FOUND, because the request email is not found.', done => {
-				getPartialPostRequest('/api/reset')
-				.set('XSRF-TOKEN', csrftoken)
+				testUtils.getPartialPostRequest('/api/reset')
+				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send({email : RESET_WRONG_EMAIL})
 				.expect(404)
 				.end((err, res) => {
 					if (err) {
 						return done(err);
-					} else {
-						console.log(res.body.message);
-						expect(res.body.message).to.be.equals("No account with that email address exists.");
-						done(err);
 					}
+					console.log(res.body.message);
+          expect(res.body.message).to.be.equals("No account with that email address exists.");
+          done();
 				});
 			});
 
-			after(done => dropUserCollectionTestDb(done));
+			after(done => testUsersUtils.dropUserTestDb(done));
 		});
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				getPartialPostRequest('/api/reset')
+				testUtils.getPartialPostRequest('/api/reset')
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(resetMock)
 				.expect(403)
@@ -183,8 +128,4 @@ describe('auth-local', () => {
 			});
 		});
 	});
-
-  after(() => {
-    // mongoose.disconnect();
-  });
 });

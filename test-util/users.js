@@ -30,14 +30,14 @@ class TestUsersUtils {
       });
   }
 
-  insertUserTestDb(done) {
+  insertUserTestDb(done, username = USER_NAME, email = USER_EMAIL, password = USER_PASSWORD) {
     let user = new User();
-    user.local.name = USER_NAME;
-    user.local.email = USER_EMAIL;
-    user.setPassword(USER_PASSWORD);
+    user.local.name = username;
+    user.local.email = email;
+    user.setPassword(password);
     user.save()
-      .then(usr2 => {
-        user._id = usr2._id;
+      .then(savedUser => {
+        user._id = savedUser._id;
         this._testUtils.updateCookiesAndTokens(done); //pass done, it's important!
       })
       .catch(err => {
@@ -73,8 +73,8 @@ class TestUsersUtils {
         user._id = usr._id;
         this._testUtils.updateCookiesAndTokens(done); //pass done, it's important!
       }).catch(err => {
-      done(err);
-    });
+        done(err);
+      });
   }
 
   dropUserTestDb(done) {

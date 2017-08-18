@@ -20,10 +20,9 @@ mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
 
-
-const USER_NAME = 'fake user';
-const USER_EMAIL = 'fake@email.com';
-const USER_PASSWORD = 'fake';
+const USER_NAME = 'username';
+const USER_EMAIL = 'email@email.it';
+const USER_PASSWORD = 'Password1';
 
 const URL_LOGIN = '/api/login';
 const URL_LOGOUT = '/api/logout';
@@ -44,25 +43,10 @@ const loginMock = {
 
 describe('rest-auth-middleware', () => {
 
-	function insertUserTestDb(done) {
-		let user = new User();
-		user.local.name = USER_NAME;
-		user.local.email = USER_EMAIL;
-		user.setPassword(USER_PASSWORD);
-		user.save()
-			.then(usr => {
-        user._id = usr._id;
-        testUtils.updateCookiesAndTokens(done); //pass done, it's important!
-			})
-			.catch(err => {
-        done(err);
-			});
-	}
-
 	describe('#restAuthenticationMiddleware()', () => {
 		describe('---YES---', () => {
 
-			beforeEach(done => insertUserTestDb(done));
+			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should login', done => {
   			testUtils.getPartialPostRequest(URL_LOGIN)

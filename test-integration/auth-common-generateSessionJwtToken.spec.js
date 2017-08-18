@@ -6,6 +6,12 @@ let app = require('../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -14,10 +20,6 @@ mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
 let authCommon = require('../src/controllers/authentication/common/auth-common');
-
-let user;
-let csrftoken;
-let connectionSid;
 
 let NEW_NAME = 'Fake name';
 let NEW_EMAIL = 'fake@email.com';
@@ -36,84 +38,31 @@ const URL_LOGOUT = '/api/logout';
 
 describe('auth-common', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
-
-	function insertUserTestDb(done) {
-		user = new User();
-		user.local.name = NEW_NAME;
-		user.local.email = NEW_EMAIL;
-		user.setPassword(NEW_PASSWORD);
-    user.save()
-      .then(savedUser => {
-        user._id = savedUser._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
-      })
-      .catch(err => {
-        done(err);
-      });
-	}
-
-	function dropUserCollectionTestDb(done) {
-    User.remove({})
-      .then(() => {
-        done();
-      }).catch(err => {
-      fail('should not throw an error');
-      done(err);
-    });
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialGetRequest (apiUrl) {
-		return agent
-		.get(apiUrl)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	}
-
-	function getPartialPostRequest (apiUrl) {
-		return agent
-		.post(apiUrl)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json')
-		.set('set-cookie', 'connect.sid=' + connectionSid)
-		.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
 	describe('#generateSessionJwtToken()', () => {
 
 		describe('---YES---', () => {
 
-			beforeEach(done => insertUserTestDb(done));
+			beforeEach(done => testUsersUtils.insertUserTestDb(done, NEW_NAME, NEW_EMAIL, NEW_PASSWORD));
 
 			it('should return true, because it removes the specified service.', done => {
-				const jwtSessionToken = authCommon.generateSessionJwtToken(user);
-				const parsedJwtSessionToken =  JSON.parse(jwtSessionToken).token;
+				let parsedJwtSessionToken;
 
 				async.waterfall([
+          asyncDone => testUsersUtils.readUserLocalByEmailLocal(asyncDone, NEW_EMAIL),
+          (user, asyncDone) => {
+            const jwtSessionToken = authCommon.generateSessionJwtToken(user);
+            parsedJwtSessionToken =  JSON.parse(jwtSessionToken).token;
+            asyncDone();
+          },
 					asyncDone => {
-						getPartialPostRequest(URL_LOGIN)
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest(URL_LOGIN)
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(loginMock)
 						.expect(200)
 						.end((err, res) => asyncDone(err, res));
 					},
 					(res, asyncDone) => {
-						getPartialGetRequest(URL_BASE_DECODE_TOKEN + parsedJwtSessionToken)
+						testUtils.getPartialGetRequest(URL_BASE_DECODE_TOKEN + parsedJwtSessionToken)
 						.send()
 						.expect(200)
 						.end((err, res) => {
@@ -130,7 +79,7 @@ describe('auth-common', () => {
 			});
 
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDb(done));
 		});
 
 
@@ -165,8 +114,4 @@ describe('auth-common', () => {
 
 		});
 	});
-
-  // after(() => {
-  //   mongoose.disconnect();
-  // });
 });
