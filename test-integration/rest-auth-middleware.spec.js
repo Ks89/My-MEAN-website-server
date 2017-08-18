@@ -6,6 +6,12 @@ let app = require('../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -14,9 +20,6 @@ mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
 
-let user;
-let csrftoken;
-let connectionSid;
 
 const USER_NAME = 'fake user';
 const USER_EMAIL = 'fake@email.com';
@@ -41,68 +44,19 @@ const loginMock = {
 
 describe('rest-auth-middleware', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				console.log('getting csrftoken');
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-        console.log('getting connectionSid');
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
-
 	function insertUserTestDb(done) {
-		user = new User();
+		let user = new User();
 		user.local.name = USER_NAME;
 		user.local.email = USER_EMAIL;
 		user.setPassword(USER_PASSWORD);
 		user.save()
 			.then(usr => {
         user._id = usr._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
+        testUtils.updateCookiesAndTokens(done); //pass done, it's important!
 			})
 			.catch(err => {
         done(err);
 			});
-	}
-
-	function dropUserTestDbAndLogout(done) {
-    User.remove({})
-      .then(() => {
-        //I want to try to logout to be able to run all tests in a clean state
-        //If this call returns 4xx or 2xx it's not important here
-        getPartialGetRequest(URL_LOGOUT)
-          .send()
-          .end((err, res) => done(err));
-      }).catch(err => {
-				fail('should not throw an error');
-				done(err);
-			});
-	}
-
-	function getPartialPostRequest (apiUrl) {
-		return agent
-		.post(apiUrl)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json')
-		.set('set-cookie', 'connect.sid=' + connectionSid)
-		.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialGetRequest (apiUrl) {
-		return agent
-		.get(apiUrl)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
 	}
 
 	describe('#restAuthenticationMiddleware()', () => {
@@ -111,8 +65,8 @@ describe('rest-auth-middleware', () => {
 			beforeEach(done => insertUserTestDb(done));
 
 			it('should login', done => {
-  			getPartialPostRequest(URL_LOGIN)
-  			.set('XSRF-TOKEN', csrftoken)
+  			testUtils.getPartialPostRequest(URL_LOGIN)
+  			.set('XSRF-TOKEN', testUtils.csrftoken)
   			.send(loginMock)
   			.expect(200)
   			.end((err, res) => {
@@ -126,7 +80,7 @@ describe('rest-auth-middleware', () => {
         });
 			});
 
-			afterEach(done => dropUserTestDbAndLogout(done));
+			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 		describe('---ERRORS---', () => {
@@ -143,13 +97,13 @@ describe('rest-auth-middleware', () => {
                 Test i=${i} with ${sessionModifierUrls[i]}`, done => {
   				async.waterfall([
   					asyncDone => {
-  						getPartialGetRequest(sessionModifierUrls[i].url)
+  						testUtils.getPartialGetRequest(sessionModifierUrls[i].url)
   						.send()
   						.expect(200)
   						.end((err, res) => asyncDone(err, res));
   					},
   					(res, asyncDone) => {
-  						getPartialGetRequest(URL_LOGOUT)
+  						testUtils.getPartialGetRequest(URL_LOGOUT)
   						.send()
   						.expect(sessionModifierUrls[i].status) // expected status
   						.end((err, res) => {
@@ -163,7 +117,7 @@ describe('rest-auth-middleware', () => {
   			});
       }
 
-			afterEach(done => dropUserTestDbAndLogout(done));
+			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 	});
 

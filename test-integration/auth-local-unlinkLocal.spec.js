@@ -6,6 +6,12 @@ let app = require('../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -13,10 +19,6 @@ let mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
-
-let user;
-let csrftoken;
-let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -42,80 +44,18 @@ const URL_LOGOUT = '/api/logout';
 
 describe('auth-local', () => {
 
-	function updateCookiesAndTokens(done) {
-		agent
-		.get(URL_CLIENT_LOGIN_PAGE)
-		.end((err, res) => {
-			if(err) {
-				done(err);
-			} else {
-				csrftoken = (res.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
-
-	function insertUserTestDb(done) {
-		user = new User();
-		user.local.name = USER_NAME;
-		user.local.email = USER_EMAIL;
-		user.setPassword(USER_PASSWORD);
-    user.save()
-      .then(usr2 => {
-        user._id = usr2._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
-      })
-      .catch(err => {
-        done(err);
-      });
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialPostRequest (apiUrl) {
-		return agent
-			.post(apiUrl)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json')
-			.set('set-cookie', 'connect.sid=' + connectionSid)
-			.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	function getPartialGetRequest (apiUrl) {
-		return agent
-			.get(apiUrl)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-	}
-
-	function dropUserTestDbAndLogout(done) {
-    User.remove({})
-      .then(() => {
-        //I want to try to logout to be able to run all tests in a clean state
-        //If this call returns 4xx or 2xx it's not important here
-        getPartialGetRequest(URL_LOGOUT)
-          .send()
-          .end((err, res) => done(err));
-      }).catch(err => {
-        fail('should not throw an error');
-        done(err);
-      });
-	}
-
 	describe('#unlinkLocal()', () => {
 
 		describe('---YES---', () => {
 
-			beforeEach(done => insertUserTestDb(done));
+			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should correctly unlink local user (last unlink)', done => {
 
 				async.waterfall([
 					asyncDone => {
-						getPartialPostRequest(URL_LOGIN)
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest(URL_LOGIN)
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(loginMock)
 						.expect(200)
 						.end((err, res) => asyncDone(err, res));
@@ -124,7 +64,7 @@ describe('auth-local', () => {
 						expect(res.body.token).to.be.not.null;
 						expect(res.body.token).to.be.not.undefined;
 
-						getPartialGetRequest(URL_UNLINK_LOCAL)
+						testUtils.getPartialGetRequest(URL_UNLINK_LOCAL)
 						.send()
 						.expect(200)
 						.end((err, res) => {
@@ -142,6 +82,8 @@ describe('auth-local', () => {
 			});
 
 			it('should correctly unlink local user (not last unlink)', done => {
+        let user;
+
 				async.waterfall([
 					asyncDone => {
             User.findOne({ 'local.email': USER_EMAIL })
@@ -156,7 +98,7 @@ describe('auth-local', () => {
               })
               .then(usr2 => {
                 user = usr2;
-                updateCookiesAndTokens(asyncDone); //pass done, it's important!
+                testUtils.updateCookiesAndTokens(asyncDone); //pass done, it's important!
               })
               .catch(err1 => {
                 return asyncDone(err1);
@@ -165,14 +107,14 @@ describe('auth-local', () => {
 					asyncDone => {
             User.findOne({ 'local.email': USER_EMAIL })
               .then(usr => {
-                updateCookiesAndTokens(asyncDone);
-              }).catch(err => {
+                testUtils.updateCookiesAndTokens(asyncDone);
+              }).catch(err1 => {
                 return asyncDone(err1);
               });
 					},
 					asyncDone => {
-						getPartialPostRequest(URL_LOGIN)
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest(URL_LOGIN)
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(loginMock)
 						.expect(200)
 						.end((err, res) => asyncDone(err, res));
@@ -181,7 +123,7 @@ describe('auth-local', () => {
 						expect(res.body.token).to.be.not.null;
 						expect(res.body.token).to.be.not.undefined;
 
-						getPartialGetRequest(URL_UNLINK_LOCAL)
+						testUtils.getPartialGetRequest(URL_UNLINK_LOCAL)
 						.send()
 						.expect(200)
 						.end((err, res) => {
@@ -214,19 +156,19 @@ describe('auth-local', () => {
 				], (err, response) => done(err));
 			});
 
-			afterEach(done => dropUserTestDbAndLogout(done));
+			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 
 		describe('---ERRORS---', () => {
 
-			beforeEach(done => insertUserTestDb(done));
+			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should catch 403 FORBIDDEN, because you are logged, but without your user into the db', done => {
 				//I'm logged in, but for some reasons my record inside the db is missing.
 				async.waterfall([
 					asyncDone => {
-						getPartialPostRequest(URL_LOGIN)
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest(URL_LOGIN)
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(loginMock)
 						.expect(200)
 						.end((err, res) => asyncDone(err));
@@ -240,7 +182,7 @@ describe('auth-local', () => {
             });
 					},
 					asyncDone => {
-						getPartialGetRequest(URL_UNLINK_LOCAL)
+						testUtils.getPartialGetRequest(URL_UNLINK_LOCAL)
 						.send()
 						.expect(403)
 						.end((err, res) => {
@@ -254,11 +196,11 @@ describe('auth-local', () => {
 
 			it('should catch 403 FORBIDDEN, because this API is available only for ' +
 					'logged users. rest-auth-middleware will responde with -no token provided- message', done => {
-				getPartialGetRequest(URL_LOGOUT)
+				testUtils.getPartialGetRequest(URL_LOGOUT)
 				.send()
 				.expect(200)
 				.end((err, res) => {
-					getPartialGetRequest(URL_UNLINK_LOCAL)
+					testUtils.getPartialGetRequest(URL_UNLINK_LOCAL)
 					.send()
 					.expect(403)
 					.end((err, res) => {
@@ -268,11 +210,7 @@ describe('auth-local', () => {
 				});
 			});
 
-			afterEach(done => dropUserTestDbAndLogout(done));
+			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 	});
-
-  // after(() => {
-  //   mongoose.disconnect();
-  // });
 });
