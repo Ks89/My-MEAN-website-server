@@ -6,6 +6,12 @@ let app = require('../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
+const TestUtils = require('../test-util/utils');
+let testUtils = new TestUtils(agent);
+
+const TestUsersUtils = require('../test-util/users');
+let testUsersUtils = new TestUsersUtils(testUtils);
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -15,8 +21,6 @@ mongoose.Promise = require('bluebird');
 let User = mongoose.model('User');
 
 let user;
-let csrftoken;
-let connectionSid;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
@@ -31,22 +35,6 @@ const URL_PROFILE = '/api/profile';
 const URL_LOGIN = '/api/login';
 
 describe('profile', () => {
-
-	function updateCookiesAndTokens(done) {
-		agent
-		.get('/login')
-		.end((err1, res1) => {
-			if(err1) {
-				throw "Error while calling login page";
-			} else {
-				csrftoken = (res1.headers['set-cookie']).filter(value => value.includes('XSRF-TOKEN'))[0];
-				connectionSid = (res1.headers['set-cookie']).filter(value => value.includes('connect.sid'))[0];
-				csrftoken = csrftoken ? csrftoken.split(';')[0].replace('XSRF-TOKEN=','') : '';
-				connectionSid = connectionSid ? connectionSid.split(';')[0].replace('connect.sid=','') : '';
-				done();
-			}
-		});
-	}
 
 	function insertUserTestDb(done) {
 		user = new User();
@@ -70,31 +58,11 @@ describe('profile', () => {
     user.save()
 			.then(usr => {
         user._id = usr._id;
-        updateCookiesAndTokens(done); //pass done, it's important!
+        testUtils.updateCookiesAndTokens(done); //pass done, it's important!
 			})
 			.catch(err => {
         done(err);
 			});
-	}
-
-	//useful function that prevent to copy and paste the same code
-	function getPartialPostRequest (apiUrl) {
-		return agent
-			.post(apiUrl)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json')
-			.set('set-cookie', 'connect.sid=' + connectionSid)
-			.set('set-cookie', 'XSRF-TOKEN=' + csrftoken);
-	}
-
-	function dropUserCollectionTestDb(done) {
-    User.remove({})
-      .then(() => {
-        done();
-      }).catch(err => {
-      fail('should not throw an error');
-      done(err);
-    });
 	}
 
 	describe('#login()', () => {
@@ -116,8 +84,8 @@ describe('profile', () => {
 
 				async.waterfall([
 					asyncDone => {
-						getPartialPostRequest(URL_LOGIN)
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest(URL_LOGIN)
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(loginMock)
 						.expect(200)
 						.end((err, res) => {
@@ -127,8 +95,8 @@ describe('profile', () => {
 						});
 					},
 					asyncDone => {
-						getPartialPostRequest(URL_PROFILE)
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest(URL_PROFILE)
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(mockedProfilePost)
 						.expect(200)
 						.end((err, res) => {
@@ -157,7 +125,7 @@ describe('profile', () => {
 				], (err, response) => done(err));
 			});
 
-			afterEach(done => dropUserCollectionTestDb(done));
+			afterEach(done => testUsersUtils.dropUserTestDb(done));
 		});
 
 		describe('---NO - Missing params or not accepted combination of them---', () => {
@@ -199,8 +167,8 @@ describe('profile', () => {
 				for(let j = 0; j<testAggregator[i].test.length; j++) {
 					console.log(testAggregator[i].test[j]);
 					it('should get 400 BAD REQUEST,' + testAggregator[i].resultMsg + '. Test i=' + i + ', j=' + j, done => {
-						getPartialPostRequest(URL_PROFILE)
-						.set('XSRF-TOKEN', csrftoken)
+						testUtils.getPartialPostRequest(URL_PROFILE)
+						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(testAggregator[i].test[j])
 						.expect(400)
 						.end((err, res) => {
@@ -216,7 +184,7 @@ describe('profile', () => {
 				}
 			}
 
-			after(done => dropUserCollectionTestDb(done));
+			after(done => testUsersUtils.dropUserTestDb(done));
 
 		});
 
@@ -250,8 +218,8 @@ describe('profile', () => {
 			for(let i = 0; i<wrongParamProfileUpdate.length; i++) {
 				console.log(wrongParamProfileUpdate[i]);
 				it('should get 404 NOT FOUND, because you must pass correct the email/id', done => {
-					getPartialPostRequest(URL_PROFILE)
-					.set('XSRF-TOKEN', csrftoken)
+					testUtils.getPartialPostRequest(URL_PROFILE)
+					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(wrongParamProfileUpdate[i])
 					.expect(404)
 					.end((err, res) => {
@@ -266,7 +234,7 @@ describe('profile', () => {
 				});
 			}
 
-			after(done => dropUserCollectionTestDb(done));
+			after(done => testUsersUtils.dropUserTestDb(done));
 
 		});
 	});
@@ -274,15 +242,11 @@ describe('profile', () => {
 
 	describe('---ERRORS---', () => {
 		it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-			getPartialPostRequest(URL_PROFILE)
+			testUtils.getPartialPostRequest(URL_PROFILE)
 			//XSRF-TOKEN NOT SETTED!!!!
 			.send({}) //It's not necessary to pass real data here
 			.expect(403)
 			.end(() => done());
 		});
 	});
-
-  after(() => {
-    // mongoose.disconnect();
-  });
 });

@@ -77,6 +77,16 @@ class TestUsersUtils {
     });
   }
 
+  dropUserTestDb(done) {
+    User.remove({})
+      .then(() => {
+        done();
+      }).catch(err => {
+        fail('should not throw an error');
+        done(err);
+      });
+  }
+
   dropUserTestDbAndLogout(done) {
     User.remove({})
       .then(() => {
