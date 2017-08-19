@@ -18,6 +18,28 @@
 - #90 Promisify and clean all tests with es6
 
 
+## Alpha 7
+
+- #88 **Promisify mongoose calls with bluebird**
+- #89 Helmet - Expect-CT
+- #83 Add Circle Ci
+- #84 "npm run debug" to start app.js in debug mode into chrome dev tools
+
+### **Chore**
+
+- #86 Create utility to check the environment
+- #80 Fix "morgan deprecated default format"
+- #81 Replace console.log with Winston logger
+- #82 Replace (_.isNull || _.isUndefined) with _.isNil
+- #72 travis ci switch to macOS sierra using `osx_image: xcode8.2`
+
+### **Refactor**
+
+- #75 refactor to reduce sizes of all functions
+- #78 **Replace Promises with async/await**
+- #79 Refactor to follow jshint rules
+
+
 ## Alpha 6
 
 ### **Features**
