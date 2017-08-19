@@ -3,6 +3,7 @@
 const _ = require('lodash');
 let jwt = require('jsonwebtoken');
 let logger = require('./logger-winston');
+const config = require('../config');
 
 class Utils {
 
@@ -116,7 +117,7 @@ class Utils {
 
     return new Promise((resolve, reject) => {
       // verify a token symmetric
-      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
         if(err) {
           logger.error('util isJwtValid - jwt.verify error', err);
           reject({status: 401, message: 'Jwt not valid or corrupted'});

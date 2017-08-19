@@ -20,8 +20,8 @@ class MailUtils {
         port: '25',
         debug: true, //this!!!
         auth: {
-          user: process.env.USER_EMAIL, //secret data
-          pass: process.env.PASS_EMAIL //secret data
+          user: config.USER_EMAIL, //secret data
+          pass: config.PASS_EMAIL //secret data
         }
       });
     }

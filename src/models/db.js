@@ -4,7 +4,7 @@ const config = require('../config');
 let mongoose = require('mongoose');
 let logger = require('../utils/logger-winston');
 
-let dbURI = process.env.MONGODB_URI;
+let dbURI = config.MONGODB_URI;
 logger.debug(`db - Mongodb uri = ${dbURI}`);
 
 // ------------------------
@@ -15,7 +15,7 @@ mongoose.Promise = require('bluebird');
 if (config.isTest()) {
   //No logger for testing
   console.log('db - TEST ENV! testing mode enabled!');
-  dbURI = 'mongodb://localhost/test-db';
+  dbURI = config.MONGODB_TESTING_URI;
   console.log(`db - TEST ENV! override Mongodb uri = ${dbURI}`);
 }
 

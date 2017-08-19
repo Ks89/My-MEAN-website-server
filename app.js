@@ -1,24 +1,44 @@
 'use strict';
+
+// --------------------------------------------------------
+// ------------------Init env variables--------------------
+// --------------------------------------------------------
 const config = require('./src/config');
+if (process.env.NODE_ENV !== 'production') {
+  console.log('config file loaded', config);
+}
+// --------------------------------------------------------
+// --------------------------------------------------------
+// --------------------------------------------------------
+
 let logger = require('./src/utils/logger-winston.js');
-
-const APIS = require('./src/routes/apis');
-
 logger.warn('Starting with NODE_ENV=' + config.NODE_ENV);
 logger.warn('config.CI is ' + config.CI);
 
-if (!config.isCI()) {
-  console.log('Initializing dotenv (requires .env file)');
-  if (config.isProd()) {
-    // production
-    require('dotenv').config({path: '.env_prod'}); //to read info from .env_prod file
-  } else {
-    // development
-    require('dotenv').config({path: '.env'}); //to read info from .env file
-  }
-}
 
+const APIS = require('./src/routes/apis');
+
+let bluebird = require('bluebird');
 let path = require('path');
+let express = require('express');
+// let vhost = require('vhost');
+let compression = require('compression');
+let morgan = require('morgan');
+let session = require('express-session');
+let bodyParser = require('body-parser');
+
+// --------------------------------------------------------
+// -----------------------Redis init-----------------------
+// --------------------------------------------------------
+// Init REDIS (below I add also redis to express session thanks to connect-redis)
+let redis = require('redis');
+let client = redis.createClient();
+let RedisStore = require('connect-redis')(session);
+let redisStore = bluebird.promisifyAll(new RedisStore({host: config.REDIS_HOST, port: config.REDIS_PORT, client: client, ttl: config.REDIS_TTL}));
+// --------------------------------------------------------
+// --------------------------------------------------------
+// --------------------------------------------------------
+
 
 // --------------------------------------------------------
 // --------------------------------------------------------
@@ -29,7 +49,7 @@ let pathFrontEndAdminIndex;
 if (config.isCI() || config.isTest()) {
   console.log(`Executed in CI or TEST - providing fake '../My-MEAN-website-client' and index.html`);
   //provides fake directories and files to be able to run this files
-  //also with mocha in both testing and ci environments.
+  //also with mocha in both test and ci environments.
   //Otherwise, you are forced to run `npm run build` into ../My-MEAN-website-client's folder
   pathFrontEndFolder = path.join(__dirname);
   pathFrontEndIndex = path.join(__dirname, 'app.js');
@@ -47,16 +67,6 @@ if (config.isCI() || config.isTest()) {
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-let express = require('express');
-// let vhost = require('vhost');
-let compression = require('compression');
-let morgan = require('morgan');
-let session = require('express-session');
-let bodyParser = require('body-parser');
-
-let redis = require('redis'); //it's really useful?
-let RedisStore = require('connect-redis')(session);
-let client = redis.createClient(); //it's really useful?
 
 // --------------------------------------------------------------------------
 // ----------------------------security packages-----------------------------
@@ -82,10 +92,12 @@ let helmet = require('helmet');
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
 
+
 logger.warn('Initializing mongodb');
 //require for mongo
 require('./src/models/db');
 require('./src/controllers/authentication/passport')(passport);
+
 
 logger.warn('Initializing expressjs');
 let app = express();
@@ -215,7 +227,7 @@ app.use(session({
   secret: config.EXPRESS_SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  store: new RedisStore({host: config.REDIS_HOST, port: config.REDIS_PORT, client: client, ttl: config.REDIS_TTL})
+  store: redisStore
   // cookie: {
   //   httpOnly: false,
   //     secure: false, //to use true, you must use https. If you'll use true with http it won't work.

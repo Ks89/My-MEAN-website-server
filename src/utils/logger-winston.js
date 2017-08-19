@@ -1,6 +1,7 @@
 'use strict';
 
-const config = require('../config');
+// You cannot use config.js here!!!
+
 let winston = require('winston');
 winston.emitErrs = true;
 
@@ -14,7 +15,7 @@ function getFormatter(options) {
 let logger = new (winston.Logger)({
   transports: [
     new (winston.transports.File)({
-      level: config.isProd() ? 'error' : 'debug',
+      level: process.env.NODE_ENV === 'production' ? 'error' : 'debug',
       filename: 'mywebsite.log',
       handleExceptions: true,
       json: false,

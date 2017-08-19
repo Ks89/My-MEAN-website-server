@@ -1,6 +1,7 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const config = require('../src/config');
 const APIS = require('../src/routes/apis');
 
 let expect = require('chai').expect;
@@ -68,7 +69,7 @@ const jwtWrongDateStringToken = function () {
 			}
 		},
 		exp: parseFloat(expiry.getTime()),
-	}, process.env.JWT_SECRET);
+	}, config.JWT_SECRET);
 };
 
 describe('auth-common', () => {

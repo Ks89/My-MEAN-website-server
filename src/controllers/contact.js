@@ -64,7 +64,7 @@ module.exports.sendEmailWithRecaptcha = function (req, res) {
   //as described in google documentation.
   // DON'T LOG THIS!!!!!
   const data = {
-    secret: process.env.RECAPTCHA_SECRET,
+    secret: config.RECAPTCHA_SECRET,
     response: req.body.response
     //here I can add also the IP, but it's not mandatory
   };
@@ -104,9 +104,9 @@ module.exports.sendEmailWithRecaptcha = function (req, res) {
       }
     },
     (formEmail, done) => {
-      logger.debug(`REST contact sendEmailWithRecaptcha - Sending an email from ${process.env.USER_EMAIL} to ${formEmail.email}`);
+      logger.debug(`REST contact sendEmailWithRecaptcha - Sending an email from ${config.USER_EMAIL} to ${formEmail.email}`);
       const message = {
-        from: process.env.USER_EMAIL,
+        from: config.USER_EMAIL,
         to: formEmail.email,
         subject: formEmail.object,
         html: formEmail.messageText,

@@ -17,7 +17,7 @@ let mailTransport = MailUtils.getMailTransport();
 
 function emailMsg(to, subject, htmlMessage) {
   return {
-    from: process.env.USER_EMAIL,
+    from: config.USER_EMAIL,
     to: to,
     subject: subject,
     html: htmlMessage,
