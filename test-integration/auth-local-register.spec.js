@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -30,6 +32,8 @@ const registerMock = {
 	password : NEW_PASSWORD
 };
 
+const URL_REGISTER = APIS.BASE_API_PATH + APIS.POST_LOCAL_REGISTER;
+
 describe('auth-local', () => {
 
 	describe('#register()', () => {
@@ -41,7 +45,7 @@ describe('auth-local', () => {
 			beforeEach(done => testUtils.updateCookiesAndTokens(done));
 
 			it('should correctly register a new user', done => {
-	    		testUtils.getPartialPostRequest('/api/register')
+	    		testUtils.getPartialPostRequest(URL_REGISTER)
 				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(registerMock)
 				.expect(200)
@@ -76,7 +80,7 @@ describe('auth-local', () => {
 				async.waterfall([
 					asyncDone => testUsersUtils.insertUserTestDb(asyncDone, NEW_NAME, NEW_EMAIL, NEW_PASSWORD),
 					asyncDone => {
-						testUtils.getPartialPostRequest('/api/register')
+						testUtils.getPartialPostRequest(URL_REGISTER)
 						.set('XSRF-TOKEN', testUtils.csrftoken)
 						.send(registerMock)
 						.expect(400)
@@ -125,7 +129,7 @@ describe('auth-local', () => {
 					async.waterfall([
 						asyncDone => testUsersUtils.insertUserTestDb(asyncDone, NEW_NAME, NEW_EMAIL, NEW_PASSWORD),
 						asyncDone => {
-							testUtils.getPartialPostRequest('/api/register')
+							testUtils.getPartialPostRequest(URL_REGISTER)
 							.set('XSRF-TOKEN', testUtils.csrftoken)
 							.send(wrongRegisterMocks[i])
 							.expect(400)
@@ -154,7 +158,7 @@ describe('auth-local', () => {
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				testUtils.getPartialPostRequest('/api/register')
+				testUtils.getPartialPostRequest(URL_REGISTER)
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(registerMock)
 				.expect(403)

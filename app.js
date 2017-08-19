@@ -2,6 +2,8 @@
 const config = require('./src/config');
 let logger = require('./src/utils/logger-winston.js');
 
+const APIS = require('./src/routes/apis');
+
 logger.warn('Starting with NODE_ENV=' + config.NODE_ENV);
 logger.warn('config.CI is ' + config.CI);
 
@@ -235,10 +237,10 @@ logger.warn('Initializing REST apis and CSRF');
 // dedicated routes for angular logging with stacktracejs
 // these router aren't protected with csrf, because declared before app.use(csrf()).
 let loggerApi = require('./src/routes/log-api')(express);
-app.use('/api/log', loggerApi);
+app.use(APIS.BASE_LOG_API_PATH, loggerApi);
 
 // enable middleware CSRF by csurf package [NOT helmet]
-// before app.use('/api', routesApi); to protect their,
+// before app.use(APIS.BASE_API_PATH, routesApi); to protect their,
 // but after session and/or cookie initialization
 app.use(csrf());
 app.use(function (req, res, next) {
@@ -249,7 +251,7 @@ app.use(function (req, res, next) {
 
 // APIs for all route protected with CSRF (all routes except for angular log's service)
 let routesApi = require('./src/routes/index')(express);
-app.use('/api', routesApi);
+app.use(APIS.BASE_API_PATH, routesApi);
 // --------------------------------------------------------------------------------------
 
 logger.warn('Initializing static path for both index.html and admin.html');

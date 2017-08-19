@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -20,9 +22,9 @@ mongoose.Promise = require('bluebird');
 // ------------------------
 let Project = mongoose.model('Project');
 
-const URL_PROJECTS = '/api/projects';
-const URL_PROJECTHOME = '/api/projecthome';
-const URL_SINGLE_PROJECT = URL_PROJECTS + "/";
+const URL_PROJECTS = APIS.BASE_API_PATH + APIS.GET_PROJECTS;
+const URL_PROJECTHOME = APIS.BASE_API_PATH + APIS.GET_PROJECTHOME;
+const URL_SINGLE_PROJECT = URL_PROJECTS + "/"; // I'll add here the path param below
 
 describe('projects', () => {
 

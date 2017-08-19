@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -30,13 +32,17 @@ const registerMock = {
 	password : USER_PASSWORD
 };
 
+const URL_REGISTER = APIS.BASE_API_PATH + APIS.POST_LOCAL_REGISTER;
+const URL_ACTIVATE_ACCOUNT = APIS.BASE_API_PATH + APIS.POST_LOCAL_ACTIVATE;
+const URL_ACTIVATE_EMAIL_PATH = APIS.BASE_API_PATH + APIS.GET_LOCAL_ACTIVATE_EMAIL_URL;
+
 describe('auth-local', () => {
 
 	function registerUserTestDb(done) {
 		async.waterfall([
 			asyncDone => testUtils.updateCookiesAndTokens(asyncDone),
 			asyncDone => {
-				testUtils.getPartialPostRequest('/api/register')
+				testUtils.getPartialPostRequest(URL_REGISTER)
 				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(registerMock)
 				.expect(200)
@@ -79,7 +85,7 @@ describe('auth-local', () => {
             expect(user.local.activateAccountToken).to.be.not.null;
             expect(user.local.activateAccountExpires).to.be.not.null;
 
-            testUtils.getPartialPostRequest('/api/activateAccount')
+            testUtils.getPartialPostRequest(URL_ACTIVATE_ACCOUNT)
               .set('XSRF-TOKEN', testUtils.csrftoken)
               .send(activateAccountMock)
               .expect(200)
@@ -139,7 +145,7 @@ describe('auth-local', () => {
               .then(savedUser => {
                 console.log("saved exprires: " + savedUser.local.activateAccountExpires);
                 console.log(savedUser);
-                testUtils.getPartialPostRequest('/api/activateAccount')
+                testUtils.getPartialPostRequest(URL_ACTIVATE_ACCOUNT)
                   .set('XSRF-TOKEN', testUtils.csrftoken)
                   .send(activateAccountMock)
                   .expect(404)
@@ -185,7 +191,7 @@ describe('auth-local', () => {
               .then(savedUser => {
                 console.log("saved token: " + savedUser.local.activateAccountToken);
                 console.log(savedUser);
-                testUtils.getPartialPostRequest('/api/activateAccount')
+                testUtils.getPartialPostRequest(URL_ACTIVATE_ACCOUNT)
                   .set('XSRF-TOKEN', testUtils.csrftoken)
                   .send(activateAccountMock)
                   .expect(404)
@@ -220,7 +226,7 @@ describe('auth-local', () => {
 			for(let i = 0; i<missingUpdatePwdMocks.length; i++) {
 				console.log(missingUpdatePwdMocks[i]);
 				it('should get 400 BAD REQUEST, because emailToken and userName are mandatory. Test i=' + i, done => {
-					testUtils.getPartialPostRequest('/api/activateAccount')
+					testUtils.getPartialPostRequest(URL_ACTIVATE_ACCOUNT)
 					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(missingUpdatePwdMocks[i])
 					.expect(400)
@@ -239,7 +245,7 @@ describe('auth-local', () => {
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				testUtils.getPartialPostRequest('/api/activate')
+				testUtils.getPartialPostRequest(URL_ACTIVATE_EMAIL_PATH)
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(registerMock)
 				.expect(403)

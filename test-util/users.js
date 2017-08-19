@@ -1,5 +1,7 @@
 'use strict';
 
+const APIS = require('../src/routes/apis');
+
 require('../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
@@ -8,8 +10,7 @@ mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
 
-const URL_CLIENT_LOGIN_PAGE = '/login';
-const URL_LOGOUT = '/api/logout';
+const URL_LOGOUT = APIS.BASE_API_PATH + APIS.GET_LOGOUT;
 
 const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';

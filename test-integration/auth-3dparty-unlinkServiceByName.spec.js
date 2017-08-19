@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -30,14 +32,14 @@ const USER_EMAIL = 'fake@email.com';
 const USER_PASSWORD = 'fake';
 const FAKE_ID = 'fake_id';
 
-const URL_LOGIN = '/api/login';
-const URL_LOGOUT = '/api/logout';
-const URL_BASE_UNLINK = '/api/unlink/';
+const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
+const URL_LOGOUT = APIS.BASE_API_PATH + APIS.GET_LOGOUT;
+const URL_BASE_UNLINK = APIS.BASE_API_PATH + APIS.GET_UNLINK_GENERIC + '/';
 
 // testing services
-const URL_DESTROY_SESSION = '/api/testing/destroySession';
-const URL_SET_JSON_WITHOUT_TOKEN_SESSION = '/api/testing/setJsonWithoutTokenSession';
-const URL_SET_JSON_WITH_WRONGFORMAT_TOKEN_SESSION = '/api/testing/setJsonWithWrongFormatTokenSession';
+const URL_DESTROY_SESSION = APIS.BASE_API_PATH + APIS.GET_TESTING_DESTROY_SESSION;
+const URL_SET_JSON_WITHOUT_TOKEN_SESSION = APIS.BASE_API_PATH + APIS.GET_TESTING_JSON_NO_TOKEN;
+const URL_SET_JSON_WITH_WRONGFORMAT_TOKEN_SESSION = APIS.BASE_API_PATH + APIS.GET_TESTING_JSON_WRONG_FORMAT_TOKEN;
 
 const loginMock = {
 	email : USER_EMAIL,

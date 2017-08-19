@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -29,8 +31,8 @@ const loginMock = {
 	password : USER_PASSWORD
 };
 
-const URL_PROFILE = '/api/profile';
-const URL_LOGIN = '/api/login';
+const URL_PROFILE = APIS.BASE_API_PATH + APIS.POST_PROFILE;
+const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
 
 describe('profile', () => {
 

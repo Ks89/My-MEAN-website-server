@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -32,9 +34,8 @@ const loginMock = {
 
 const USER_MUSTBE_OBJECT = 'User must be a valid object';
 
-const URL_LOGIN = '/api/login';
-const URL_BASE_DECODE_TOKEN = '/api/decodeToken/';
-const URL_LOGOUT = '/api/logout';
+const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
+const URL_BASE_DECODE_TOKEN = APIS.BASE_API_PATH + APIS.GET_DECODETOKEN + '/';
 
 describe('auth-common', () => {
 

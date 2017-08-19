@@ -1,6 +1,7 @@
 'use strict';
 
 const config = require('../../../config');
+const APIS = require('../../../routes/apis');
 let Utils = require('../../../utils/util.js');
 let MailUtils = require('../../../utils/mail-util');
 let logger = require('../../../utils/logger-winston.js');
@@ -91,7 +92,7 @@ module.exports.register = (req, res) => {
     const encodedUserName = encodeURI(req.body.name);
     logger.debug('REST auth-local register - encodedUserName', encodedUserName);
 
-    link = `http://${req.headers.host}/activate?emailToken=${token}&userName=${encodedUserName}`;
+    link = `http://${req.headers.host}${APIS.GET_LOCAL_ACTIVATE_EMAIL_URL}?emailToken=${token}&userName=${encodedUserName}`;
 
     return User.findOne({'local.email': req.body.email});
   }).then(user => {

@@ -1,8 +1,10 @@
 'use strict';
 
+const APIS = require('../src/routes/apis');
+
 let nock = require('nock');
 
-const URL_CLIENT_LOGIN_PAGE = '/login';
+const URL_CLIENT_LOGIN_PAGE = APIS.POST_LOCAL_LOGIN;
 
 class TestUtils {
 

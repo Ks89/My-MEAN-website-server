@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -29,9 +31,8 @@ const loginMock = {
 	password : USER_PASSWORD
 };
 
-const URL_LOGIN = '/api/login';
-const URL_LOGOUT = '/api/logout';
-const URL_SINGLE_USER = '/api/users/';
+const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
+const URL_SINGLE_USER = APIS.BASE_API_PATH + APIS.GET_TESTING_USERS + '/';  // I'll add here the path param below
 
 describe('users', () => {
 

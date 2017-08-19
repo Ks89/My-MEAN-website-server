@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -30,6 +32,9 @@ const resetMock = {
 
 const NEW_PASSWORD = 'NewPassword2';
 
+const URL_RESET = APIS.BASE_API_PATH + APIS.POST_LOCAL_RESET;
+const URL_RESET_PWD_FROM_MAIL = APIS.BASE_API_PATH + APIS.POST_LOCAL_RESET_PWD_FROM_MAIL;
+
 describe('auth-local', () => {
 
 	function registerUserTestDb(done) {
@@ -49,7 +54,7 @@ describe('auth-local', () => {
           });
 			},
 			asyncDone => {
-				testUtils.getPartialPostRequest('/api/reset')
+				testUtils.getPartialPostRequest(URL_RESET)
 				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(resetMock)
 				.expect(200)
@@ -94,7 +99,7 @@ describe('auth-local', () => {
               emailToken : user.local.resetPasswordToken
             };
 
-            testUtils.getPartialPostRequest('/api/resetNewPassword')
+            testUtils.getPartialPostRequest(URL_RESET_PWD_FROM_MAIL)
               .set('XSRF-TOKEN', testUtils.csrftoken)
               .send(updateResetPwdMock)
               .expect(200)
@@ -149,7 +154,7 @@ describe('auth-local', () => {
                 return usr.save();
               })
               .then(savedUser => {
-                testUtils.getPartialPostRequest('/api/resetNewPassword')
+                testUtils.getPartialPostRequest(URL_RESET_PWD_FROM_MAIL)
                   .set('XSRF-TOKEN', testUtils.csrftoken)
                   .send(updateResetPwdMock)
                   .expect(404)
@@ -185,7 +190,7 @@ describe('auth-local', () => {
                 return usr.save();
               })
               .then(savedUser => {
-                testUtils.getPartialPostRequest('/api/resetNewPassword')
+                testUtils.getPartialPostRequest(URL_RESET_PWD_FROM_MAIL)
                   .set('XSRF-TOKEN', testUtils.csrftoken)
                   .send(updateResetPwdMock)
                   .expect(404)
@@ -219,7 +224,7 @@ describe('auth-local', () => {
 			for(let i = 0; i<missingUpdatePwdMocks.length; i++) {
 				console.log(missingUpdatePwdMocks[i]);
 				it('should get 400 BAD REQUEST, because password and emailToken are mandatory. Test i=' + i, done => {
-					testUtils.getPartialPostRequest('/api/resetNewPassword')
+					testUtils.getPartialPostRequest(URL_RESET_PWD_FROM_MAIL)
 					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(missingUpdatePwdMocks[i])
 					.expect(400)
@@ -238,7 +243,7 @@ describe('auth-local', () => {
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				testUtils.getPartialPostRequest('/api/resetNewPassword')
+				testUtils.getPartialPostRequest(URL_RESET_PWD_FROM_MAIL)
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(resetMock)
 				.expect(403)

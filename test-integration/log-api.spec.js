@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -20,10 +22,15 @@ const bodyExceptionMock = {
   cause: ( "cause" || "" )
 };
 
+const URL_LOG_DEBUG = APIS.BASE_LOG_API_PATH + APIS.POST_LOG_DEBUG;
+const URL_LOG_ERROR = APIS.BASE_LOG_API_PATH + APIS.POST_LOG_ERROR;
+const URL_LOG_EXCEPTION = APIS.BASE_LOG_API_PATH + APIS.POST_LOG_EXCEPTION;
+
+
 describe('log-api', () => {
   describe('---YES---', () => {
     it('should correctly log a debug message', done => {
-      testUtils.getPartialPostRequest('/api/log/debug')
+      testUtils.getPartialPostRequest(URL_LOG_DEBUG)
       .send(bodyMock)
       .expect(200)
       .end((err, res) => {
@@ -34,7 +41,7 @@ describe('log-api', () => {
     });
 
     it('should correctly log a debug message, also if message is undefined', done => {
-      testUtils.getPartialPostRequest('/api/log/debug')
+      testUtils.getPartialPostRequest(URL_LOG_DEBUG)
       .send(bodyNoMessageMock)
       .expect(200)
       .end((err, res) => {
@@ -45,7 +52,7 @@ describe('log-api', () => {
     });
 
     it('should correctly log an error message', done => {
-      testUtils.getPartialPostRequest('/api/log/error')
+      testUtils.getPartialPostRequest(URL_LOG_ERROR)
       .send(bodyMock)
       .expect(200)
       .end((err, res) => {
@@ -56,7 +63,7 @@ describe('log-api', () => {
     });
 
     it('should correctly log an error message, also if message is undefined', done => {
-      testUtils.getPartialPostRequest('/api/log/error')
+      testUtils.getPartialPostRequest(URL_LOG_ERROR)
       .send(bodyNoMessageMock)
       .expect(200)
       .end((err, res) => {
@@ -67,7 +74,7 @@ describe('log-api', () => {
     });
 
     it('should correctly log an exception message', done => {
-      testUtils.getPartialPostRequest('/api/log/exception')
+      testUtils.getPartialPostRequest(URL_LOG_EXCEPTION)
       .send(bodyExceptionMock)
       .expect(200)
       .end((err, res) => {

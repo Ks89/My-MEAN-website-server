@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -37,10 +39,9 @@ const wrongLoginMock = {
 	password : LOGIN_WRONG_PASSWORD
 };
 
-const URL_CLIENT_LOGIN_PAGE = '/login';
-const URL_LOGIN = '/api/login';
-const URL_UNLINK_LOCAL = '/api/unlink/local';
-const URL_LOGOUT = '/api/logout';
+const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
+const URL_LOGOUT = APIS.BASE_API_PATH + APIS.GET_LOGOUT;
+const URL_UNLINK_LOCAL = APIS.BASE_API_PATH + APIS.GET_UNLINK_LOCAL;
 
 describe('auth-local', () => {
 
@@ -213,4 +214,8 @@ describe('auth-local', () => {
 			afterEach(done => testUsersUtils.dropUserTestDbAndLogout(done));
 		});
 	});
+
+  // after(() => {
+  //   mongoose.disconnect();
+  // });
 });

@@ -11,7 +11,6 @@ let Project = mongoose.model('Project');
 const PROJECT_NAME_1 = 'MockedProject';
 const PROJECT_NAME_2 = 'MockedProject2';
 
-
 class TestProjectsUtils {
 
   constructor(testUtils) {

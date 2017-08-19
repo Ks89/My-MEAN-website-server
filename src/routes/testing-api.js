@@ -1,5 +1,7 @@
 'use strict';
 
+const APIS = require('./apis');
+
 // ------------- imported from ./index.js ---------------
 
 module.exports = function (router) {
@@ -14,11 +16,11 @@ module.exports = function (router) {
   // -----------------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------------
 
-  router.get('/testing/destroySession', ctrlTesting.destroySession);
-  router.get('/testing/setStringSession', ctrlTesting.setStringSession);
-  router.get('/testing/setJsonWithoutTokenSession', ctrlTesting.setJsonWithoutTokenSession);
-  router.get('/testing/setJsonWithWrongFormatTokenSession', ctrlTesting.setJsonWithWrongFormatTokenSession);
-  router.get('/testing/setJsonWithExpiredDateSession', ctrlTesting.setJsonWithExpiredDateSession);
+  router.get(APIS.GET_TESTING_DESTROY_SESSION, ctrlTesting.destroySession);
+  router.get(APIS.GET_TESTING_STRING_SESSION, ctrlTesting.setStringSession);
+  router.get(APIS.GET_TESTING_JSON_NO_TOKEN, ctrlTesting.setJsonWithoutTokenSession);
+  router.get(APIS.GET_TESTING_JSON_WRONG_FORMAT_TOKEN, ctrlTesting.setJsonWithWrongFormatTokenSession);
+  router.get(APIS.GET_TESTING_JSON_EXPIRED, ctrlTesting.setJsonWithExpiredDateSession);
 
 	module.exports = router;
 	return router;

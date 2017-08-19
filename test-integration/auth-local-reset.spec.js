@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -33,6 +35,8 @@ const wrongResetMock = {
 	email : RESET_WRONG_EMAIL
 };
 
+const URL_RESET = APIS.BASE_API_PATH + APIS.POST_LOCAL_RESET;
+
 describe('auth-local', () => {
 
 	describe('#reset()', () => {
@@ -41,7 +45,7 @@ describe('auth-local', () => {
 			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should correctly reset password', done => {
-				testUtils.getPartialPostRequest('/api/reset')
+				testUtils.getPartialPostRequest(URL_RESET)
 				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(resetMock)
 				.expect(200)
@@ -86,7 +90,7 @@ describe('auth-local', () => {
 			for(let i = 0; i<missingLoginMocks.length; i++) {
 				console.log(missingLoginMocks[i]);
 				it('should get 400 BAD REQUEST, because email param is mandatory.', done => {
-					testUtils.getPartialPostRequest('/api/reset')
+					testUtils.getPartialPostRequest(URL_RESET)
 					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(missingLoginMocks[i])
 					.expect(400)
@@ -101,7 +105,7 @@ describe('auth-local', () => {
 			}
 
 			it('should get 404 NOT FOUND, because the request email is not found.', done => {
-				testUtils.getPartialPostRequest('/api/reset')
+				testUtils.getPartialPostRequest(URL_RESET)
 				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send({email : RESET_WRONG_EMAIL})
 				.expect(404)
@@ -120,7 +124,7 @@ describe('auth-local', () => {
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				testUtils.getPartialPostRequest('/api/reset')
+				testUtils.getPartialPostRequest(URL_RESET)
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(resetMock)
 				.expect(403)

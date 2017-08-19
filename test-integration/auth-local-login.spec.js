@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -36,6 +38,8 @@ const wrongLoginMock = {
 	password : LOGIN_WRONG_PASSWORD
 };
 
+const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
+
 describe('auth-local', () => {
 
 	describe('#login()', () => {
@@ -44,7 +48,7 @@ describe('auth-local', () => {
 			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should correctly login', done => {
-				testUtils.getPartialPostRequest('/api/login')
+				testUtils.getPartialPostRequest(URL_LOGIN)
 				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send(loginMock)
 				.expect(200)
@@ -76,7 +80,7 @@ describe('auth-local', () => {
 			for(let i = 0; i<wrongLoginMocks.length; i++) {
 				console.log(wrongLoginMocks[i]);
 				it('should get 401 UNAUTHORIZED, because the correct input params are wrong. Test i= ' + i, done => {
-					testUtils.getPartialPostRequest('/api/login')
+					testUtils.getPartialPostRequest(URL_LOGIN)
 					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(wrongLoginMocks[i])
 					.expect(401)
@@ -94,7 +98,7 @@ describe('auth-local', () => {
 			it('should get 400 BAD REQUEST, because the correct input params are wrong ' +
 				'(passed name and blabla insted of emailand password).', done => {
 
-				testUtils.getPartialPostRequest('/api/login')
+				testUtils.getPartialPostRequest(URL_LOGIN)
 				.set('XSRF-TOKEN', testUtils.csrftoken)
 				.send({name: 'wrong_name_param', blabla: 'wrong_name_param', })
 				.expect(400)
@@ -126,7 +130,7 @@ describe('auth-local', () => {
 				console.log(missingLoginMocks[i]);
 
 				it('should get 400 BAD REQUEST, because input params are missing. Test i= ' + i, done => {
-					testUtils.getPartialPostRequest('/api/login')
+					testUtils.getPartialPostRequest(URL_LOGIN)
 					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(missingLoginMocks[i])
 					.expect(400)
@@ -176,7 +180,7 @@ describe('auth-local', () => {
 							});
 					});
 
-					testUtils.getPartialPostRequest('/api/login')
+					testUtils.getPartialPostRequest(URL_LOGIN)
 					.set('XSRF-TOKEN', testUtils.csrftoken)
 					.send(wrongLoginMock)
 					.expect(401)
@@ -196,7 +200,7 @@ describe('auth-local', () => {
 
 		describe('---ERRORS---', () => {
 			it('should get 403 FORBIDDEN, because XSRF-TOKEN is not available', done => {
-				testUtils.getPartialPostRequest('/api/login')
+				testUtils.getPartialPostRequest(URL_LOGIN)
 				//XSRF-TOKEN NOT SETTED!!!!
 				.send(loginMock)
 				.expect(403)

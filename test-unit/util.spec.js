@@ -5,7 +5,7 @@ console.log("Starting with NODE_ENV=" + process.env.NODE_ENV);
 console.log("process.env.CI is " + process.env.CI);
 
 if(!process.env.CI) {
-  console.log("Initializing dotenv (requires .env file)")
+  console.log("Initializing dotenv (requires .env file)");
   //to be able to use generateJwt I must import
   //dotenv (otherwise I cannot read process.env with the encryption key)
   require('dotenv').config();

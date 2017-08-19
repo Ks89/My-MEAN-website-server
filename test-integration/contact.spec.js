@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -10,7 +12,7 @@ let testUtils = new TestUtils(agent);
 
 const RECAPTCHA_BASE_URL = 'https://www.google.com/recaptcha';
 const RECAPTCHA_API_URL = '/api/siteverify';
-const EMAIL_URL = '/api/email';
+const EMAIL_URL = APIS.BASE_API_PATH + APIS.POST_CONTACT_EMAIL;
 
 const RESPONSE = 'random_data';
 const EMAIL = 'fake@fake.it';

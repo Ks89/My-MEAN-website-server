@@ -1,6 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
+const APIS = require('../src/routes/apis');
+
 let expect = require('chai').expect;
 let app = require('../app');
 let agent = require('supertest').agent(app);
@@ -24,11 +26,11 @@ const USER_NAME = 'username';
 const USER_EMAIL = 'email@email.it';
 const USER_PASSWORD = 'Password1';
 
-const URL_LOGIN = '/api/login';
-const URL_LOGOUT = '/api/logout';
+const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
+const URL_LOGOUT = APIS.BASE_API_PATH + APIS.GET_LOGOUT;
 
 // testing services
-const URL_DESTROY_SESSION = '/api/testing/destroySession';
+const URL_DESTROY_SESSION = APIS.BASE_API_PATH + APIS.GET_TESTING_DESTROY_SESSION;
 
 const loginMock = {
 	email : USER_EMAIL,
