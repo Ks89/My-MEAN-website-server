@@ -46,13 +46,14 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 
 ## News
 
-- *08/10/2017* - **My MEAN website** Alpha 7 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
-- *04/09/2017* - **My MEAN website** Alpha 6 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
-- *01/21/2017* - **My MEAN website** Alpha 5 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-5)
-- *12/30/2016* - **My MEAN website** Alpha 4 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-4)
-- *11/28/2016* - **My MEAN website** Alpha 3 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-3)
-- *10/27/2016* - **My MEAN website** Alpha 2 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-2.2)
-- *08/15/2016* - **My MEAN website** Alpha 1 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-1)
+- *??/08/2017* - **My MEAN website** Alpha 8 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
+- *10/08/2017* - **My MEAN website** Alpha 7 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
+- *09/04/2017* - **My MEAN website** Alpha 6 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
+- *21/01/2017* - **My MEAN website** Alpha 5 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-5)
+- *30/12/2016* - **My MEAN website** Alpha 4 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-4)
+- *28/11/2016* - **My MEAN website** Alpha 3 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-3)
+- *27/10/2016* - **My MEAN website** Alpha 2 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-2.2)
+- *15/08/2016* - **My MEAN website** Alpha 1 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-1)
 
 
 ## How to install (MacOS)
@@ -86,7 +87,7 @@ Both options will require to download really big files from microsoft.com (manua
 1. You have to rename `.env_example`'s file into `.env` (debug/local config - mandatory) and create another copy called `.env_prod` (production config - to deploy)<br>
 1a. Configure `FRONT_END_PATH` with the relative position of the main folder of [THE CLIENT SIDE OF THIS PROJECT](https://github.com/Ks89/My-MEAN-website-client). For `.env_prod` you should use simply `public`<br>
 1b. Configure `REDIS_HOST`, `REDIS_PORT` and `REDIS_TTL`. If you are in a debug/local environment you should use the example values<br>
-1c. Configure `MONGODB_URI` with your db path. I suggest to use the example value without user/password and with a db called `KS`<br>
+1c. Configure both `MONGODB_URI` and `MONGODB_TESTING_URI` with your db path. I suggest to use the example value without user/password and with a db called `KS`<br>
 1d. replace `YOU KEY/ID` with the keys obtained from facebook/github... oauth applications.<br>
 1e. replace `YOUR_EMAIL` and `YOUR_PASSWORD` with the data of your e-mail account<br>
 1f. replace `YOUR GOOGLE RECAPTCHA...` with Google Recaptcha2's keys<br>
@@ -108,7 +109,7 @@ Both options will require to download really big files from microsoft.com (manua
 
 ## How to start (production mode)
 
-*I decide to use forever to run this project in a production environment*
+*I decided to use pm2 to run in cluster mode (4 processes) this project in a production environment*
 
 - cd 'main folder of this project'
 - `npm run prod:start`

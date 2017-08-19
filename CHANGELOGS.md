@@ -4,13 +4,18 @@
 
 ### **Features**
 
+- #92 Nodejs cluster config (thanks to PM2)
 - #95 update to circleci 2
 
 ### **Chore**
--
 
-### **Bugfixes**
--
+- #87 Move all process.env into config.js
+
+### **Refactor**
+
+- #97 create file with all apis paths
+- #96 reduce similar code lines in spec files
+- #90 Promisify and clean all tests with es6
 
 
 ## Alpha 6
