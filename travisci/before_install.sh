@@ -21,10 +21,13 @@ echo "Exporting env variables dependencies"
 echo "Exporting env variables - OS is $TRAVIS_OS_NAME"
 export NODE_ENV=test
 export CI=yes
+export MONGODB_URI=mongodb://localhost/KS
+export MONGODB_TESTING_URI=mongodb://localhost/test-db
 export JWT_SECRET=faketestjwt
 export TWITTER_CONSUMER_KEY=consumerkey
 export TWITTER_CONSUMER_SECRET=consumersecret
 export TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback
+export TWITTER_PROFILE_URL=https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true
 export FACEBOOK_APP_ID=appid
 export FACEBOOK_APP_SECRET=appsecret
 export FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback
@@ -43,10 +46,13 @@ export RECAPTCHA_PUBLIC=recaptchapublic
 export RECAPTCHA_SECRET=recaptchasecret
 echo "NODE_ENV = $NODE_ENV"
 echo "CI = $CI"
+echo "MONGODB_URI = $MONGODB_URI"
+echo "MONGODB_TESTING_URI = $MONGODB_TESTING_URI"
 echo "JWT_SECRET = $JWT_SECRET"
 echo "TWITTER_CONSUMER_KEY = $TWITTER_CONSUMER_KEY"
 echo "TWITTER_CONSUMER_SECRET = $TWITTER_CONSUMER_SECRET"
 echo "TWITTER_CALLBACK_URL = $TWITTER_CALLBACK_URL"
+echo "TWITTER_PROFILE_URL = $TWITTER_PROFILE_URL"
 echo "FACEBOOK_APP_ID = $FACEBOOK_APP_ID"
 echo "FACEBOOK_APP_SECRET = $FACEBOOK_APP_SECRET"
 echo "FACEBOOK_CALLBACK_URL = $FACEBOOK_CALLBACK_URL"
