@@ -4,8 +4,8 @@
 
 ### **Features**
 
-- #92 Nodejs cluster config (thanks to PM2)
-- #95 update to circleci 2
+- #92 Nodejs cluster config (not really necessary thanks to PM2 :))
+- #95 update to Circle CI 2
 
 ### **Chore**
 
