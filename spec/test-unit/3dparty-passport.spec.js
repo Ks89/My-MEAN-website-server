@@ -14,18 +14,18 @@ if(!process.env.CI) {
 let expect = require('chai').expect;
 let _ = require('lodash');
 let rewire = require('rewire');
-const serviceNames = require('../src/controllers/authentication/serviceNames');
+const serviceNames = require('../../src/controllers/authentication/serviceNames');
 let Promise = require('bluebird');
 let mongoose = require('mongoose');
 let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 
-require('../src/models/users');
+require('../../src/models/users');
 let User = mongoose.model('User');
 
 let userDb;
 
 //rewire to call functions using _get_
-let thirdParty = rewire('../src/controllers/authentication/3dparty/3dparty-passport');
+let thirdParty = rewire('../../src/controllers/authentication/3dparty/3dparty-passport');
 
 
 //add session property to the mocked

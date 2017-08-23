@@ -1,6 +1,6 @@
 'use strict';
 
-require('../src/models/projects');
+require('../../src/models/projects');
 let mongoose = require('mongoose');
 // ------------------------
 // as explained here http://mongoosejs.com/docs/promises.html

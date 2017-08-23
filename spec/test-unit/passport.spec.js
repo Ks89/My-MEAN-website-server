@@ -15,10 +15,10 @@ let expect = require('chai').expect;
 let Promise = require('bluebird');
 let mongoose = require('mongoose');
 let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
-let passport = require('../src/controllers/authentication/passport');
+let passport = require('../../src/controllers/authentication/passport');
 let userId;
 
-require('../src/models/users');
+require('../../src/models/users');
 let User = mongoose.model('User');
 
 describe('passport', () => {

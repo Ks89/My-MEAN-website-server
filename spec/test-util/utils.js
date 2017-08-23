@@ -1,6 +1,6 @@
 'use strict';
 
-const APIS = require('../src/routes/apis');
+const APIS = require('../../src/routes/apis');
 
 let nock = require('nock');
 

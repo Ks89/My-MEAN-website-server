@@ -1,6 +1,6 @@
 {
   "name": "My-MEAN-website-backend",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "author": "Stefano Cappa",
   "description": "My M.E.A.N. website",
   "license": "Apache-v2",
@@ -19,7 +19,7 @@
     "test": "npm run nyc npm run mocha",
     "debug": "node --inspect --debug-brk app.js",
     "nyc": "nyc --reporter=lcov --reporter=json --reporter=text --reporter=text-summary",
-    "mocha": "mocha test-unit/util.spec.js test-integration/**/*.spec.js test-unit/3dparty-passport.spec.js test-unit/auth-experimental-collapse-db.spec.js test-unit/auth-util.spec.js test-unit/passport.spec.js test-unit/users.spec.js",
+    "mocha": "mocha spec/**/*.spec.js",
     "nyc:threshold": "nyc check-coverage --lines 85 --functions 85 --branches 70",
     "docs": "apidoc -i src/ -o docs/api",
     "coveralls": "coveralls < ./coverage/lcov.info",

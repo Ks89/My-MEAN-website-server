@@ -1,8 +1,8 @@
 'use strict';
 
-const APIS = require('../src/routes/apis');
+const APIS = require('../../src/routes/apis');
 
-require('../src/models/users');
+require('../../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
 // as explained here http://mongoosejs.com/docs/promises.html

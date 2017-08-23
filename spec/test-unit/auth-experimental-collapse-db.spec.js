@@ -12,15 +12,15 @@ if(!process.env.CI) {
 }
 
 let expect = require('chai').expect;
-const serviceNames = require('../src/controllers/authentication/serviceNames');
+const serviceNames = require('../../src/controllers/authentication/serviceNames');
 let Promise = require('bluebird');
 let mongoose = require('mongoose');
 let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 
-require('../src/models/users');
+require('../../src/models/users');
 let User = mongoose.model('User');
 
-let collapser = require('../src/controllers/authentication/common/auth-experimental-collapse-db');
+let collapser = require('../../src/controllers/authentication/common/auth-experimental-collapse-db');
 
 //add session property to the mocked
 //request (used to store jwt session token by redis)

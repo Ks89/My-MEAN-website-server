@@ -13,7 +13,7 @@ if(!process.env.CI) {
 
 let expect = require('chai').expect;
 let jwt = require('jsonwebtoken');
-let Utils = require('../src/utils/util');
+let Utils = require('../../src/utils/util');
 let MockedRes = require('../test-util/mocked-res-class');
 let mockedRes = new MockedRes();
 

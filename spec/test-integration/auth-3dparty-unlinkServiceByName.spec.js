@@ -1,10 +1,10 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-const APIS = require('../src/routes/apis');
+const APIS = require('../../src/routes/apis');
 
 let expect = require('chai').expect;
-let app = require('../app');
+let app = require('../../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 let _ = require('lodash');
@@ -15,14 +15,14 @@ let testUtils = new TestUtils(agent);
 const TestUsersUtils = require('../test-util/users');
 let testUsersUtils = new TestUsersUtils(testUtils);
 
-require('../src/models/users');
+require('../../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
 // as explained here http://mongoosejs.com/docs/promises.html
 mongoose.Promise = require('bluebird');
 // ------------------------
 let User = mongoose.model('User');
-let fullServiceNames = require('../src/controllers/authentication/serviceNames');
+let fullServiceNames = require('../../src/controllers/authentication/serviceNames');
 let serviceNames = _.without(fullServiceNames, 'profile');
 
 let user;

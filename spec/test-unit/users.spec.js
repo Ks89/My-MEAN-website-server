@@ -17,7 +17,7 @@ let Promise = require('bluebird');
 let mongoose = require('mongoose');
 let connectMongoose = Promise.promisify(mongoose.connect, {context: mongoose});
 
-require('../src/models/users');
+require('../../src/models/users');
 let User = mongoose.model('User');
 
 describe('users model', () => {

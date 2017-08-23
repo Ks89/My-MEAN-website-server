@@ -1,10 +1,10 @@
 'use strict';
 process.env.NODE_ENV = 'test'; //before every other instruction
 
-const APIS = require('../src/routes/apis');
+const APIS = require('../../src/routes/apis');
 
 let expect = require('chai').expect;
-let app = require('../app');
+let app = require('../../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
@@ -14,7 +14,7 @@ let testUtils = new TestUtils(agent);
 const TestUsersUtils = require('../test-util/users');
 let testUsersUtils = new TestUsersUtils(testUtils);
 
-require('../src/models/users');
+require('../../src/models/users');
 let mongoose = require('mongoose');
 // ------------------------
 // as explained here http://mongoosejs.com/docs/promises.html
@@ -27,7 +27,7 @@ const USER_EMAIL = 'email@email.it';
 const USER_PASSWORD = 'Password1';
 
 const URL_LOGIN = APIS.BASE_API_PATH + APIS.POST_LOCAL_LOGIN;
-const URL_LOGOUT = APIS.BASE_API_PATH + APIS.GET_LOGOUT;
+const URL_SESSIONTOKEN = APIS.BASE_API_PATH + APIS.GET_SESSIONTOKEN;
 
 // testing services
 const URL_DESTROY_SESSION = APIS.BASE_API_PATH + APIS.GET_TESTING_DESTROY_SESSION;
@@ -37,15 +37,14 @@ const loginMock = {
 	password : USER_PASSWORD
 };
 
-
 describe('auth-common', () => {
 
-	describe('#logout()', () => {
+	describe('#sessionToken()', () => {
 		describe('---YES---', () => {
 
 			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
-			it('should logout', done => {
+			it('should get session authentication token saved into a redis db', done => {
 
 				async.waterfall([
 					asyncDone => {
@@ -59,11 +58,12 @@ describe('auth-common', () => {
 						expect(res.body.token).to.be.not.null;
 						expect(res.body.token).to.be.not.undefined;
 
-						testUtils.getPartialGetRequest(URL_LOGOUT)
+						testUtils.getPartialGetRequest(URL_SESSIONTOKEN)
 						.send()
 						.expect(200)
 						.end((err, res) => {
-							expect(res.body.message).to.be.equals('Logout succeeded');
+							const resp = JSON.parse(res.body);
+							expect(resp.token).to.be.not.undefined;
 							asyncDone(err);
 						});
 					}], (err, response) => done(err));
@@ -78,7 +78,7 @@ describe('auth-common', () => {
 			beforeEach(done => testUsersUtils.insertUserTestDb(done));
 
 			it('should get 403 FORBIDDEN, because you aren\'t authenticated', done => {
-				testUtils.getPartialGetRequest(URL_LOGOUT)
+				testUtils.getPartialGetRequest(URL_SESSIONTOKEN)
 				//not authenticated
 				.send(loginMock)
 				.expect(403)
@@ -108,7 +108,7 @@ describe('auth-common', () => {
 						// BYPASS rest-auth-middleware
 						process.env.DISABLE_REST_AUTH_MIDDLEWARE = 'yes';
 
-						testUtils.getPartialGetRequest(URL_LOGOUT)
+						testUtils.getPartialGetRequest(URL_SESSIONTOKEN)
 						.send()
 						.expect(404)
 						.end((err, res) => {
