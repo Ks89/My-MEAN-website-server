@@ -8,10 +8,10 @@ let app = require('../../app');
 let agent = require('supertest').agent(app);
 let async = require('async');
 
-const TestUtils = require('../test-util/utils');
+const TestUtils = require('../util/utils');
 let testUtils = new TestUtils(agent);
 
-const TestProjectsUtils = require('../test-util/projects');
+const TestProjectsUtils = require('../util/projects');
 let testProjectsUtils = new TestProjectsUtils(testUtils);
 
 require('../../src/models/projects');

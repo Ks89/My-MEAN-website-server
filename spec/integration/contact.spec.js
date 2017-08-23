@@ -7,7 +7,7 @@ let expect = require('chai').expect;
 let app = require('../../app');
 let agent = require('supertest').agent(app);
 
-const TestUtils = require('../test-util/utils');
+const TestUtils = require('../util/utils');
 let testUtils = new TestUtils(agent);
 
 const RECAPTCHA_BASE_URL = 'https://www.google.com/recaptcha';
