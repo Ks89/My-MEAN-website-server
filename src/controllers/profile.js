@@ -67,7 +67,7 @@ let authCommon = require('./authentication/common/auth-common.js');
  *     "message": "Profile updated successfully!"
  *   }
  */
-module.exports.update = function (req, res) {
+module.exports.update = async function (req, res) {
   logger.debug('REST profile update - updating profile', req.body);
   if (!req.body.serviceName) {
     logger.error('REST profile update - serviceName is required');
@@ -108,11 +108,11 @@ module.exports.update = function (req, res) {
     visible: true
   };
 
-  User.findOne(query).then(user => {
+  try {
+    let user = await User.findOne(query); //.then(user => {
     logger.debug(`REST profile update - User's profile to update is`, user);
     user.profile = profileObj; //update profile
-    return user.save(); // save user with mongoose returning a promise (calls the next then)
-  }).then(savedUser => {
+    let savedUser = await user.save(); // save user with mongoose returning a promise (calls the next then)
     logger.debug('REST profile update - updating auth token with new profile info');
     try {
       req.session.authToken = authCommon.generateSessionJwtToken(savedUser);
@@ -122,8 +122,8 @@ module.exports.update = function (req, res) {
       logger.error('REST profile update - Impossible to generateSessionJwtToken', err);
       return Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
     }
-  }).catch(err => {
+  } catch(err) {
     logger.error('REST profile update - Error while saving on db', err);
     return Utils.sendJSONres(res, 404, 'Error while updating your profile. Please retry.');
-  });
+  }
 };

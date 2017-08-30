@@ -70,3 +70,18 @@ echo "PASS_EMAIL = $PASS_EMAIL"
 echo "RECAPTCHA_PUBLIC = $RECAPTCHA_PUBLIC"
 echo "RECAPTCHA_SECRET = $RECAPTCHA_SECRET"
 
+
+echo "Installing global dependencies"
+# install global dependencies
+if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
+    echo "Installing $TRAVIS_OS_NAME global dependencies"
+    sudo npm install -g codeclimate-test-reporter
+    sudo npm install -g pm2
+    #pm2 update
+else
+    echo "Installing $TRAVIS_OS_NAME global dependencies"
+    # to fix a problem with nodejs 6 on linux
+    npm install -g codeclimate-test-reporter
+    npm install -g pm2
+    #pm2 update
+fi
