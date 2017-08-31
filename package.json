@@ -14,8 +14,8 @@
   },
   "scripts": {
     "start": "nodemon",
-    "prod:start": "NODE_ENV=production pm2 start bin/www -i 4",
-    "prod:stop": "NODE_ENV=production pm2 stop bin/www",
+    "prod:start": "pm2 start bin/www -i 4 --env production",
+    "prod:stop": "pm2 stop bin/www",
     "test": "npm run nyc npm run mocha",
     "debug": "node --inspect --debug-brk app.js",
     "nyc": "nyc --reporter=lcov --reporter=json --reporter=text --reporter=text-summary",

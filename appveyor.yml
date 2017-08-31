@@ -24,10 +24,12 @@ branches:
 #skip_tags: true
 
 # Skipping commits affecting specific files (GitHub only). More details here: /docs/appveyor-yml
-#skip_commits:
-#  files:
-#    - docs/*
-#    - '**/*.html'
+skip_commits:
+  files:
+     - .circleci/*
+     - travisci/*
+     - .travis.yml
+     - deprecated-circleci-scripts/*
 
 # Including commits affecting specific files (GitHub only). More details here: /docs/appveyor-yml
 #only_commits:
@@ -60,7 +62,6 @@ clone_depth: 5                      # clone entire repository history if not def
 environment:
   matrix:
     - nodejs_version: "7"
-    # - nodejs_version: "6"
   JWT_SECRET: faketestjwt
   MONGODB_URI: mongodb://localhost/KS
   MONGODB_TESTING_URI: mongodb://localhost/test-db
@@ -124,11 +125,9 @@ install:
   - cmd: appveyor-retry powershell Install-Product node $env:nodejs_version
   - npm install -g npm@latest
   - set PATH=%APPDATA%\npm;%PATH%
-  - npm install
   - npm install -g codeclimate-test-reporter
-  # Install pm2
   - npm install pm2 -g
-  #- pm2 update
+  - npm install
 
 #---------------------------------#
 #       build configuration       #
