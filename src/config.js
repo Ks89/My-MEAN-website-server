@@ -33,12 +33,14 @@ module.exports = {
   },
 
   isCI                          : () => !!process.env.CI,
+  isCIBypassed                  : () => process.env.BYPASS_CI === 'yes',
   isProd                        : () => process.env.NODE_ENV === 'production',
   isTest                        : () => process.env.NODE_ENV === 'test',
   isDisableRestAuthMiddleware   : () => !!process.env.DISABLE_REST_AUTH_MIDDLEWARE,
 
   NODE_ENV                      : process.env.NODE_ENV,
   CI                            : process.env.CI,
+  BYPASS_CI                     : process.env.BYPASS_CI, // useful var for e2e testing or to run this server with debug/prod config also on CI envs
   PORT                          : process.env.PORT,
   JWT_SECRET                    : process.env.JWT_SECRET,
   USER_EMAIL                    : process.env.USER_EMAIL,
