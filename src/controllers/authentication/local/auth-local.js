@@ -421,7 +421,7 @@ module.exports.activateAccount = (req, res) => {
     'local.name': decodedUserName
   }).then(user => {
     if (!user) {
-      logger.error('REST auth-local activateAccount - db error, user not found', err);
+      logger.error('REST auth-local activateAccount - db error, user not found');
       return Utils.sendJSONres(res, 404, 'No account with that token exists.');
     }
     logger.debug('REST auth-local activateAccount - user.activateAccountExpires', user.local.activateAccountExpires);
