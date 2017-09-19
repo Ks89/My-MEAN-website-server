@@ -125,7 +125,7 @@ module.exports.register = (req, res) => {
     return Utils.sendJSONres(res, 200, {message: 'User with email ' + savedUserRef.local.email + ' registered.'});
     // done(null, savedUserRef, message);
   }).catch(err => {
-    logger.error('REST auth-local register - db error while searching user', err);
+    logger.error('REST auth-local register - error while searching either user or sending the email', err);
     return Utils.sendJSONres(res, 500, 'Unknown error while registering...');
   });
 };
@@ -177,7 +177,7 @@ module.exports.login = (req, res) => {
 
   passport.authenticate('local', (err, user) => {
     if (!user || err) {
-      logger.error('REST auth-local register - db error while searching user', err);
+      logger.error('REST auth-local login - db error while searching user', err);
       return Utils.sendJSONres(res, 401, 'Incorrect username or password. Or this account is not activated, check your mailbox.');
     }
 
@@ -194,11 +194,11 @@ module.exports.login = (req, res) => {
         logger.debug('REST auth-local login - Session token', req.session.authToken);
         return Utils.sendJSONres(res, 200, {token: token});
       } catch (err2) {
-        logger.error('REST auth-local register - db error while searching user', err2);
+        logger.error('REST auth-local login - db error while searching user', err2);
         return Utils.sendJSONres(res, 500, 'Impossible to generateSessionJwtToken');
       }
     } else {
-      logger.error('REST auth-local register - User account not activated');
+      logger.error('REST auth-local login - User account not activated');
       return Utils.sendJSONres(res, 401, 'Incorrect username or password. Or this account is not activated, check your mailbox.');
     }
   })(req, res);
