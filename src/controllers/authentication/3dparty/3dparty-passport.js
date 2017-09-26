@@ -53,8 +53,8 @@ function updateUser(user, accessToken, profile, serviceName) {
       user[serviceName].email = profile.emails[0].value; //get the first email
       break;
     case 'github':
-      user[serviceName].name = profile.displayName;
-      user[serviceName].username = profile.username;
+      user[serviceName].name = profile.displayName ? profile.displayName : profile.username;
+      user[serviceName].username = profile.username ? profile.username : profile.displayName;
       user[serviceName].profileUrl = profile.profileUrl;
       if (profile.emails && profile.emails[0] && profile.emails[0].value) {
         //github users can hide profile's email
