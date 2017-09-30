@@ -16,6 +16,14 @@
     "start": "nodemon",
     "prod:start": "pm2 start bin/www -i 4 --env production",
     "prod:stop": "pm2 stop bin/www",
+    "prod:forever:start": "cross-env NODE_ENV=production forever start -s bin/www",
+    "prod:forever:stop": "forever stop -s bin/www",
+
+    "ci:pm2:start": "pm2 start bin/www -i 4 --env production",
+    "ci:pm2:stop": "pm2 stop bin/www",
+    "ci:forever:start": "cross-env BYPASS_CI=yes forever start -s bin/www",
+    "ci:forever:stop": "forever stop -s bin/www",
+
     "test": "npm run nyc npm run mocha",
     "debug": "node --inspect --debug-brk app.js",
     "nyc": "nyc --reporter=lcov --reporter=json --reporter=text --reporter=text-summary",
@@ -68,6 +76,7 @@
     "chai": "^4.1.2",
     "codeclimate-test-reporter": "^0.5.0",
     "coveralls": "^2.13.1",
+    "cross-env": "^5.0.5",
     "debug": "^3.0.1",
     "del": "^3.0.0",
     "jshint": "^2.9.5",
