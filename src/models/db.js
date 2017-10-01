@@ -12,7 +12,7 @@ logger.debug(`db - Mongodb uri = ${dbURI}`);
 mongoose.Promise = require('bluebird');
 // ------------------------
 
-if (config.isTest()) {
+if (config.isTest() || config.isForE2eTest()) {
   //No logger for testing
   console.log('db - TEST ENV! testing mode enabled!');
   dbURI = config.MONGODB_TESTING_URI;
