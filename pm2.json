@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "name": "My-MEAN-website",
+      "script": "./bin/www",
+      "exec_mode": "cluster",
+      "instances": "max",
+      "watch": false,
+      "env_production": {
+        "NODE_ENV": "production"
+      },
+      "env_e2e": {
+        "NODE_ENV": "e2e"
+      },
+      "source_map_support": true
+    }
+  ]
+}
