@@ -14,7 +14,6 @@ if (process.env.NODE_ENV !== 'production') {
 let logger = require('./src/utils/logger-winston.js');
 logger.warn(`Starting with NODE_ENV=${config.NODE_ENV}`);
 logger.warn(`config.CI is ${config.CI}`);
-logger.warn(`config.BYPASS_CI is ${config.BYPASS_CI}`);
 
 const APIS = require('./src/routes/apis');
 
@@ -46,7 +45,7 @@ let redisStore = bluebird.promisifyAll(new RedisStore({host: config.REDIS_HOST, 
 //  to understand this piece of code.
 let pathFrontEndFolder, pathFrontEndIndex;
 let pathFrontEndAdminIndex;
-if ((config.isCI() || config.isTest()) && !config.isCIBypassed()) {
+if ((config.isCI() || config.isTest()) && !config.isForE2eTest()) {
   console.log(`Executed in CI or TEST - providing fake '../My-MEAN-website-client' and index.html`);
   //provides fake directories and files to be able to run this files
   //also with mocha in both test and ci environments.

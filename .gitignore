@@ -21,6 +21,7 @@ node_modules
 .DS_Store
 .env
 .env_prod
+.env_e2e
 .idea
 
 # docs api generated with apidocjs

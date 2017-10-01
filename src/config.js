@@ -4,43 +4,40 @@ let logger = require('./utils/logger-winston.js');
 
 if (!process.env.CI) {
   logger.warn('Initializing dotenv (requires .env file)');
-  if (process.env.NODE_ENV === 'production') {
-    // production
-    const dotenv = require('dotenv').config({path: '.env_prod'}); //to read info from .env_prod file
-    if (dotenv.error) {
-      throw dotenv.error;
-    }
-    logger.debug('dotenv production', dotenv.parsed);
-  } else {
-    // development
-    const dotenv = require('dotenv').config({path: '.env'}); //to read info from .env file
-    if (dotenv.error) {
-      throw dotenv.error;
-    }
-    logger.debug('dotenv development', dotenv.parsed);
+  let dotenvPath = null;
+  switch (process.env.NODE_ENV) {
+    case 'production':
+      dotenvPath = '.env_prod';
+      break;
+    case 'e2e':
+      dotenvPath = '.env_e2e';
+      break;
+    default:
+    case 'development':
+      dotenvPath = '.env';
+      break;
   }
+
+  const dotenv = require('dotenv').config({path: dotenvPath});
+  if (dotenv.error) {
+    throw dotenv.error;
+  }
+  logger.debug(`dotenv ${process.env.NODE_ENV}`, dotenv.parsed);
 }
 
 module.exports = {
-  setCI                         : () => {
-    process.env.CI = 'yes';
-  },
-  setProd                       : () => {
-    process.env.NODE_ENV = 'production';
-  },
-  setTest                       : () => {
-    process.env.NODE_ENV = 'test';
-  },
 
   isCI                          : () => !!process.env.CI,
-  isCIBypassed                  : () => process.env.BYPASS_CI === 'yes',
   isProd                        : () => process.env.NODE_ENV === 'production',
   isTest                        : () => process.env.NODE_ENV === 'test',
   isDisableRestAuthMiddleware   : () => !!process.env.DISABLE_REST_AUTH_MIDDLEWARE,
 
+  // used to run this server as back-end for inntegration testing on client-side
+  // this method isn't used for integration testing on server-side
+  isForE2eTest                  : () => process.env.NODE_ENV === 'e2e',
+
   NODE_ENV                      : process.env.NODE_ENV,
   CI                            : process.env.CI,
-  BYPASS_CI                     : process.env.BYPASS_CI, // useful var for e2e testing or to run this server with debug/prod config also on CI envs
   PORT                          : process.env.PORT,
   JWT_SECRET                    : process.env.JWT_SECRET,
   USER_EMAIL                    : process.env.USER_EMAIL,

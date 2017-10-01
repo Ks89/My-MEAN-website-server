@@ -10,7 +10,7 @@ class MailUtils {
 
   static getMailTransport() {
     let mailTransport;
-    if (config.isTest() || config.isCIBypassed()) {
+    if (config.isTest() || config.isForE2eTest()) {
       console.log('mail-util init - TEST ENV! Using mocked mailTransport'); // no logger needed
       mailTransport = nodemailer.createTransport(stubTransport());
     } else {
