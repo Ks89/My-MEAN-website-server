@@ -26,20 +26,20 @@ export MONGODB_TESTING_URI=mongodb://localhost/test-db
 export JWT_SECRET=faketestjwt
 export TWITTER_CONSUMER_KEY=consumerkey
 export TWITTER_CONSUMER_SECRET=consumersecret
-export TWITTER_CALLBACK_URL=http://127.0.0.1:3300/api/auth/twitter/callback
+export TWITTER_CALLBACK_URL=http://127.0.0.1:3000/api/auth/twitter/callback
 export TWITTER_PROFILE_URL=https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true
 export FACEBOOK_APP_ID=appid
 export FACEBOOK_APP_SECRET=appsecret
-export FACEBOOK_CALLBACK_URL=http://localhost:3300/api/auth/facebook/callback
+export FACEBOOK_CALLBACK_URL=http://localhost:3000/api/auth/facebook/callback
 export GOOGLE_CLIENT_ID=clientid
 export GOOGLE_CLIENT_SECRET=clientsecret
-export GOOGLE_CALLBACK_URL=http://localhost:3300/api/auth/google/callback
+export GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
 export GITHUB_CLIENT_ID=clientid
 export GITHUB_CLIENT_SECRET=clientsecret
-export GITHUB_CALLBACK_URL=http://localhost:3300/api/auth/github/callback
+export GITHUB_CALLBACK_URL=http://localhost:3000/api/auth/github/callback
 export LINKEDIN_CLIENT_ID=clientid
 export LINKEDIN_CLIENT_SECRET=clientsecret
-export LINKEDIN_CALLBACK_URL=http://localhost:3300/api/auth/linkedin/callback
+export LINKEDIN_CALLBACK_URL=http://localhost:3000/api/auth/linkedin/callback
 export USER_EMAIL=fake@fake.it
 export PASS_EMAIL=fakepasswordemail
 export RECAPTCHA_PUBLIC=recaptchapublic
@@ -77,11 +77,8 @@ if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
     echo "Installing $TRAVIS_OS_NAME global dependencies"
     sudo npm install -g codeclimate-test-reporter
     sudo npm install -g pm2
-    #pm2 update
 else
     echo "Installing $TRAVIS_OS_NAME global dependencies"
-    # to fix a problem with nodejs 6 on linux
     npm install -g codeclimate-test-reporter
     npm install -g pm2
-    #pm2 update
 fi

@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# run npm docs
+echo "npm run docs on $TRAVIS_OS_NAME"
+npm run docs
+
+
 # send test coverage to codeclimate.com
 echo "npm run codeclimate on $TRAVIS_OS_NAME"
 npm run codeclimate

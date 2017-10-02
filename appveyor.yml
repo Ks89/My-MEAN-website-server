@@ -29,7 +29,6 @@ skip_commits:
      - .circleci/*
      - travisci/*
      - .travis.yml
-     - deprecated-circleci-scripts/*
 
 # Including commits affecting specific files (GitHub only). More details here: /docs/appveyor-yml
 #only_commits:
@@ -62,31 +61,33 @@ clone_depth: 5                      # clone entire repository history if not def
 environment:
   matrix:
     - nodejs_version: "7"
+  NODE_ENV: test
+  CI: yes
+
   JWT_SECRET: faketestjwt
   MONGODB_URI: mongodb://localhost/KS
   MONGODB_TESTING_URI: mongodb://localhost/test-db
   TWITTER_CONSUMER_KEY: consumerkey
   TWITTER_CONSUMER_SECRET: consumersecret
-  TWITTER_CALLBACK_URL: http://127.0.0.1:3300/api/auth/twitter/callback
+  TWITTER_CALLBACK_URL: http://127.0.0.1:3000/api/auth/twitter/callback
   TWITTER_PROFILE_URL: https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true
   FACEBOOK_APP_ID: appid
   FACEBOOK_APP_SECRET: appsecret
-  FACEBOOK_CALLBACK_URL: http://localhost:3300/api/auth/facebook/callback
+  FACEBOOK_CALLBACK_URL: http://localhost:3000/api/auth/facebook/callback
   GOOGLE_CLIENT_ID: clientid
   GOOGLE_CLIENT_SECRET: clientsecret
-  GOOGLE_CALLBACK_URL: http://localhost:3300/api/auth/google/callback
+  GOOGLE_CALLBACK_URL: http://localhost:3000/api/auth/google/callback
   GITHUB_CLIENT_ID: clientid
   GITHUB_CLIENT_SECRET: clientsecret
-  GITHUB_CALLBACK_URL: http://localhost:3300/api/auth/github/callback
+  GITHUB_CALLBACK_URL: http://localhost:3000/api/auth/github/callback
   LINKEDIN_CLIENT_ID: clientid
   LINKEDIN_CLIENT_SECRET: clientsecret
-  LINKEDIN_CALLBACK_URL: http://localhost:3300/api/auth/linkedin/callback
+  LINKEDIN_CALLBACK_URL: http://localhost:3000/api/auth/linkedin/callback
   USER_EMAIL: fake@fake.it
   PASS_EMAIL: fakepasswordemail
   RECAPTCHA_PUBLIC: recaptchapublic
   RECAPTCHA_SECRET: recaptchasecret
-  NODE_ENV: test
-  CI: yes
+
   CODECLIMATE_REPO_TOKEN:
     secure: PHdS5VIIk4pnNl6p8s2hkBab/YyPXbNvr4zEgIVDx7qCy99cVugHwLa+ifTRhB4X2cTahOuKawYZeyFX0Mx2bo5NRYQx4RIV6u3JEm9iIXM=
   COVERALLS_REPO_TOKEN:
@@ -123,10 +124,9 @@ install:
   # install nodejs and dependencies both global and local
   # use appveyor-retry to retry if npm install fails
   - cmd: appveyor-retry powershell Install-Product node $env:nodejs_version
-  - npm install -g npm@latest
+  - npm install -g npm@5.3
   - set PATH=%APPDATA%\npm;%PATH%
-  - npm install -g codeclimate-test-reporter
-  - npm install pm2 -g
+  - npm install -g codeclimate-test-reporter pm2 forever
   - npm install
 
 #---------------------------------#
@@ -134,7 +134,7 @@ install:
 #---------------------------------#
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform:
-  #- x86
+  - x86
   - x64
 
 build: off
@@ -153,8 +153,6 @@ build_script:
  # Output useful info for debugging.
   - node --version && npm --version
   - ps: "npm --version # PowerShell" # Pass comment to PS for easier debugging
-  # build docs
-  - npm run docs
 
 #---------------------------------#
 #       tests configuration       #
@@ -204,6 +202,7 @@ deploy_script:
 
 # on successful build
 on_success:
+  - npm run docs
   - codeclimate-test-reporter < coverage/lcov.info
   - node .\node_modules\coveralls\bin\coveralls.js < .\coverage\lcov.info
 

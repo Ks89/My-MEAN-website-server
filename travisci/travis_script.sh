@@ -2,10 +2,6 @@
 
 echo "Travis script on $TRAVIS_OS_NAME"
 
-# run npm docs
-echo "npm run docs on $TRAVIS_OS_NAME"
-npm run docs
-
 
 # run npm test
 # try to execute npm test more times until success
