@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 let logger = require('./src/utils/logger-winston.js');
 logger.warn(`Starting with NODE_ENV=${config.NODE_ENV}`);
-logger.warn(`config.CI is ${config.CI}`);
+logger.warn(`config.CI is ${config.CI} and isCI is ${config.isCI()}`);
 
 const APIS = require('./src/routes/apis');
 
@@ -57,7 +57,7 @@ if ((config.isCI() || config.isTest()) && !config.isForE2eTest()) {
     logger.warn('Providing both index.html and admin.html in a production environment');
     // you can add custom configuration here for production mode
   } else {
-    logger.warn('Providing real ${config.FRONT_END_PATH}, index.html and admin.html');
+    logger.warn(`Providing real ${config.FRONT_END_PATH}, index.html and admin.html`);
   }
   pathFrontEndFolder = path.join(__dirname, config.FRONT_END_PATH);
   pathFrontEndIndex = path.join(__dirname, config.FRONT_END_PATH, 'index.html');

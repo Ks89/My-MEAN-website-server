@@ -7,10 +7,12 @@
       "instances": "max",
       "watch": false,
       "env_production": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "PORT": "3000"
       },
       "env_e2e": {
-        "NODE_ENV": "e2e"
+        "NODE_ENV": "e2e",
+        "PORT": "3000"
       },
       "source_map_support": true
     }

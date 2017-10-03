@@ -2,7 +2,11 @@
 
 let logger = require('./utils/logger-winston.js');
 
-if (!process.env.CI) {
+const useDotenv = process.env.CI !== 'yes' && process.env.CI !== true;
+
+logger.warn(`Using dotenv condition is: ${useDotenv}`);
+
+if (useDotenv === true) {
   logger.warn('Initializing dotenv (requires .env file)');
   let dotenvPath = null;
   switch (process.env.NODE_ENV) {
@@ -27,7 +31,7 @@ if (!process.env.CI) {
 
 module.exports = {
 
-  isCI                          : () => !!process.env.CI,
+  isCI                          : () => process.env.CI === 'yes' || process.env.CI === true,
   isProd                        : () => process.env.NODE_ENV === 'production',
   isTest                        : () => process.env.NODE_ENV === 'test',
   isDisableRestAuthMiddleware   : () => !!process.env.DISABLE_REST_AUTH_MIDDLEWARE,
