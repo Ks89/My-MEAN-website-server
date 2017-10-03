@@ -4,7 +4,7 @@ node_modules
 public
 setup
 spec
-test-integration
-test-unit
-test-util
 travisci
+.circleci
+coverage
+.nyc_output
