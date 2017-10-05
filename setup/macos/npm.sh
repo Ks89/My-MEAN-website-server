@@ -10,4 +10,5 @@ then
   echo installing npm global packages
   sudo npm install -g snyk
   sudo npm install -g pm2
+  sudo npm install -g forever
 fi

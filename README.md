@@ -14,7 +14,7 @@ It's composed by:
 
 - M: a MongoDb's database
 - E: a back-end with Express js
-- A: a front-end in Angular 2
+- A: a front-end in Angular >= 4
 - N: a back-end in Node.js
 - redis
 - webpack
@@ -46,6 +46,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 
 ## News
 
+- *10/06/2017* - **My MEAN website** Alpha 9 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
 - *08/20/2017* - **My MEAN website** Alpha 8 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
 - *08/10/2017* - **My MEAN website** Alpha 7 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
 - *04/09/2017* - **My MEAN website** Alpha 6 public release [HERE](https://github.com/Ks89/My-MEAN-website-server/releases/tag/v.alpha-6)
@@ -59,12 +60,14 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 ## How to install (MacOS)
 
 - from the `setup` folder of this project, run `bash install-macos.sh`
-- import the db dump (.json) from `docs`'s folder using MongoChef or another software
+- import the db dump (.bson) from `db-dump-prod`'s folder either running `db-dump-prod/init.sh` to do it automatically thanks to both `mongo` ad `mongorestore` CLIs, or using Studio 3T (previously MongoChef)
 
 ## How to install (Linux)
 
-- from the `setup` folder of this project, run `bash install-linux.sh`
-- import the db dump (.json) from `docs`'s folder using MongoChef or another software
+*Tested only on Ubuntu*
+
+- from the `setup` folder of this project, run `bash install-ubuntu.sh`
+- import the db dump (.bson) from `db-dump-prod`'s folder either running `db-dump-prod/init.sh` to do it automatically thanks to both `mongo` ad `mongorestore` CLIs, or using Studio 3T (previously MongoChef)
 
 ## How to install (Windows)
 
@@ -74,7 +77,7 @@ If you want to help me to write integration-test's case for PassportJS, check [t
 - install Node.js from the [official website](https://www.nodejs.org)
 - install MongoDb Community from the [official website](https://www.mongodb.com)
 - create a db called `KS` (obviously you have to start MongoDb to do that). You can configure this value later, but for debug/local environment I suggest this name
-- **import the db dump (.json) from `docs`'s folder using MongoChef** or another software [HERE](http://3t.io/mongochef/download/) (obviously you have to start MongoDb to do that)
+- import the db dump (.bson) from `db-dump-prod`'s folder either running `db-dump-prod/init.sh` to do it automatically thanks to both `mongo` ad `mongorestore` CLIs (if available in your PATH variable), or using Studio 3T (previously MongoChef)
 - install redis-server for Windows (file .msi) [HERE](https://github.com/MSOpenTech/redis/releases)
 - install Python 2.7.x from the [official website](https://www.python.org)
 - from the `setup` folder of this project, run with PowerShell as administator `bash install-windows.sh`
@@ -84,7 +87,7 @@ Both options will require to download really big files from microsoft.com (manua
 
 ## How to setup
 
-1. You have to rename `.env_example`'s file into `.env` (debug/local config - mandatory) and create another copy called `.env_prod` (production config - to deploy)<br>
+1. You have to rename `.env_example`'s file into `.env` (debug/local config - mandatory) and create another copy called `.env_prod` (production config)<br>
 1a. Configure `FRONT_END_PATH` with the relative position of the main folder of [THE CLIENT SIDE OF THIS PROJECT](https://github.com/Ks89/My-MEAN-website-client). For `.env_prod` you should use simply `public`<br>
 1b. Configure `REDIS_HOST`, `REDIS_PORT` and `REDIS_TTL`. If you are in a debug/local environment you should use the example values<br>
 1c. Configure both `MONGODB_URI` and `MONGODB_TESTING_URI` with your db path. I suggest to use the example value without user/password and with a db called `KS`<br>
@@ -94,10 +97,10 @@ Both options will require to download really big files from microsoft.com (manua
 1g. reaplace `INSERT A JWT SECRET HERE` with an alphanumerical string (I'm using a random string with a length = 72)
 2. execute this command `npm install` into the root folder  (if it will fail, run it again :))
 3. start redis-server (both on Linux and Mac run `redis-server`, on Windows start `C:\Program files\Redis\redis-server.exe`)
-4. start MongoDb (on Linux run `mongod`, on Mac run `sudo mongod` and on Windows start `C:\Program Files\MongoDB\Server\3.4\bin\mongod.exe`)
+4. start MongoDb (on Linux run `mongod`, on Mac run `sudo mongod` and on Windows start `C:\Program Files\MongoDB\Server\<your version here>\bin\mongod.exe`)
 5. execute this command `npm start` into the root folder to start this application (back-end)
 
-## How to run tests (server-side)
+## How to run both unit and integration tests (server-side)
 
 - `npm test`
 
@@ -109,7 +112,7 @@ Both options will require to download really big files from microsoft.com (manua
 
 ## How to start (production mode)
 
-*I decided to use pm2 to run in cluster mode (4 processes) this project in a production environment*
+*I decided to use pm2 (with pm2.json config file) to run in cluster mode (`max` processes) this project in a production environment*
 
 - cd 'main folder of this project'
 - `npm run prod:start`

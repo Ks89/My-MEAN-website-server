@@ -1,5 +1,30 @@
 # Changelog
 
+## Alpha 9
+
+### **Features**
+
+- #105 improve pm2 config with config file
+- #104 Improve scripts for e2e testing
+- #102 with both unit and e2e testing, mailTransport is bypassed with the stub
+- #100 add capability to bypass CI/test checks when running this server as backend for e2e tests
+- #99 add random test execution with jasmine.json
+
+### **Chore**
+
+- #107 update to mocha 4.0.0
+- #101 Change config.js and ennv vars to use test-db with both unit and e2e testing (also for CI)
+- #106 update readme with e2e instructions
+
+### **Bugfixes**
+
+- #103 manage users for 3dparty services that don't want to expose either email or name
+
+### **Refactor**
+
+- #98 Move all tests into spec folder
+
+
 ## Alpha 8
 
 ### **Features**
